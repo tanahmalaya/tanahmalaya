@@ -11,7 +11,7 @@ export default function Footer() {
             <p className="font-display text-lg font-bold">PERTUBUHAN LITERASI TANAH</p>
           </div>
           <p className="text-sm text-white/70">
-            Mencelikkan masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
+            Memperkasa masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
             pengurusan harta dengan berilmu.
           </p>
         </div>
