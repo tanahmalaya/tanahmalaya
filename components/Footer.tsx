@@ -39,7 +39,7 @@ export default function Footer() {
         <div>
           <p className="font-semibold mb-3 text-brand-gold">IKUTI KAMI</p>
           
-            href="https://web.facebook.com/profile.php?id=61592322463148"
+          <a  href="https://web.facebook.com/profile.php?id=61592322463148"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-white/80 hover:text-brand-gold"
