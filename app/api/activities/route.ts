@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
       tarikh: new Date(String(form.get("tarikh"))),
       tajuk: String(form.get("tajuk")),
       keterangan: String(form.get("keterangan")),
-      gambarUrl: String(form.get("gambarUrl") || "") || null,
+      gambar1: String(form.get("gambar1") || "") || null,
+      gambar2: String(form.get("gambar2") || "") || null,
+      gambar3: String(form.get("gambar3") || "") || null,
+      gambar4: String(form.get("gambar4") || "") || null,
     },
   });
 

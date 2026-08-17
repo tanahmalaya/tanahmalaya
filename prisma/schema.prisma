@@ -66,7 +66,10 @@ model Activity {
   tarikh      DateTime
   tajuk       String
   keterangan  String
-  gambarUrl   String?
+  gambar1     String?
+  gambar2     String?
+  gambar3     String?
+  gambar4     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -15,7 +15,13 @@ export default async function AdminActivitiesPage() {
           <input type="date" name="tarikh" required className="border border-brand-dark/20 rounded-sm p-3" />
           <input name="tajuk" placeholder="Tajuk" required className="border border-brand-dark/20 rounded-sm p-3" />
           <textarea name="keterangan" placeholder="Keterangan" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
-          <input name="gambarUrl" placeholder="URL Gambar (pilihan)" className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
+          <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
+            <p className="text-sm font-semibold mb-3">Gambar (sehingga 4 keping, semua pilihan)</p>
+          </div>
+          <input name="gambar1" placeholder="URL Gambar 1" className="border border-brand-dark/20 rounded-sm p-3" />
+          <input name="gambar2" placeholder="URL Gambar 2" className="border border-brand-dark/20 rounded-sm p-3" />
+          <input name="gambar3" placeholder="URL Gambar 3" className="border border-brand-dark/20 rounded-sm p-3" />
+          <input name="gambar4" placeholder="URL Gambar 4" className="border border-brand-dark/20 rounded-sm p-3" />
           <button type="submit" className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-4 py-3 sm:col-span-2">
             TAMBAH AKTIVITI
           </button>
