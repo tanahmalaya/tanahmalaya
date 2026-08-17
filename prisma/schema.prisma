@@ -1,0 +1,128 @@
+// Skema database Pertubuhan Literasi Tanah (PLIIT) - tanahmalaya.org
+// Guna PostgreSQL (boleh tukar ke MySQL kalau perlu - tukar "provider" di bawah)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- ADMIN ----------
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+// ---------- KEAHLIAN ----------
+model Member {
+  id            String   @id @default(cuid())
+  memberNo      String   @unique // cth: PLT-001
+  fullName      String
+  icNumber      String   @unique // no kad pengenalan, tanpa tanda "-"
+  phone         String
+  email         String
+  status        MemberStatus @default(AKTIF)
+  joinedAt      DateTime @default(now())
+  paymentRef    String?  // rujukan transaksi BayarCash
+  addedManually Boolean  @default(false) // true jika admin import ahli sedia ada
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum MemberStatus {
+  AKTIF
+  TIDAK_AKTIF
+  MENUNGGU_BAYARAN
+}
+
+// ---------- KELAS TANAH ----------
+model LandClass {
+  id        String   @id @default(cuid())
+  tarikh    DateTime
+  namaKelas String   // cth: "Kelas Asas 1"
+  topik     String
+  lokasi    String   // cth: "Zoom Online" / "PLT Centre (Kuala Lumpur)"
+  status    ClassStatus @default(TERBUKA)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ClassStatus {
+  TERBUKA
+  PENUH
+  TAMAT
+}
+
+// ---------- AKTIVITI ----------
+model Activity {
+  id          String   @id @default(cuid())
+  tarikh      DateTime
+  tajuk       String
+  keterangan  String
+  gambarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------- MERCHANDISE ----------
+model Product {
+  id             String   @id @default(cuid())
+  nama           String
+  penerangan     String?
+  hargaSen       Int      // simpan dalam sen supaya elak isu titik perpuluhan
+  gambarDepan    String?  // gambar utama - dipaparkan dalam senarai produk
+  gambarBelakang String?
+  gambarSisi     String?
+  sizingChartUrl String?  // carta saiz (untuk baju, dll)
+  stok           Int      @default(0)
+  aktif          Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  orderItems     OrderItem[]
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  memberId    String?
+  namaPembeli String
+  emel        String
+  jumlahSen   Int
+  status      OrderStatus @default(MENUNGGU)
+  bayarcashRef String?
+  createdAt   DateTime @default(now())
+  items       OrderItem[]
+}
+
+enum OrderStatus {
+  MENUNGGU
+  BERJAYA
+  GAGAL
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  kuantiti  Int
+  hargaSen  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// ---------- IKLAN KOMUNITI (auto-rotate) ----------
+model Ad {
+  id         String   @id @default(cuid())
+  namaAhli   String   // cth: "Roofman", "JomNikah", "Barang Thai"
+  gambarUrl  String
+  pautan     String   // link keluar bila diklik
+  aktif      Boolean  @default(true)
+  susunan    Int      @default(0) // urutan paparan
+  createdAt  DateTime @default(now())
+}
