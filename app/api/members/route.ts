@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     amountSen: YURAN_KEAHLIAN_SEN,
     payerName: member.fullName,
     payerEmail: member.email,
-    description: `Yuran Keahlian PLIIT - ${member.memberNo}`,
+    description: `Yuran Keahlian PLT - ${member.memberNo}`,
   });
 
   return NextResponse.redirect(intent.url);

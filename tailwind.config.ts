@@ -7,7 +7,7 @@ const config: Config = {
       colors: {
         brand: {
           dark: "#2A1D14",     // header/footer coklat gelap
-          brown: "#8B5A2B",    // panel "Ahli Berpengetahuan"
+          brown: "#8B5A2B",    // panel "Ahli Berilmu"
           gold: "#C68A2E",     // aksen CTA "SERTAI KAMI"
           cream: "#F5F1E9",    // latar belakang
           card: "#FFFFFF"

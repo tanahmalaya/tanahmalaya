@@ -31,16 +31,21 @@ export default function Footer() {
 
         <div>
           <p className="font-semibold mb-3 text-brand-gold">HUBUNGI KAMI</p>
-          <ul className="space-y-2 text-sm text-white/80">
-            <li>Pertubuhan Literasi Tanah</li>
-            <li>info@tanahmalaya.org</li>
-            <li>tanahmalaya.org</li>
-          </ul>
+          <a href="mailto:info@tanahmalaya.org" className="text-sm text-white/80 hover:text-brand-gold">
+            info@tanahmalaya.org
+          </a>
         </div>
 
         <div>
           <p className="font-semibold mb-3 text-brand-gold">IKUTI KAMI</p>
-          <p className="text-sm text-white/80">Facebook &middot; Instagram &middot; TikTok &middot; YouTube</p>
+          
+            href="https://web.facebook.com/profile.php?id=61592322463148"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-white/80 hover:text-brand-gold"
+          >
+            Facebook
+          </a>
         </div>
       </div>
 
