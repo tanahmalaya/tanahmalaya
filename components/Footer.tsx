@@ -11,7 +11,7 @@ export default function Footer() {
             <p className="font-display text-lg font-bold">PERTUBUHAN LITERASI TANAH</p>
           </div>
           <p className="text-sm text-white/70">
-            Memperkasa masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
+            Mencelikkan masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
             pengurusan harta dengan berilmu.
           </p>
         </div>
@@ -38,8 +38,8 @@ export default function Footer() {
 
         <div>
           <p className="font-semibold mb-3 text-brand-gold">IKUTI KAMI</p>
-          
-          <a  href="https://web.facebook.com/profile.php?id=61592322463148"
+          <a
+            href="https://web.facebook.com/profile.php?id=61592322463148"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-white/80 hover:text-brand-gold"

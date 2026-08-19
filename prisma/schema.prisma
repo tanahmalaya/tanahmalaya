@@ -1,4 +1,4 @@
-// Skema database Pertubuhan Literasi Tanah (PLT) - tanahmalaya.org
+// Skema database Pertubuhan Literasi Tanah (PLIIT) - tanahmalaya.org
 // Guna PostgreSQL (boleh tukar ke MySQL kalau perlu - tukar "provider" di bawah)
 
 generator client {
@@ -96,6 +96,7 @@ model Order {
   memberId    String?
   namaPembeli String
   emel        String
+  telefon     String
   jumlahSen   Int
   status      OrderStatus @default(MENUNGGU)
   bayarcashRef String?

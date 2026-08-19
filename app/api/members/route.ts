@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createBayarcashPaymentIntent } from "@/lib/bayarcash";
+import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_KEAHLIAN } from "@/lib/bayarcash";
 import { z } from "zod";
 
 const YURAN_KEAHLIAN_SEN = 500; // RM5.00
@@ -47,10 +47,12 @@ export async function POST(req: NextRequest) {
   });
 
   const intent = await createBayarcashPaymentIntent({
+    portalKey: BAYARCASH_PORTAL_KEAHLIAN,
     orderId: member.id,
     amountSen: YURAN_KEAHLIAN_SEN,
     payerName: member.fullName,
     payerEmail: member.email,
+    payerPhone: member.phone,
     description: `Yuran Keahlian PLT - ${member.memberNo}`,
   });
 

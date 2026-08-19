@@ -43,12 +43,45 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           Stok: {product.stok > 0 ? `${product.stok} tersedia` : "Habis stok"}
         </p>
 
-        <button
-          disabled={product.stok === 0}
-          className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full disabled:opacity-50"
-        >
-          {product.stok > 0 ? "BELI SEKARANG" : "HABIS STOK"}
-        </button>
+        {product.stok > 0 ? (
+          <form action="/api/orders" method="POST" className="space-y-3 bg-white p-5 rounded-md shadow-sm">
+            <input type="hidden" name="productId" value={product.id} />
+            <div>
+              <label className="block text-xs font-semibold mb-1">Kuantiti</label>
+              <input
+                type="number"
+                name="kuantiti"
+                min={1}
+                max={product.stok}
+                defaultValue={1}
+                required
+                className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1">Nama Penuh</label>
+              <input name="namaPembeli" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1">No Telefon</label>
+              <input name="telefon" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1">E-mel</label>
+              <input type="email" name="emel" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />
+            </div>
+            <button
+              type="submit"
+              className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full"
+            >
+              BELI SEKARANG
+            </button>
+          </form>
+        ) : (
+          <button disabled className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full opacity-50">
+            HABIS STOK
+          </button>
+        )}
 
         {product.sizingChartUrl && (
           <div className="mt-10">
