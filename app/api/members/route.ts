@@ -3,9 +3,8 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_KEAHLIAN } from "@/lib/bayarcash";
+import { getYuranKeahlianSen } from "@/lib/settings";
 import { z } from "zod";
-
-const YURAN_KEAHLIAN_SEN = 500; // RM5.00
 
 const schema = z.object({
   fullName: z.string().min(2),
@@ -46,10 +45,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const yuranSen = await getYuranKeahlianSen();
+
   const intent = await createBayarcashPaymentIntent({
     portalKey: BAYARCASH_PORTAL_KEAHLIAN,
     orderId: member.id,
-    amountSen: YURAN_KEAHLIAN_SEN,
+    amountSen: yuranSen,
     payerName: member.fullName,
     payerEmail: member.email,
     payerPhone: member.phone,

@@ -9,6 +9,7 @@ const navItems = [
   { href: "/admin/activities", label: "Aktiviti" },
   { href: "/admin/products", label: "Merchandise" },
   { href: "/admin/ads", label: "Iklan Komuniti" },
+  { href: "/admin/settings", label: "Tetapan" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -75,6 +75,11 @@ model Activity {
 }
 
 // ---------- MERCHANDISE ----------
+model Setting {
+  key   String @id
+  value String
+}
+
 model Product {
   id             String   @id @default(cuid())
   nama           String
