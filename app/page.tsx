@@ -1,17 +1,37 @@
-export default function TentangKamiPage() {
+export const dynamic = "force-dynamic";
+
+import Hero from "@/components/Hero";
+import FeatureCards from "@/components/FeatureCards";
+import ClassTable from "@/components/ClassTable";
+import MembershipCTA from "@/components/MembershipCTA";
+import ProductGrid from "@/components/ProductGrid";
+import ActivityGrid from "@/components/ActivityGrid";
+import AdCarousel from "@/components/AdCarousel";
+import { prisma } from "@/lib/prisma";
+
+export default async function HomePage() {
+  const ads = await prisma.ad.findMany({
+    where: { aktif: true },
+    orderBy: { susunan: "asc" },
+  });
+
   return (
-    <section className="max-w-3xl mx-auto px-6 py-16">
-      <h1 className="font-display text-3xl font-bold mb-4">Tentang Kami</h1>
-      <p className="text-brand-dark/80 leading-relaxed mb-4">
-        Pertubuhan Literasi Tanah (PLT) — No. Pendaftaran PPM-001-10-17042026 —
-        komited untuk mencelikkan masyarakat Malaysia tentang hak milik, undang-undang
-        tanah dan pengurusan harta secara sah dan berilmu.
-      </p>
-      <p className="text-brand-dark/80 leading-relaxed">
-        Melalui kelas, seminar, dan program kembara ilmu, kami membantu ahli
-        masyarakat memahami geran hakmilik, pusaka, hibah, dan proses pecah sempadan
-        tanah supaya hak mereka terpelihara untuk generasi akan datang.
-      </p>
-    </section>
+    <>
+      <Hero />
+      <FeatureCards />
+
+      <div className="max-w-7xl mx-auto px-6 pt-16 grid lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2">
+          <ClassTable />
+        </div>
+        <div className="lg:mt-16">
+          <MembershipCTA />
+        </div>
+      </div>
+
+      <ProductGrid />
+      <ActivityGrid />
+      <AdCarousel ads={ads} />
+    </>
   );
 }
