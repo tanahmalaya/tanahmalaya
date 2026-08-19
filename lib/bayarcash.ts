@@ -44,10 +44,16 @@ export async function createBayarcashPaymentIntent(params: CreatePaymentIntentPa
     callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/bayarcash/callback`,
   };
 
-  // Checksum (SHA256 HMAC) - susun nilai ikut nama field secara abjad, gabung, hash
-  const sortedKeys = Object.keys(data).sort();
-  const message = sortedKeys.map((k) => data[k]).join("");
-  data.checksum = crypto.createHmac("sha256", BAYARCASH_SECRET_KEY).update(message).digest("hex");
+  // Checksum ikut urutan TETAP rasmi BayarCash (bukan abjad):
+  // payment_channel, order_number, amount, payer_name, payer_email
+  const checksumString = [
+    data.payment_channel || "",
+    data.order_number,
+    data.amount,
+    data.payer_name,
+    data.payer_email,
+  ].join("");
+  data.checksum = crypto.createHmac("sha256", BAYARCASH_SECRET_KEY).update(checksumString).digest("hex");
 
   const res = await fetch(`${BAYARCASH_API_URL}/payment-intents`, {
     method: "POST",
