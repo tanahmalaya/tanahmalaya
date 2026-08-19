@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     description: `Yuran Keahlian PLT - ${member.memberNo}`,
   });
 
-  return NextResponse.redirect(intent.url);
+ return NextResponse.json({ url: intent.url });
 }
 
 // Untuk dashboard admin - senarai ahli

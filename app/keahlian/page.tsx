@@ -1,4 +1,38 @@
+"use client";
+
+import { useState, FormEvent } from "react";
+
 export default function KeahlianPage() {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Elak borang submit secara POST tradisional
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch("/api/members", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (result.url) {
+        // Redirect terus ke URL BayarCash melalui Client (GET request)
+        window.location.href = result.url;
+      } else {
+        alert("Gagal mendapatkan pautan pembayaran. Sila cuba lagi.");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Ralat berlaku semasa pendaftaran.");
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
       <h1 className="font-display text-3xl font-bold mb-2">Borang Keahlian</h1>
@@ -8,7 +42,7 @@ export default function KeahlianPage() {
         melalui BayarCash.
       </p>
 
-      <form action="/api/members" method="POST" className="space-y-5 bg-white p-8 rounded-md shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-5 bg-white p-8 rounded-md shadow-sm">
         <div>
           <label className="block text-sm font-semibold mb-1">Nama Penuh</label>
           <input name="fullName" required className="w-full border border-brand-dark/20 rounded-sm p-3" />
@@ -25,8 +59,12 @@ export default function KeahlianPage() {
           <label className="block text-sm font-semibold mb-1">E-mel</label>
           <input type="email" name="email" required className="w-full border border-brand-dark/20 rounded-sm p-3" />
         </div>
-        <button type="submit" className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full">
-          DAFTAR & TERUSKAN KE BAYARAN
+        <button 
+          type="submit" 
+          disabled={loading} 
+          className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full disabled:opacity-50"
+        >
+          {loading ? "MENGIKAT PAUTAN BAYARAN..." : "DAFTAR & TERUSKAN KE BAYARAN"}
         </button>
       </form>
     </section>
