@@ -24,7 +24,7 @@ export default async function ActivityGrid() {
               {gambarList.length > 1 && (
                 <div className="flex gap-1 p-1 bg-brand-cream">
                   {gambarList.slice(1).map((url, i) => (
-                    <div key={i} className="relative w-full h-12 rounded-sm overflow-hidden bg-brand-cream">
+                    <div key={i} className="relative flex-1 h-12 rounded-sm overflow-hidden bg-brand-cream">
                       <Image src={url} alt={`${a.tajuk} - gambar ${i + 2}`} fill className="object-contain" />
                     </div>
                   ))}
