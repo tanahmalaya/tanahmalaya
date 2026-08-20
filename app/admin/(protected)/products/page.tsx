@@ -34,7 +34,7 @@ export default async function AdminProductsPage() {
       <div className="bg-white rounded-md shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-brand-cream text-left">
-            <tr><th className="p-4">Gambar</th><th className="p-4">Nama</th><th className="p-4">Harga</th><th className="p-4">Stok</th><th className="p-4">Aktif</th></tr>
+            <tr><th className="p-4">Gambar</th><th className="p-4">Nama</th><th className="p-4">Harga</th><th className="p-4">Stok</th><th className="p-4">Aktif</th><th className="p-4"></th></tr>
           </thead>
           <tbody>
             {products.map((p) => (
@@ -49,6 +49,13 @@ export default async function AdminProductsPage() {
                 <td className="p-4">RM{(p.hargaSen / 100).toFixed(2)}</td>
                 <td className="p-4">{p.stok}</td>
                 <td className="p-4">{p.aktif ? "Ya" : "Tidak"}</td>
+                <td className="p-4">
+                  <form action={`/api/products/${p.id}/delete`} method="POST">
+                    <button type="submit" className="text-red-600 text-xs font-semibold hover:underline">
+                      PADAM
+                    </button>
+                  </form>
+                </td>
               </tr>
             ))}
           </tbody>
