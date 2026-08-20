@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import Image from "next/image";
+import ActivityImages from "@/components/ActivityImages";
 
 export default async function ActivityGrid() {
   const activities = await prisma.activity.findMany({
@@ -18,18 +18,7 @@ export default async function ActivityGrid() {
 
           return (
             <div key={a.id} className="bg-white rounded-md shadow-sm overflow-hidden">
-              <div className="relative h-32 bg-brand-cream">
-                {gambarList[0] && <Image src={gambarList[0]} alt={a.tajuk} fill className="object-contain" />}
-              </div>
-              {gambarList.length > 1 && (
-                <div className="flex gap-1 p-1 bg-brand-cream">
-                  {gambarList.slice(1).map((url, i) => (
-                    <div key={i} className="relative flex-1 h-12 rounded-sm overflow-hidden bg-brand-cream">
-                      <Image src={url} alt={`${a.tajuk} - gambar ${i + 2}`} fill className="object-contain" />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ActivityImages gambarList={gambarList} tajuk={a.tajuk} />
               <div className="p-4">
                 <p className="text-xs text-brand-dark/50 mb-1">
                   {a.tarikh.toLocaleDateString("ms-MY")}
