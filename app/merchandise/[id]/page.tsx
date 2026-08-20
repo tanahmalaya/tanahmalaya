@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import ProductCheckoutForm from "@/components/ProductCheckoutForm";
 
 function formatHarga(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
@@ -44,39 +45,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         </p>
 
         {product.stok > 0 ? (
-          <form action="/api/orders" method="POST" className="space-y-3 bg-white p-5 rounded-md shadow-sm">
-            <input type="hidden" name="productId" value={product.id} />
-            <div>
-              <label className="block text-xs font-semibold mb-1">Kuantiti</label>
-              <input
-                type="number"
-                name="kuantiti"
-                min={1}
-                max={product.stok}
-                defaultValue={1}
-                required
-                className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1">Nama Penuh</label>
-              <input name="namaPembeli" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1">No Telefon</label>
-              <input name="telefon" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1">E-mel</label>
-              <input type="email" name="emel" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />
-            </div>
-            <button
-              type="submit"
-              className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full"
-            >
-              BELI SEKARANG
-            </button>
-          </form>
+          <ProductCheckoutForm productId={product.id} stok={product.stok} />
         ) : (
           <button disabled className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full opacity-50">
             HABIS STOK

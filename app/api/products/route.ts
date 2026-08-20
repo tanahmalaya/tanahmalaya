@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
 
   const form = await req.formData();
   const hargaRM = parseFloat(String(form.get("harga")));
+  const shippingMode = String(form.get("shippingMode") || "FLAT") as "FLAT" | "BERAT";
+  const shippingFlatRM = form.get("shippingFlatRM");
+  const beratGram = form.get("beratGram");
 
   await prisma.product.create({
     data: {
@@ -27,6 +30,9 @@ export async function POST(req: NextRequest) {
       gambarBelakang: String(form.get("gambarBelakang") || "") || null,
       gambarSisi: String(form.get("gambarSisi") || "") || null,
       sizingChartUrl: String(form.get("sizingChartUrl") || "") || null,
+      shippingMode,
+      shippingFlatSen: shippingFlatRM ? Math.round(parseFloat(String(shippingFlatRM)) * 100) : null,
+      beratGram: beratGram ? parseInt(String(beratGram), 10) : null,
     },
   });
 

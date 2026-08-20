@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
+import { checkEasyParcelRate } from "@/lib/easyparcel";
 import { z } from "zod";
 
 const schema = z.object({
@@ -11,6 +12,10 @@ const schema = z.object({
   namaPembeli: z.string().min(2),
   emel: z.string().email(),
   telefon: z.string().min(9),
+  alamat: z.string().min(5),
+  poskod: z.string().regex(/^\d{5}$/, "Poskod mesti 5 digit"),
+  bandar: z.string().min(2),
+  negeri: z.string().min(2),
 });
 
 export async function POST(req: NextRequest) {
@@ -21,6 +26,10 @@ export async function POST(req: NextRequest) {
     namaPembeli: form.get("namaPembeli"),
     emel: form.get("emel"),
     telefon: form.get("telefon"),
+    alamat: form.get("alamat"),
+    poskod: form.get("poskod"),
+    bandar: form.get("bandar"),
+    negeri: form.get("negeri"),
   });
 
   const product = await prisma.product.findUnique({ where: { id: data.productId } });
@@ -31,14 +40,41 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Stok tidak mencukupi" }, { status: 400 });
   }
 
-  const jumlahSen = product.hargaSen * data.kuantiti;
+  const hargaBarangSen = product.hargaSen * data.kuantiti;
+
+  // Kira kos penghantaran: kadar tetap ATAU automatik ikut berat (EasyParcel)
+  let shippingSen = 0;
+  let courierName: string | null = null;
+
+  if (product.shippingMode === "FLAT") {
+    shippingSen = product.shippingFlatSen ?? 0;
+  } else {
+    const beratKg = ((product.beratGram ?? 500) * data.kuantiti) / 1000;
+    const rate = await checkEasyParcelRate({
+      destPostcode: data.poskod,
+      destState: data.negeri,
+      weightKg: beratKg,
+    });
+    if (rate) {
+      shippingSen = rate.priceSen;
+      courierName = rate.courierName;
+    }
+  }
+
+  const jumlahSen = hargaBarangSen + shippingSen;
 
   const order = await prisma.order.create({
     data: {
       namaPembeli: data.namaPembeli,
       emel: data.emel,
       telefon: data.telefon,
+      alamat: data.alamat,
+      poskod: data.poskod,
+      bandar: data.bandar,
+      negeri: data.negeri,
       jumlahSen,
+      shippingSen,
+      courierName,
       status: "MENUNGGU",
       items: {
         create: {
@@ -60,5 +96,5 @@ export async function POST(req: NextRequest) {
     description: `Pembelian ${product.nama} x${data.kuantiti} - PLT`,
   });
 
-  return NextResponse.redirect(intent.url);
+  return NextResponse.json({ url: intent.url });
 }

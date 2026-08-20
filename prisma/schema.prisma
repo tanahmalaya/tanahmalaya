@@ -1,4 +1,4 @@
-// Skema database Pertubuhan Literasi Tanah (PLT) - tanahmalaya.org
+// Skema database Pertubuhan Literasi Tanah (PLIIT) - tanahmalaya.org
 // Guna PostgreSQL (boleh tukar ke MySQL kalau perlu - tukar "provider" di bawah)
 
 generator client {
@@ -102,9 +102,18 @@ model Product {
   sizingChartUrl String?  // carta saiz (untuk baju, dll)
   stok           Int      @default(0)
   aktif          Boolean  @default(true)
+  // Penghantaran: FLAT = kadar tetap, BERAT = kira automatik ikut berat & poskod
+  shippingMode   ShippingMode @default(FLAT)
+  shippingFlatSen Int?    // kadar tetap dalam sen (guna jika shippingMode = FLAT)
+  beratGram      Int?     // berat produk dalam gram (guna jika shippingMode = BERAT)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   orderItems     OrderItem[]
+}
+
+enum ShippingMode {
+  FLAT
+  BERAT
 }
 
 model Order {
@@ -113,9 +122,19 @@ model Order {
   namaPembeli String
   emel        String
   telefon     String
+  // Alamat penghantaran
+  alamat      String   @default("")
+  poskod      String   @default("")
+  bandar      String   @default("")
+  negeri      String   @default("")
   jumlahSen   Int
+  shippingSen Int      @default(0)
   status      OrderStatus @default(MENUNGGU)
   bayarcashRef String?
+  // EasyParcel
+  courierName          String?
+  easyparcelOrderNo    String?
+  trackingNumber       String?
   createdAt   DateTime @default(now())
   items       OrderItem[]
 }

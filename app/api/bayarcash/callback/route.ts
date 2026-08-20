@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nextMemberNo } from "@/lib/members";
+import { submitEasyParcelOrder } from "@/lib/easyparcel";
 
 // BayarCash akan hantar POST ke sini selepas pembayaran selesai/gagal.
 // Rujuk dokumentasi rasmi BayarCash untuk nama field sebenar (payload di
@@ -46,7 +47,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Kalau bukan pendaftaran keahlian, cuba padan dengan Order (pembelian merchandise)
-  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { items: { include: { product: true } } },
+  });
   if (order) {
     await prisma.order.update({
       where: { id: orderId },
@@ -55,6 +59,60 @@ export async function POST(req: NextRequest) {
         bayarcashRef: payload.transaction_id ?? null,
       },
     });
+
+    if (isPaid) {
+      // Kurangkan stok
+      for (const item of order.items) {
+        await prisma.product.update({
+          where: { id: item.productId },
+          data: { stok: { decrement: item.kuantiti } },
+        });
+      }
+
+      // Tempah kurier dengan EasyParcel secara automatik
+      try {
+        const totalBeratKg =
+          order.items.reduce((sum, item) => sum + (item.product.beratGram ?? 500) * item.kuantiti, 0) / 1000;
+        const kandungan = order.items.map((item) => item.product.nama).join(", ");
+        const nilaiRM = order.jumlahSen / 100;
+
+        // Guna service_id lalai FLAT (perlu Tuan sahkan service_id sebenar dari
+        // dashboard EasyParcel jika produk ni "Kadar Tetap") - untuk produk
+        // "Ikut Berat", service_id patut datang dari checkEasyParcelRate semasa checkout.
+        const serviceId = process.env.EASYPARCEL_DEFAULT_SERVICE_ID || "";
+
+        if (serviceId) {
+          const booking = await submitEasyParcelOrder({
+            receiverName: order.namaPembeli,
+            receiverPhone: order.telefon,
+            receiverAddress: order.alamat,
+            receiverPostcode: order.poskod,
+            receiverCity: order.bandar,
+            receiverState: order.negeri,
+            weightKg: totalBeratKg,
+            serviceId,
+            content: kandungan,
+            valueRM: nilaiRM,
+          });
+
+          if (booking.success) {
+            await prisma.order.update({
+              where: { id: order.id },
+              data: {
+                easyparcelOrderNo: booking.orderNo,
+                trackingNumber: booking.trackingNumber,
+                courierName: booking.courierName ?? order.courierName,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        // Kalau EasyParcel gagal, jangan halang keseluruhan proses - admin
+        // boleh tempah manual dari dashboard EasyParcel guna alamat dalam Order.
+        console.error("EasyParcel booking failed", e);
+      }
+    }
+
     return NextResponse.json({ ok: true });
   }
 
