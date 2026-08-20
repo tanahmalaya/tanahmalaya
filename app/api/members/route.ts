@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     description: `Yuran Keahlian PLT - ${pending.fullName}`,
   });
 
-  return NextResponse.redirect(intent.url);
+  return NextResponse.json({ url: intent.url });
 }
 
 // Untuk dashboard admin - senarai ahli
