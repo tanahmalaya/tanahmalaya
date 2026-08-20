@@ -13,18 +13,6 @@ const schema = z.object({
   email: z.string().email(),
 });
 
-const MEMBER_NO_START = 600; // no ahli baharu (daftar web) mula dari sini
-
-async function nextMemberNo() {
-  const members = await prisma.member.findMany({ select: { memberNo: true } });
-  const numbers = members
-    .map((m) => parseInt(m.memberNo.replace(/\D/g, ""), 10))
-    .filter((n) => !isNaN(n));
-  const highest = numbers.length > 0 ? Math.max(...numbers) : 0;
-  const next = Math.max(highest + 1, MEMBER_NO_START);
-  return `PLT-${String(next).padStart(3, "0")}`;
-}
-
 export async function POST(req: NextRequest) {
   const form = await req.formData();
   const data = schema.parse({
@@ -34,14 +22,22 @@ export async function POST(req: NextRequest) {
     email: form.get("email"),
   });
 
-  const member = await prisma.member.create({
+  // Semak dulu No. KP ni belum jadi AHLI sedia ada
+  const existing = await prisma.member.findUnique({ where: { icNumber: data.icNumber } });
+  if (existing) {
+    return NextResponse.json(
+      { error: "No. Kad Pengenalan ini sudah berdaftar sebagai ahli." },
+      { status: 400 }
+    );
+  }
+
+  // Cipta rekod SEMENTARA - Member sebenar hanya dicipta selepas bayaran berjaya
+  const pending = await prisma.pendingRegistration.create({
     data: {
-      memberNo: await nextMemberNo(),
       fullName: data.fullName,
       icNumber: data.icNumber,
       phone: data.phone,
       email: data.email,
-      status: "MENUNGGU_BAYARAN",
     },
   });
 
@@ -49,15 +45,15 @@ export async function POST(req: NextRequest) {
 
   const intent = await createBayarcashPaymentIntent({
     portalKey: BAYARCASH_PORTAL_KEAHLIAN,
-    orderId: member.id,
+    orderId: pending.id,
     amountSen: yuranSen,
-    payerName: member.fullName,
-    payerEmail: member.email,
-    payerPhone: member.phone,
-    description: `Yuran Keahlian PLT - ${member.memberNo}`,
+    payerName: pending.fullName,
+    payerEmail: pending.email,
+    payerPhone: pending.phone,
+    description: `Yuran Keahlian PLT - ${pending.fullName}`,
   });
 
- return NextResponse.json({ url: intent.url });
+  return NextResponse.redirect(intent.url);
 }
 
 // Untuk dashboard admin - senarai ahli

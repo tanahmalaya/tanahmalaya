@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBayarcashChecksum } from "@/lib/bayarcash";
+import { nextMemberNo } from "@/lib/members";
 
 // BayarCash akan hantar POST ke sini selepas pembayaran selesai/gagal.
 // Rujuk dokumentasi rasmi BayarCash untuk nama field sebenar (payload di
@@ -18,20 +19,35 @@ export async function POST(req: NextRequest) {
   const { order_number: orderId, status } = payload;
   const isPaid = status === "3" || status === "success"; // sesuaikan ikut kod status BayarCash sebenar
 
-  // Cuba padan dengan Member dahulu (bayaran keahlian)
-  const member = await prisma.member.findUnique({ where: { id: orderId } });
-  if (member) {
-    await prisma.member.update({
-      where: { id: orderId },
-      data: {
-        status: isPaid ? "AKTIF" : "MENUNGGU_BAYARAN",
-        paymentRef: payload.transaction_id ?? null,
-      },
-    });
+  // Cuba padan dengan pendaftaran keahlian yang MASIH menunggu bayaran
+  const pending = await prisma.pendingRegistration.findUnique({ where: { id: orderId } });
+  if (pending) {
+    if (isPaid) {
+      // Bayaran BERJAYA - baru cipta rekod Member sebenar dalam Supabase
+      const existing = await prisma.member.findUnique({ where: { icNumber: pending.icNumber } });
+      if (!existing) {
+        await prisma.member.create({
+          data: {
+            memberNo: await nextMemberNo(),
+            fullName: pending.fullName,
+            icNumber: pending.icNumber,
+            phone: pending.phone,
+            email: pending.email,
+            status: "AKTIF",
+            paymentRef: payload.transaction_id ?? null,
+          },
+        });
+      }
+      // Padam rekod sementara - dah tak diperlukan
+      await prisma.pendingRegistration.delete({ where: { id: pending.id } });
+    } else {
+      // Bayaran GAGAL - padam rekod sementara, tiada Member dicipta
+      await prisma.pendingRegistration.delete({ where: { id: pending.id } });
+    }
     return NextResponse.json({ ok: true });
   }
 
-  // Kalau bukan ahli, cuba padan dengan Order (pembelian merchandise)
+  // Kalau bukan pendaftaran keahlian, cuba padan dengan Order (pembelian merchandise)
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (order) {
     await prisma.order.update({
