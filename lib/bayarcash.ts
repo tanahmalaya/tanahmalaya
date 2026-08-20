@@ -27,6 +27,7 @@ type CreatePaymentIntentParams = {
   payerEmail: string;
   payerPhone: string;
   description: string;
+  returnPath: string; // cth: "/keahlian/berjaya" atau "/merchandise/berjaya"
 };
 
 /**
@@ -40,7 +41,7 @@ export async function createBayarcashPaymentIntent(params: CreatePaymentIntentPa
     payer_name: params.payerName,
     payer_email: params.payerEmail,
     payer_telephone_number: params.payerPhone,
-    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/keahlian/berjaya`,
+    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}${params.returnPath}`,
     callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/bayarcash/callback`,
   };
 

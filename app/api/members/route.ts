@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     payerEmail: pending.email,
     payerPhone: pending.phone,
     description: `Yuran Keahlian PLT - ${pending.fullName}`,
+    returnPath: "/keahlian/berjaya",
   });
 
   return NextResponse.json({ url: intent.url });

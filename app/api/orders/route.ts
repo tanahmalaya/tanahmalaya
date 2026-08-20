@@ -94,6 +94,7 @@ export async function POST(req: NextRequest) {
     payerEmail: data.emel,
     payerPhone: data.telefon,
     description: `Pembelian ${product.nama} x${data.kuantiti} - PLT`,
+    returnPath: "/merchandise/berjaya",
   });
 
   return NextResponse.json({ url: intent.url });
