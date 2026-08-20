@@ -1,4 +1,4 @@
-// Skema database Pertubuhan Literasi Tanah (PLIIT) - tanahmalaya.org
+// Skema database Pertubuhan Literasi Tanah (PLT) - tanahmalaya.org
 // Guna PostgreSQL (boleh tukar ke MySQL kalau perlu - tukar "provider" di bawah)
 
 generator client {

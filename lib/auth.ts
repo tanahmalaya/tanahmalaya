@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-const COOKIE_NAME = "pliit_admin_session";
+const COOKIE_NAME = "plt_admin_session";
 
 export function signAdminSession(adminId: string) {
   return jwt.sign({ adminId }, JWT_SECRET, { expiresIn: "7d" });
