@@ -20,7 +20,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
   return (
     <section className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10">
       <div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className={`grid gap-3 ${gallery.length <= 1 ? "grid-cols-1" : gallery.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
           {gallery.map((url, i) => (
             <div key={i} className="relative aspect-square bg-brand-cream rounded-md overflow-hidden">
               <Image src={url} alt={`${product.nama} - gambar ${i + 1}`} fill className="object-cover" />
