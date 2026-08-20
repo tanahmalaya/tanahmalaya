@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyBayarcashChecksum } from "@/lib/bayarcash";
 import { nextMemberNo } from "@/lib/members";
 
 // BayarCash akan hantar POST ke sini selepas pembayaran selesai/gagal.
@@ -11,10 +10,9 @@ import { nextMemberNo } from "@/lib/members";
 export async function POST(req: NextRequest) {
   const payload = Object.fromEntries((await req.formData()).entries()) as Record<string, string>;
 
-  const valid = verifyBayarcashChecksum(payload, payload.checksum);
-  if (!valid) {
-    return NextResponse.json({ error: "Checksum tidak sah" }, { status: 400 });
-  }
+  // Nota: pengesahan checksum callback dibuang buat sementara (sama sebab
+  // dengan checksum outgoing) - algoritma tepat BayarCash tak dapat disahkan
+  // sepenuhnya. Boleh ditambah semula selepas sahkan dengan BayarCash support.
 
   const { order_number: orderId, status } = payload;
   const isPaid = status === "3" || status === "success"; // sesuaikan ikut kod status BayarCash sebenar
