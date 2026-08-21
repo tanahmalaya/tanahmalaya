@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import Image from "next/image";
 
 export default function KeahlianPage() {
   const [loading, setLoading] = useState(false);
@@ -35,6 +36,10 @@ export default function KeahlianPage() {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
+      <div className="relative w-full aspect-[5/1] rounded-lg overflow-hidden mb-8">
+        <Image src="/banner-sertai-kami.png" alt="Sertai Kami" fill className="object-cover" />
+      </div>
+
       <h1 className="font-display text-3xl font-bold mb-2">Borang Keahlian</h1>
       <p className="text-brand-dark/70 mb-8">
         Sertai Pertubuhan Literasi Tanah dan nikmati akses kepada kelas eksklusif,
