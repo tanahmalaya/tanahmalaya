@@ -6,9 +6,8 @@ export default function Footer() {
     <footer className="bg-brand-dark text-white">
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <Image src="/logo.png" alt="Pertubuhan Literasi Tanah" width={40} height={40} className="rounded-lg" />
-            <p className="font-display text-lg font-bold">PERTUBUHAN LITERASI TANAH</p>
+          <div className="bg-white rounded-md p-2 w-fit mb-3">
+            <Image src="/logo-footer.jpg" alt="Pertubuhan Literasi Tanah" width={120} height={120} />
           </div>
           <p className="text-sm text-white/70">
             Mencelikkan masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
@@ -38,7 +37,7 @@ export default function Footer() {
 
         <div>
           <p className="font-semibold mb-3 text-brand-gold">IKUTI KAMI</p>
-          <a
+          
             href="https://web.facebook.com/profile.php?id=61592322463148"
             target="_blank"
             rel="noopener noreferrer"
