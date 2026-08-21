@@ -7,7 +7,7 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center px-6 py-20">
         <div>
           <h1 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-4">
-            CELIK TANAH<br />BANGKIT HAK ANDA
+            MEMELIHARA <br />TANAH
           </h1>
           <p className="text-white/80 mb-8 max-w-md">
             Pertubuhan Literasi Tanah komited untuk mencelikkan masyarakat tentang hak milik,

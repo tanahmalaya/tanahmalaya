@@ -4,7 +4,7 @@ export default function TentangKamiPage() {
       <h1 className="font-display text-3xl font-bold mb-4">Tentang Kami</h1>
       <p className="text-brand-dark/80 leading-relaxed mb-4">
         Pertubuhan Literasi Tanah (PLT) — No. Pendaftaran PPM-001-10-17042026 —
-        komited untuk mencelikkan masyarakat Malaysia tentang hak milik, undang-undang
+        komited untuk mempertajamkan kesedaran masyarakat Malaysia tentang hak milik, undang-undang
         tanah dan pengurusan harta secara sah dan berilmu.
       </p>
       <p className="text-brand-dark/80 leading-relaxed">
