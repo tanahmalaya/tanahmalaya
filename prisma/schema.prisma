@@ -118,6 +118,7 @@ enum ShippingMode {
 
 model Order {
   id          String   @id @default(cuid())
+  seq         Int      @default(autoincrement()) // nombor mudah #1, #2 untuk staff
   memberId    String?
   namaPembeli String
   emel        String
@@ -136,6 +137,8 @@ model Order {
   serviceId            String?
   easyparcelOrderNo    String?
   trackingNumber       String?
+  fulfillmentError     String?   // diisi kalau cubaan fulfill gagal
+  printedAt            DateTime? // masa staff klik "Selesai Cetak"
   createdAt   DateTime @default(now())
   items       OrderItem[]
 }

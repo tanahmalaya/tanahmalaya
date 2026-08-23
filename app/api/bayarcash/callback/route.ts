@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nextMemberNo } from "@/lib/members";
-import { submitEasyParcelOrder } from "@/lib/easyparcel";
 
 // BayarCash akan hantar POST ke sini selepas pembayaran selesai/gagal.
 // Rujuk dokumentasi rasmi BayarCash untuk nama field sebenar (payload di
@@ -68,48 +67,8 @@ export async function POST(req: NextRequest) {
           data: { stok: { decrement: item.kuantiti } },
         });
       }
-
-      // Tempah kurier dengan EasyParcel secara automatik
-      try {
-        const totalBeratKg =
-          order.items.reduce((sum, item) => sum + (item.product.beratGram ?? 500) * item.kuantiti, 0) / 1000;
-        const kandungan = order.items.map((item) => item.product.nama).join(", ");
-        const nilaiRM = order.jumlahSen / 100;
-
-        // Guna service_id yang disimpan semasa checkout (dari rate checking
-        // untuk produk "Ikut Berat", atau Default Service ID untuk "Kadar Tetap")
-        const serviceId = order.serviceId || process.env.EASYPARCEL_DEFAULT_SERVICE_ID || "";
-
-        if (serviceId) {
-          const booking = await submitEasyParcelOrder({
-            receiverName: order.namaPembeli,
-            receiverPhone: order.telefon,
-            receiverAddress: order.alamat,
-            receiverPostcode: order.poskod,
-            receiverCity: order.bandar,
-            receiverState: order.negeri,
-            weightKg: totalBeratKg,
-            serviceId,
-            content: kandungan,
-            valueRM: nilaiRM,
-          });
-
-          if (booking.success) {
-            await prisma.order.update({
-              where: { id: order.id },
-              data: {
-                easyparcelOrderNo: booking.orderNo,
-                trackingNumber: booking.trackingNumber,
-                courierName: booking.courierName ?? order.courierName,
-              },
-            });
-          }
-        }
-      } catch (e) {
-        // Kalau EasyParcel gagal, jangan halang keseluruhan proses - admin
-        // boleh tempah manual dari dashboard EasyParcel guna alamat dalam Order.
-        console.error("EasyParcel booking failed", e);
-      }
+      // Nota: tempahan kurier EasyParcel TIDAK lagi automatik di sini -
+      // staff akan "Fulfill" secara berkumpulan dari dashboard /admin/orders.
     }
 
     return NextResponse.json({ ok: true });
