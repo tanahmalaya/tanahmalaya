@@ -76,10 +76,9 @@ export async function POST(req: NextRequest) {
         const kandungan = order.items.map((item) => item.product.nama).join(", ");
         const nilaiRM = order.jumlahSen / 100;
 
-        // Guna service_id lalai FLAT (perlu Tuan sahkan service_id sebenar dari
-        // dashboard EasyParcel jika produk ni "Kadar Tetap") - untuk produk
-        // "Ikut Berat", service_id patut datang dari checkEasyParcelRate semasa checkout.
-        const serviceId = process.env.EASYPARCEL_DEFAULT_SERVICE_ID || "";
+        // Guna service_id yang disimpan semasa checkout (dari rate checking
+        // untuk produk "Ikut Berat", atau Default Service ID untuk "Kadar Tetap")
+        const serviceId = order.serviceId || process.env.EASYPARCEL_DEFAULT_SERVICE_ID || "";
 
         if (serviceId) {
           const booking = await submitEasyParcelOrder({

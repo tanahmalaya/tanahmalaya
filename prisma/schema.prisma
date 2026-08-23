@@ -133,6 +133,7 @@ model Order {
   bayarcashRef String?
   // EasyParcel
   courierName          String?
+  serviceId            String?
   easyparcelOrderNo    String?
   trackingNumber       String?
   createdAt   DateTime @default(now())
