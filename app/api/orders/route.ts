@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
-import { checkEasyParcelRate } from "@/lib/easyparcel";
+import { calculateShipping } from "@/lib/pricing";
 import { z } from "zod";
 
 const schema = z.object({
@@ -41,29 +41,12 @@ export async function POST(req: NextRequest) {
   }
 
   const hargaBarangSen = product.hargaSen * data.kuantiti;
-
-  // Kira kos penghantaran: kadar tetap ATAU automatik ikut berat (EasyParcel)
-  let shippingSen = 0;
-  let courierName: string | null = null;
-  let serviceId: string | null = null;
-
-  if (product.shippingMode === "FLAT") {
-    shippingSen = product.shippingFlatSen ?? 0;
-    serviceId = process.env.EASYPARCEL_DEFAULT_SERVICE_ID || null;
-  } else {
-    const beratKg = ((product.beratGram ?? 500) * data.kuantiti) / 1000;
-    const rate = await checkEasyParcelRate({
-      destPostcode: data.poskod,
-      destState: data.negeri,
-      weightKg: beratKg,
-    });
-    if (rate) {
-      shippingSen = rate.priceSen;
-      courierName = rate.courierName;
-      serviceId = rate.serviceId;
-    }
-  }
-
+  const { shippingSen, courierName, serviceId } = await calculateShipping(
+    product,
+    data.kuantiti,
+    data.poskod,
+    data.negeri
+  );
   const jumlahSen = hargaBarangSen + shippingSen;
 
   const order = await prisma.order.create({

@@ -8,38 +8,137 @@ const NEGERI_LIST = [
   "Terengganu", "Kuala Lumpur", "Labuan", "Putrajaya",
 ];
 
-export default function ProductCheckoutForm({ productId, stok }: { productId: string; stok: number }) {
-  const [loading, setLoading] = useState(false);
+function formatRM(sen: number) {
+  return `RM${(sen / 100).toFixed(2)}`;
+}
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+type Quote = {
+  namaProduk: string;
+  hargaBarangSen: number;
+  shippingSen: number;
+  jumlahSen: number;
+  courierName: string | null;
+};
+
+export default function ProductCheckoutForm({ productId, stok }: { productId: string; stok: number }) {
+  const [step, setStep] = useState<"form" | "confirm">("form");
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [error, setError] = useState("");
+
+  async function handleReview(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
+    const fd = new FormData(e.currentTarget);
 
+    try {
+      const res = await fetch("/api/orders/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: fd.get("productId"),
+          kuantiti: fd.get("kuantiti"),
+          poskod: fd.get("poskod"),
+          negeri: fd.get("negeri"),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal kira harga");
+
+      setFormData(fd);
+      setQuote(data);
+      setStep("confirm");
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleConfirm() {
+    if (!formData) return;
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         body: formData,
       });
-
       const result = await res.json();
-
       if (result.url) {
         window.location.href = result.url;
       } else {
-        alert(result.error || "Gagal mendapatkan pautan pembayaran. Sila cuba lagi.");
+        setError(result.error || "Gagal mendapatkan pautan pembayaran.");
         setLoading(false);
       }
     } catch (err) {
-      console.error(err);
-      alert("Ralat berlaku semasa pemprosesan. Sila cuba lagi.");
+      setError("Ralat berlaku semasa pemprosesan. Sila cuba lagi.");
       setLoading(false);
     }
-  };
+  }
+
+  if (step === "confirm" && quote && formData) {
+    return (
+      <div className="bg-white p-5 rounded-md shadow-sm space-y-4">
+        <h3 className="font-semibold text-lg">Sahkan Pesanan</h3>
+
+        <div className="text-sm space-y-1 border-b border-brand-cream pb-4">
+          <p><strong>Nama:</strong> {String(formData.get("namaPembeli"))}</p>
+          <p><strong>Telefon:</strong> {String(formData.get("telefon"))}</p>
+          <p><strong>E-mel:</strong> {String(formData.get("emel"))}</p>
+          <p className="pt-2">
+            <strong>Alamat:</strong> {String(formData.get("alamat"))}, {String(formData.get("poskod"))}{" "}
+            {String(formData.get("bandar"))}, {String(formData.get("negeri"))}
+          </p>
+        </div>
+
+        <div className="text-sm space-y-1 border-b border-brand-cream pb-4">
+          <div className="flex justify-between">
+            <span>
+              {quote.namaProduk} x{String(formData.get("kuantiti"))}
+            </span>
+            <span>{formatRM(quote.hargaBarangSen)}</span>
+          </div>
+          <div className="flex justify-between text-brand-dark/70">
+            <span>Penghantaran{quote.courierName ? ` (${quote.courierName})` : ""}</span>
+            <span>{formatRM(quote.shippingSen)}</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between font-bold text-lg">
+          <span>Jumlah</span>
+          <span className="text-brand-gold">{formatRM(quote.jumlahSen)}</span>
+        </div>
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setStep("form")}
+            disabled={loading}
+            className="flex-1 border border-brand-dark/20 text-brand-dark font-semibold py-3 rounded-sm disabled:opacity-50"
+          >
+            KEMBALI
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={loading}
+            className="flex-1 bg-brand-gold text-brand-dark font-semibold py-3 rounded-sm disabled:opacity-50"
+          >
+            {loading ? "Memproses..." : "SAHKAN & BAYAR"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 bg-white p-5 rounded-md shadow-sm">
+    <form onSubmit={handleReview} className="space-y-3 bg-white p-5 rounded-md shadow-sm">
       <input type="hidden" name="productId" value={productId} />
       <div>
         <label className="block text-xs font-semibold mb-1">Kuantiti</label>
@@ -91,12 +190,15 @@ export default function ProductCheckoutForm({ productId, stok }: { productId: st
           ))}
         </select>
       </div>
+
+      {error && <p className="text-red-600 text-sm">{error}</p>}
+
       <button
         type="submit"
         disabled={loading}
         className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full disabled:opacity-50"
       >
-        {loading ? "MENGIKAT PAUTAN BAYARAN..." : "BELI SEKARANG"}
+        {loading ? "MENGIRA..." : "SEMAK PESANAN"}
       </button>
     </form>
   );
