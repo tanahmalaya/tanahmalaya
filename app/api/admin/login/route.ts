@@ -10,10 +10,10 @@ export async function POST(req: NextRequest) {
 
   const admin = await prisma.adminUser.findUnique({ where: { email } });
   if (!admin || !(await bcrypt.compare(password, admin.passwordHash))) {
-    return NextResponse.redirect(new URL("/admin/login?error=1", req.url));
+    return NextResponse.redirect(new URL("/admin/login?error=1", req.url), 303);
   }
 
   const role = admin.role === "STAFF" ? "STAFF" : "ADMIN";
   setAdminCookie(signAdminSession(admin.id, role));
-  return NextResponse.redirect(new URL(role === "STAFF" ? "/admin/orders" : "/admin", req.url));
+  return NextResponse.redirect(new URL(role === "STAFF" ? "/admin/orders" : "/admin", req.url), 303);
 }
