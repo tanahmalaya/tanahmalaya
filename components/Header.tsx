@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "UTAMA" },
@@ -12,10 +16,12 @@ const navLinks = [
 ];
 
 export default function Header() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <header className="bg-brand-dark text-white">
+    <header className="bg-brand-dark text-white relative">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <Image
             src="/logo.png"
             alt="Pertubuhan Literasi Tanah"
@@ -29,21 +35,60 @@ export default function Header() {
           </span>
         </Link>
 
+        {/* Menu desktop */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium tracking-wide">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="hover:text-brand-gold transition-colors">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="hover:text-brand-gold active:text-brand-gold transition-colors py-2"
+            >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <Link
-          href="/keahlian"
-          className="bg-brand-gold text-brand-dark px-5 py-2 rounded-sm text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          DAFTAR SEKARANG
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/keahlian"
+            className="hidden sm:inline-block bg-brand-gold text-brand-dark px-5 py-2 rounded-sm text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity"
+          >
+            DAFTAR SEKARANG
+          </Link>
+
+          {/* Butang hamburger - mobile sahaja */}
+          <button
+            onClick={() => setOpen(!open)}
+            className="lg:hidden p-2 -mr-2 active:bg-white/10 rounded-md transition-colors"
+            aria-label={open ? "Tutup menu" : "Buka menu"}
+          >
+            {open ? <X size={26} /> : <Menu size={26} />}
+          </button>
+        </div>
       </div>
+
+      {/* Menu mobile - timbul bila hamburger diklik */}
+      {open && (
+        <nav className="lg:hidden bg-brand-dark border-t border-white/10 px-6 py-4 flex flex-col gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className="py-3 px-3 rounded-md text-sm font-medium tracking-wide active:bg-brand-gold/20 hover:bg-white/5 transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link
+            href="/keahlian"
+            onClick={() => setOpen(false)}
+            className="mt-2 bg-brand-gold text-brand-dark text-center px-5 py-3 rounded-sm text-sm font-semibold active:opacity-80"
+          >
+            DAFTAR SEKARANG
+          </Link>
+        </nav>
+      )}
     </header>
   );
 }
