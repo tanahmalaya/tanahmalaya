@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "UTAMA" },
@@ -14,6 +13,25 @@ const navLinks = [
   { href: "/aktiviti", label: "AKTIVITI" },
   { href: "/hubungi-kami", label: "HUBUNGI KAMI" },
 ];
+
+function MenuIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -62,7 +80,7 @@ export default function Header() {
             className="lg:hidden p-2 -mr-2 active:bg-white/10 rounded-md transition-colors"
             aria-label={open ? "Tutup menu" : "Buka menu"}
           >
-            {open ? <X size={26} /> : <Menu size={26} />}
+            {open ? <CloseIcon /> : <MenuIcon />}
           </button>
         </div>
       </div>
