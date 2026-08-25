@@ -34,6 +34,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           ))}
         </nav>
+        <form action="/api/admin/logout" method="POST" className="mt-8 pt-4 border-t border-white/10">
+          <button type="submit" className="text-sm text-white/60 hover:text-red-400">
+            Log Keluar
+          </button>
+        </form>
       </aside>
       <div className="flex-1 p-8">{children}</div>
     </div>
