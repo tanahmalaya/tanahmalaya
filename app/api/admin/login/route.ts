@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL("/admin/login?error=1", req.url));
   }
 
-  setAdminCookie(signAdminSession(admin.id));
-  return NextResponse.redirect(new URL("/admin", req.url));
+  const role = admin.role === "STAFF" ? "STAFF" : "ADMIN";
+  setAdminCookie(signAdminSession(admin.id, role));
+  return NextResponse.redirect(new URL(role === "STAFF" ? "/admin/orders" : "/admin", req.url));
 }

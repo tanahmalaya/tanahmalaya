@@ -1,8 +1,10 @@
 export const dynamic = "force-dynamic";
 
+import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminProductsPage() {
+  requireAdminOnly();
   const products = await prisma.product.findMany({ orderBy: { createdAt: "desc" } });
 
   return (

@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
 
+import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CsvImportForm from "@/components/CsvImportForm";
 
 export default async function AdminMembersPage() {
+  requireAdminOnly();
   const members = await prisma.member.findMany({ orderBy: { createdAt: "desc" } });
 
   return (

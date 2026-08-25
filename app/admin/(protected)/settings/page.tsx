@@ -1,8 +1,10 @@
 export const dynamic = "force-dynamic";
 
+import { requireAdminOnly } from "@/lib/auth";
 import { getYuranKeahlianSen } from "@/lib/settings";
 
 export default async function AdminSettingsPage() {
+  requireAdminOnly();
   const yuranSen = await getYuranKeahlianSen();
   const yuranRM = (yuranSen / 100).toFixed(2);
 

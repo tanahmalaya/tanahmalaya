@@ -1,4 +1,4 @@
-// Skema database Pertubuhan Literasi Tanah (PLT) - tanahmalaya.org
+// Skema database Pertubuhan Literasi Tanah (PLIIT) - tanahmalaya.org
 // Guna PostgreSQL (boleh tukar ke MySQL kalau perlu - tukar "provider" di bawah)
 
 generator client {
@@ -17,6 +17,7 @@ model AdminUser {
   email        String   @unique
   passwordHash String
   name         String
+  role         String   @default("ADMIN") // "ADMIN" (semua akses) atau "STAFF" (Pesanan sahaja)
   createdAt    DateTime @default(now())
 }
 
