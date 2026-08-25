@@ -54,22 +54,54 @@ enum MemberStatus {
   MENUNGGU_BAYARAN
 }
 
-// ---------- KELAS TANAH ----------
+// ---------- PROGRAM & KELAS ----------
 model LandClass {
-  id        String   @id @default(cuid())
-  tarikh    DateTime
-  namaKelas String   // cth: "Kelas Asas 1"
-  topik     String
-  lokasi    String   // cth: "Zoom Online" / "PLT Centre (Kuala Lumpur)"
-  status    ClassStatus @default(TERBUKA)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  tarikh      DateTime
+  namaKelas   String   // cth: "Kelas Asas 1"
+  topik       String
+  jenisKelas  ProgramType @default(OFFLINE)
+  lokasi      String   // cth: "Zoom Online" / "PLT Centre (Kuala Lumpur)"
+  jadual      String?  // cth: "Setiap Isnin & Khamis, 8:00pm-9:00pm"
+  maxPeserta  Int?     // had bilangan peserta/seat, kosong = tiada had
+  yuranSen    Int      @default(0) // yuran kelas dalam sen, 0 = percuma
+  picName     String?  // nama person in charge
+  picContact  String?  // no telefon/emel PIC
+  status      ClassStatus @default(TERBUKA)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  registrations ClassRegistration[]
+}
+
+enum ProgramType {
+  ONLINE
+  OFFLINE
+  HYBRID
 }
 
 enum ClassStatus {
   TERBUKA
   PENUH
   TAMAT
+}
+
+// Pendaftaran peserta untuk satu program/kelas
+model ClassRegistration {
+  id            String   @id @default(cuid())
+  classId       String
+  namaPeserta   String
+  telefon       String
+  emel          String
+  status        RegistrationStatus @default(MENUNGGU)
+  bayarcashRef  String?
+  createdAt     DateTime @default(now())
+  class         LandClass @relation(fields: [classId], references: [id])
+}
+
+enum RegistrationStatus {
+  MENUNGGU
+  BERJAYA
+  GAGAL
 }
 
 // ---------- AKTIVITI ----------

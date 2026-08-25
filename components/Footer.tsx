@@ -10,7 +10,7 @@ export default function Footer() {
             <Image src="/logo-footer.png" alt="Pertubuhan Literasi Tanah" width={120} height={120} />
           </div>
           <p className="text-sm text-white/70">
-            Meningkatkan kesedaran masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
+            Mendidik masyarakat tentang ilmu tanah, undang-undang, hak pemilikan &
             pengurusan harta dengan berilmu.
           </p>
         </div>
@@ -21,7 +21,7 @@ export default function Footer() {
             <li><Link href="/">Utama</Link></li>
             <li><Link href="/tentang-kami">Tentang Kami</Link></li>
             <li><Link href="/keahlian">Keahlian</Link></li>
-            <li><Link href="/kelas-tanah">Kelas Tanah</Link></li>
+            <li><Link href="/kelas-tanah">Program &amp; Kelas</Link></li>
             <li><Link href="/merchandise">Merchandise</Link></li>
             <li><Link href="/aktiviti">Aktiviti</Link></li>
             <li><Link href="/hubungi-kami">Hubungi Kami</Link></li>

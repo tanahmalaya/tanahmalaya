@@ -18,6 +18,7 @@ const BAYARCASH_SECRET_KEY = process.env.BAYARCASH_SECRET_KEY!;
 // ni dengan portal key yang SAMA - kod akan tetap berfungsi.
 export const BAYARCASH_PORTAL_KEAHLIAN = process.env.BAYARCASH_PORTAL_KEY_KEAHLIAN!;
 export const BAYARCASH_PORTAL_MERCHANDISE = process.env.BAYARCASH_PORTAL_KEY_MERCHANDISE!;
+export const BAYARCASH_PORTAL_PROGRAM = process.env.BAYARCASH_PORTAL_KEY_PROGRAM || process.env.BAYARCASH_PORTAL_KEY_KEAHLIAN!;
 
 type CreatePaymentIntentParams = {
   portalKey: string;

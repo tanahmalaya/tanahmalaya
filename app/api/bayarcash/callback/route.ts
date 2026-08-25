@@ -74,5 +74,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  // Kalau bukan pendaftaran keahlian/merchandise, cuba padan dengan pendaftaran Program & Kelas
+  const registration = await prisma.classRegistration.findUnique({ where: { id: orderId } });
+  if (registration) {
+    await prisma.classRegistration.update({
+      where: { id: orderId },
+      data: {
+        status: isPaid ? "BERJAYA" : "GAGAL",
+        bayarcashRef: payload.transaction_id ?? null,
+      },
+    });
+    return NextResponse.json({ ok: true });
+  }
+
   return NextResponse.json({ error: "Order tidak ditemui" }, { status: 404 });
 }

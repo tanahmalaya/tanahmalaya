@@ -8,7 +8,7 @@ const navLinks = [
   { href: "/", label: "UTAMA" },
   { href: "/tentang-kami", label: "TENTANG KAMI" },
   { href: "/keahlian", label: "KEAHLIAN" },
-  { href: "/kelas-tanah", label: "KELAS TANAH" },
+  { href: "/kelas-tanah", label: "PROGRAM & KELAS" },
   { href: "/merchandise", label: "MERCHANDISE" },
   { href: "/aktiviti", label: "AKTIVITI" },
   { href: "/hubungi-kami", label: "HUBUNGI KAMI" },

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 const statusColor: Record<string, string> = {
   TERBUKA: "text-green-600",
@@ -14,16 +15,17 @@ export default async function ClassTable() {
 
   return (
     <section>
-      <h2 className="font-display text-2xl font-bold mb-6">JADUAL KELAS TANAH</h2>
+      <h2 className="font-display text-2xl font-bold mb-6">PROGRAM &amp; KELAS</h2>
       <div className="bg-white rounded-md shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-brand-cream text-left">
             <tr>
               <th className="p-4">Tarikh</th>
-              <th className="p-4">Kelas</th>
+              <th className="p-4">Nama</th>
               <th className="p-4">Topik</th>
               <th className="p-4">Lokasi</th>
               <th className="p-4">Status</th>
+              <th className="p-4"></th>
             </tr>
           </thead>
           <tbody>
@@ -36,12 +38,17 @@ export default async function ClassTable() {
                 <td className={`p-4 font-semibold ${statusColor[k.status]}`}>
                   {k.status === "TERBUKA" ? "Terbuka" : k.status === "PENUH" ? "Penuh" : "Tamat"}
                 </td>
+                <td className="p-4">
+                  <Link href={`/kelas-tanah/${k.id}`} className="text-brand-gold text-xs font-bold">
+                    LIHAT
+                  </Link>
+                </td>
               </tr>
             ))}
             {classes.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-brand-dark/50">
-                  Belum ada kelas dijadualkan. Tambah dari dashboard admin.
+                <td colSpan={6} className="p-6 text-center text-brand-dark/50">
+                  Belum ada program/kelas dijadualkan. Tambah dari dashboard admin.
                 </td>
               </tr>
             )}
