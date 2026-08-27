@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import MemberCount from "@/components/MemberCount";
 
 export default function Hero() {
   return (
@@ -20,6 +21,10 @@ export default function Hero() {
             <Link href="/kelas-tanah" className="border border-white px-6 py-3 rounded-sm font-semibold">
               KELAS SETERUSNYA
             </Link>
+          </div>
+
+          <div className="mt-8">
+            <MemberCount />
           </div>
         </div>
 
