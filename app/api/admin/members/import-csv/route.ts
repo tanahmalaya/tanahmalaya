@@ -1,11 +1,10 @@
-export const dynamic = "force-dynamic";
-
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { parseCsv } from "@/lib/csv";
 
-// Fail CSV perlu ada header (baris pertama) dengan nama lajur ni (huruf besar/kecil tak kira):
+// Fail CSV perlu ada header (baris pertama) dengan nama lajur ni (huruf besar/kecil
+// dan tanda baca tak kira - sistem buang semua tanda baca sebelum banding):
 // memberNo,fullName,icNumber,phone,email
 //
 // Lajur memberNo BOLEH dibiarkan kosong - sistem akan jana automatik.
@@ -23,12 +22,20 @@ export async function POST(req: NextRequest) {
   const text = await file.text();
   const rows = parseCsv(text);
 
-  // Normalize header names (senang kalau Excel guna "Nama" instead of "fullName", dll)
+  // Normalize: buang SEMUA tanda baca/ruang (bukan cuma ruang kosong), huruf kecil.
+  // Kemudian padan jika header MENGANDUNGI (bukan sama PERSIS) kata kunci calon -
+  // ini elak masalah header macam "No Kad Pengenalan (TANPA TANDA -)" tak padan
+  // dengan "nokadpengenalan" sebab ada teks/tanda tambahan.
+  function normalize(s: string) {
+    return s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
   const findKey = (row: Record<string, string>, candidates: string[]) => {
     const keys = Object.keys(row);
-    for (const c of candidates) {
-      const found = keys.find((k) => k.toLowerCase().replace(/\s/g, "") === c.toLowerCase());
-      if (found) return row[found];
+    for (const candidate of candidates) {
+      const normalizedCandidate = normalize(candidate);
+      const found = keys.find((k) => normalize(k).includes(normalizedCandidate));
+      if (found && row[found]) return row[found];
     }
     return "";
   };
@@ -45,15 +52,18 @@ export async function POST(req: NextRequest) {
     .reduce((a, b) => Math.max(a, b), 0);
 
   for (const row of rows) {
-    const fullName = findKey(row, ["fullname", "nama", "namapenuh"]);
-    const icNumber = findKey(row, ["icnumber", "nokp", "nokadpengenalan", "ic"]);
+    const fullName = findKey(row, ["fullname", "namapenuh", "nama"]);
+    const icNumber = findKey(row, ["icnumber", "nokadpengenalan", "nokp", "ic"]);
     const phone = findKey(row, ["phone", "notelefon", "telefon"]);
     const email = findKey(row, ["email", "emel"]);
     let memberNo = findKey(row, ["memberno", "noahli"]);
 
-    if (!fullName || !icNumber) {
+    // Bersihkan No KP - buang apa-apa selain nombor (kadang ada tanda '-' terselit)
+    const icCleaned = icNumber.replace(/\D/g, "");
+
+    if (!fullName || !icCleaned) {
       skipped++;
-      errors.push(`Baris dilangkau (tiada nama/IC): ${JSON.stringify(row)}`);
+      errors.push(`Baris dilangkau (tiada nama/IC): ${fullName || "?"} / ${icNumber || "?"}`);
       continue;
     }
 
@@ -64,12 +74,12 @@ export async function POST(req: NextRequest) {
 
     try {
       await prisma.member.upsert({
-        where: { icNumber },
+        where: { icNumber: icCleaned },
         update: { fullName, phone, email, memberNo },
         create: {
           memberNo,
           fullName,
-          icNumber,
+          icNumber: icCleaned,
           phone: phone || "-",
           email: email || "-",
           status: "AKTIF",
