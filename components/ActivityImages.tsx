@@ -6,25 +6,26 @@ import Image from "next/image";
 export default function ActivityImages({ gambarList, tajuk }: { gambarList: string[]; tajuk: string }) {
   const [zoomIndex, setZoomIndex] = useState<number | null>(null);
 
+  if (gambarList.length === 0) {
+    return <div className="h-32 bg-brand-cream" />;
+  }
+
+  // 1 gambar = satu petak penuh. 2/3/4 gambar = grid 2 lajur, SEMUA petak SAMA SAIZ.
+  const gridCols = gambarList.length === 1 ? "grid-cols-1" : "grid-cols-2";
+
   return (
     <>
-      <div className="relative h-32 bg-brand-cream cursor-pointer" onClick={() => gambarList[0] && setZoomIndex(0)}>
-        {gambarList[0] && <Image src={gambarList[0]} alt={tajuk} fill className="object-contain" />}
+      <div className={`grid ${gridCols} gap-1 p-1 bg-brand-cream`}>
+        {gambarList.map((url, i) => (
+          <div
+            key={i}
+            className="relative aspect-square rounded-sm overflow-hidden cursor-pointer bg-white/50"
+            onClick={() => setZoomIndex(i)}
+          >
+            <Image src={url} alt={`${tajuk} - gambar ${i + 1}`} fill className="object-cover" />
+          </div>
+        ))}
       </div>
-
-      {gambarList.length > 1 && (
-        <div className="flex gap-1 p-1 bg-brand-cream">
-          {gambarList.slice(1).map((url, i) => (
-            <div
-              key={i}
-              className="relative flex-1 h-12 rounded-sm overflow-hidden bg-brand-cream cursor-pointer"
-              onClick={() => setZoomIndex(i + 1)}
-            >
-              <Image src={url} alt={`${tajuk} - gambar ${i + 2}`} fill className="object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
 
       {zoomIndex !== null && (
         <div
