@@ -1,13 +1,25 @@
+export const dynamic = "force-dynamic";
+export const maxDuration = 60; // bagi lebih masa untuk fail besar (jika pelan Vercel sokong)
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { parseCsv } from "@/lib/csv";
 
-// Fail CSV perlu ada header (baris pertama) dengan nama lajur ni (huruf besar/kecil
-// dan tanda baca tak kira - sistem buang semua tanda baca sebelum banding):
-// memberNo,fullName,icNumber,phone,email
-//
-// Lajur memberNo BOLEH dibiarkan kosong - sistem akan jana automatik.
+function normalize(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function findKey(row: Record<string, string>, candidates: string[]): string {
+  const keys = Object.keys(row);
+  for (const candidate of candidates) {
+    const normalizedCandidate = normalize(candidate);
+    const found = keys.find((k) => normalize(k).includes(normalizedCandidate));
+    if (found && row[found]) return row[found];
+  }
+  return "";
+}
+
 export async function POST(req: NextRequest) {
   if (!getAdminSession()) {
     return NextResponse.json({ error: "Tidak dibenarkan" }, { status: 401 });
@@ -22,76 +34,114 @@ export async function POST(req: NextRequest) {
   const text = await file.text();
   const rows = parseCsv(text);
 
-  // Normalize: buang SEMUA tanda baca/ruang (bukan cuma ruang kosong), huruf kecil.
-  // Kemudian padan jika header MENGANDUNGI (bukan sama PERSIS) kata kunci calon -
-  // ini elak masalah header macam "No Kad Pengenalan (TANPA TANDA -)" tak padan
-  // dengan "nokadpengenalan" sebab ada teks/tanda tambahan.
-  function normalize(s: string) {
-    return s.toLowerCase().replace(/[^a-z0-9]/g, "");
-  }
-
-  const findKey = (row: Record<string, string>, candidates: string[]) => {
-    const keys = Object.keys(row);
-    for (const candidate of candidates) {
-      const normalizedCandidate = normalize(candidate);
-      const found = keys.find((k) => normalize(k).includes(normalizedCandidate));
-      if (found && row[found]) return row[found];
-    }
-    return "";
-  };
-
-  let imported = 0;
-  let skipped = 0;
-  const errors: string[] = [];
-
-  // Cari nombor ahli tertinggi sedia ada, untuk jana memberNo automatik jika kosong
-  const existing = await prisma.member.findMany({ select: { memberNo: true } });
-  let highest = existing
+  const existingMembers = await prisma.member.findMany({
+    select: { id: true, icNumber: true, memberNo: true },
+  });
+  const existingByIc = new Map(existingMembers.map((m) => [m.icNumber, m]));
+  let highestNo = existingMembers
     .map((m) => parseInt(m.memberNo.replace(/\D/g, ""), 10))
     .filter((n) => !isNaN(n))
     .reduce((a, b) => Math.max(a, b), 0);
 
+  type Parsed = {
+    icNumber: string;
+    fullName: string;
+    phone: string;
+    email: string;
+    memberNo: string;
+  };
+
+  const toCreate: Parsed[] = [];
+  const toUpdate: (Parsed & { id: string })[] = [];
+  const errors: string[] = [];
+  let skipped = 0;
+
+  const seenInFile = new Set<string>();
+
   for (const row of rows) {
     const fullName = findKey(row, ["fullname", "namapenuh", "nama"]);
-    const icNumber = findKey(row, ["icnumber", "nokadpengenalan", "nokp", "ic"]);
+    const icRaw = findKey(row, ["icnumber", "nokadpengenalan", "nokp", "ic"]);
     const phone = findKey(row, ["phone", "notelefon", "telefon"]);
     const email = findKey(row, ["email", "emel"]);
-    let memberNo = findKey(row, ["memberno", "noahli"]);
+    let memberNo = findKey(row, ["memberno", "noahli"]).trim();
 
-    // Bersihkan No KP - buang apa-apa selain nombor (kadang ada tanda '-' terselit)
-    const icCleaned = icNumber.replace(/\D/g, "");
+    const icNumber = icRaw.replace(/\D/g, "");
 
-    if (!fullName || !icCleaned) {
+    if (!fullName || !icNumber) {
       skipped++;
-      errors.push(`Baris dilangkau (tiada nama/IC): ${fullName || "?"} / ${icNumber || "?"}`);
+      errors.push(`Dilangkau (tiada nama/IC): ${fullName || "?"}`);
       continue;
     }
 
+    if (seenInFile.has(icNumber)) {
+      skipped++;
+      errors.push(`IC bertindih DALAM fail, ambil kemasukan pertama sahaja: ${fullName} (${icNumber})`);
+      continue;
+    }
+    seenInFile.add(icNumber);
+
     if (!memberNo) {
-      highest += 1;
-      memberNo = `PLT-${String(highest).padStart(3, "0")}`;
+      highestNo += 1;
+      memberNo = `PLT-${String(highestNo).padStart(3, "0")}`;
+    } else {
+      const n = parseInt(memberNo.replace(/\D/g, ""), 10);
+      if (!isNaN(n) && n > highestNo) highestNo = n;
     }
 
-    try {
-      await prisma.member.upsert({
-        where: { icNumber: icCleaned },
-        update: { fullName, phone, email, memberNo },
-        create: {
-          memberNo,
-          fullName,
-          icNumber: icCleaned,
-          phone: phone || "-",
-          email: email || "-",
-          status: "AKTIF",
-          addedManually: true,
-        },
-      });
-      imported++;
-    } catch (e) {
-      skipped++;
-      errors.push(`Gagal import ${fullName}: ${(e as Error).message}`);
+    const existing = existingByIc.get(icNumber);
+    if (existing) {
+      toUpdate.push({ id: existing.id, icNumber, fullName, phone: phone || "-", email: email || "-", memberNo });
+    } else {
+      toCreate.push({ icNumber, fullName, phone: phone || "-", email: email || "-", memberNo });
     }
   }
 
-  return NextResponse.json({ imported, skipped, errors: errors.slice(0, 20) });
+  const existingMemberNos = new Set(existingMembers.map((m) => m.memberNo));
+  const usedThisRun = new Set<string>();
+  for (const item of toCreate) {
+    if (existingMemberNos.has(item.memberNo) || usedThisRun.has(item.memberNo)) {
+      highestNo += 1;
+      item.memberNo = `PLT-${String(highestNo).padStart(3, "0")}`;
+    }
+    usedThisRun.add(item.memberNo);
+  }
+
+  let createdCount = 0;
+  if (toCreate.length > 0) {
+    const result = await prisma.member.createMany({
+      data: toCreate.map((m) => ({
+        memberNo: m.memberNo,
+        fullName: m.fullName,
+        icNumber: m.icNumber,
+        phone: m.phone,
+        email: m.email,
+        status: "AKTIF",
+        addedManually: true,
+      })),
+      skipDuplicates: true,
+    });
+    createdCount = result.count;
+  }
+
+  let updatedCount = 0;
+  for (const item of toUpdate) {
+    try {
+      await prisma.member.update({
+        where: { id: item.id },
+        data: { fullName: item.fullName, phone: item.phone, email: item.email },
+      });
+      updatedCount++;
+    } catch (e) {
+      skipped++;
+      errors.push(`Gagal kemaskini ${item.fullName}: ${(e as Error).message}`);
+    }
+  }
+
+  return NextResponse.json({
+    imported: createdCount + updatedCount,
+    created: createdCount,
+    updated: updatedCount,
+    skipped,
+    errors: errors.slice(0, 30),
+  });
 }
