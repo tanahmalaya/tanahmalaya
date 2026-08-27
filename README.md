@@ -1,10 +1,10 @@
-# tanahmalaya.org — Pertubuhan Literasi Tanah (PLIIT)
+# tanahmalaya.org — Pertubuhan Literasi Tanah (PLT)
 
 Website rasmi Pertubuhan Literasi Tanah — No. Pendaftaran PPM-001-10-17042026.
 
 ## Ciri-ciri
 
-- Laman awam: Utama, Tentang Kami, Keahlian, Kelas Tanah, Merchandise, Aktiviti, Hubungi Kami
+- Laman awam: Utama, Tentang Kami, Keahlian, kelas dan program, Merchandise, Aktiviti, Hubungi Kami
 - Borang keahlian + pembayaran BayarCash
 - Dashboard admin (`/admin`) — urus kelas, aktiviti, merchandise, senarai ahli, iklan komuniti
 - Iklan komuniti auto-rotate (roofman, jomnikah, barang thai, dll)

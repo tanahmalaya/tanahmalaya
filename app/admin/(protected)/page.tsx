@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
 
   const stats = [
     { label: "Jumlah Ahli", value: members },
-    { label: "Kelas Tanah", value: classes },
+    { label: "Kelas", value: classes },
     { label: "Aktiviti", value: activities },
     { label: "Produk Merchandise", value: products },
   ];

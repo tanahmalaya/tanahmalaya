@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-const COOKIE_NAME = "pliit_admin_session";
+const COOKIE_NAME = "plt_admin_session";
 
 type AdminRole = "ADMIN" | "STAFF";
 

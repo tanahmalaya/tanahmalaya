@@ -6,7 +6,7 @@ const adminNavItems = [
   { href: "/admin", label: "Ringkasan" },
   { href: "/admin/members", label: "Senarai Ahli" },
   { href: "/admin/orders", label: "Pesanan" },
-  { href: "/admin/classes", label: "Kelas Tanah" },
+  { href: "/admin/classes", label: "Kelas dan Program" },
   { href: "/admin/activities", label: "Aktiviti" },
   { href: "/admin/products", label: "Merchandise" },
   { href: "/admin/ads", label: "Iklan Komuniti" },

@@ -3,7 +3,7 @@ import Link from "next/link";
 const cards = [
   { title: "BORANG KEAHLIAN", desc: "Sertai kami sebagai ahli berdaftar dan nikmati pelbagai manfaat.", cta: "DAFTAR SEKARANG", href: "/keahlian" },
   { title: "PROGRAM & KELAS", desc: "Sertai pelbagai program dan kelas anjuran PLT - tanah, kemahiran, dan banyak lagi.", cta: "LIHAT JADUAL", href: "/kelas-tanah" },
-  { title: "MERCHANDISE", desc: "Dapatkan merchandise eksklusif untuk ahli & penyokong PLIIT.", cta: "KUNJUNGI KEDAI", href: "/merchandise" },
+  { title: "MERCHANDISE", desc: "Dapatkan merchandise eksklusif untuk ahli & penyokong PLT.", cta: "KUNJUNGI KEDAI", href: "/merchandise" },
   { title: "AKTIVITI", desc: "Sertai program, seminar, kembara ilmu dan aktiviti komuniti kami.", cta: "LIHAT AKTIVITI", href: "/aktiviti" },
 ];
 
