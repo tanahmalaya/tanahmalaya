@@ -11,10 +11,10 @@ export default function MembershipCTA() {
         pembelajaran, konsultasi, dan banyak lagi.
       </p>
       <Link
-        href="/Membership"
+        href="/keahlian"
         className="bg-brand-gold text-brand-dark px-5 py-3 rounded-sm font-semibold w-fit"
       >
-        Isi Borang Membership
+        ISI BORANG KEAHLIAN
       </Link>
     </div>
   );

@@ -28,10 +28,10 @@ export default function SertaiKami() {
         </div>
 
         <Link
-          href="/Membership"
+          href="/keahlian"
           className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-dark font-semibold text-sm md:text-base px-8 py-4 rounded-lg hover:bg-brand-gold/90 transition-colors"
         >
-          DAFTAR Membership SEKARANG <span aria-hidden>→</span>
+          DAFTAR KEAHLIAN SEKARANG <span aria-hidden>→</span>
         </Link>
       </div>
     </section>

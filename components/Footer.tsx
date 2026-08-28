@@ -20,10 +20,10 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-white/80">
             <li><Link href="/">Utama</Link></li>
             <li><Link href="/tentang-kami">Tentang Kami</Link></li>
-            <li><Link href="/Membership">Membership</Link></li>
+            <li><Link href="/keahlian">Keahlian</Link></li>
             <li><Link href="/kelas-tanah">Program &amp; Kelas</Link></li>
-            <li><Link href="/Merchandise">Merchandise</Link></li>
-            <li><Link href="/Aktiviti">Aktiviti</Link></li>
+            <li><Link href="/merchandise">Merchandise</Link></li>
+            <li><Link href="/aktiviti">Aktiviti</Link></li>
             <li><Link href="/hubungi-kami">Hubungi Kami</Link></li>
           </ul>
         </div>

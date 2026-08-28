@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const { order_number: orderId, status } = payload;
   const isPaid = status === "3" || status === "success"; // sesuaikan ikut kod status BayarCash sebenar
 
-  // Cuba padan dengan pendaftaran Membership yang MASIH menunggu bayaran
+  // Cuba padan dengan pendaftaran keahlian yang MASIH menunggu bayaran
   const pending = await prisma.pendingRegistration.findUnique({ where: { id: orderId } });
   if (pending) {
     if (isPaid) {
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // Kalau bukan pendaftaran Membership, cuba padan dengan Order (pembelian Merchandise)
+  // Kalau bukan pendaftaran keahlian, cuba padan dengan Order (pembelian Merchandise)
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { items: { include: { product: true } } },
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // Kalau bukan pendaftaran Membership/Merchandise, cuba padan dengan pendaftaran Program & Kelas
+  // Kalau bukan pendaftaran keahlian/merchandise, cuba padan dengan pendaftaran Program & Kelas
   const registration = await prisma.classRegistration.findUnique({ where: { id: orderId } });
   if (registration) {
     await prisma.classRegistration.update({

@@ -15,7 +15,7 @@ export default function Hero() {
             undang-undang tanah dan pemilikan harta secara sah dan berilmu.
           </p>
           <div className="flex gap-4">
-            <Link href="/Membership" className="bg-brand-gold text-brand-dark px-6 py-3 rounded-sm font-semibold">
+            <Link href="/keahlian" className="bg-brand-gold text-brand-dark px-6 py-3 rounded-sm font-semibold">
               SERTAI KAMI
             </Link>
             <Link href="/kelas-tanah" className="border border-white px-6 py-3 rounded-sm font-semibold">

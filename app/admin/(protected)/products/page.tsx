@@ -22,7 +22,7 @@ export default async function AdminProductsPage() {
           <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
             <p className="text-sm font-semibold mb-3">Gambar Produk</p>
           </div>
-          <input name="gambarDepan" placeholder="URL Gambar DEPAN (Utama)" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
+          <input name="gambarDepan" placeholder="URL Gambar DEPAN (utama)" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
           <input name="gambarBelakang" placeholder="URL Gambar BELAKANG (pilihan)" className="border border-brand-dark/20 rounded-sm p-3" />
           <input name="gambarSisi" placeholder="URL Gambar SISI (pilihan)" className="border border-brand-dark/20 rounded-sm p-3" />
           <input name="sizingChartUrl" placeholder="URL Carta Saiz (pilihan)" className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />

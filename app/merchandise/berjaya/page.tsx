@@ -13,7 +13,7 @@ export default function MerchandiseBerjayaPage() {
         resit pembayaran dan kemas kini penghantaran.
       </p>
       <Link
-        href="/Merchandise"
+        href="/merchandise"
         className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm inline-block"
       >
         KEMBALI KE KEDAI

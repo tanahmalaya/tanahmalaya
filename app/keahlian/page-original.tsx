@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 
-export default function MembershipPage() {
+export default function KeahlianPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -35,10 +35,10 @@ export default function MembershipPage() {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
-      <h1 className="font-display text-3xl font-bold mb-2">Borang Membership</h1>
+      <h1 className="font-display text-3xl font-bold mb-2">Borang Keahlian</h1>
       <p className="text-brand-dark/70 mb-8">
         Sertai Pertubuhan Literasi Tanah dan nikmati akses kepada kelas eksklusif,
-        bahan pembelajaran, dan Aktiviti komuniti. Yuran Membership akan diproses
+        bahan pembelajaran, dan aktiviti komuniti. Yuran keahlian akan diproses
         melalui BayarCash.
       </p>
 

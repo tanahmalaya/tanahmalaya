@@ -13,12 +13,12 @@ const BAYARCASH_PAT = process.env.BAYARCASH_PAT!;
 const BAYARCASH_SECRET_KEY = process.env.BAYARCASH_SECRET_KEY!;
 
 // Dua portal berasingan supaya laporan BayarCash senang diasingkan:
-// satu untuk yuran Membership, satu untuk jualan Merchandise.
+// satu untuk yuran keahlian, satu untuk jualan merchandise.
 // Kalau Tuan cuma nak SATU portal untuk semua, isi kedua-dua env var
 // ni dengan portal key yang SAMA - kod akan tetap berfungsi.
-export const BAYARCASH_PORTAL_Membership = process.env.BAYARCASH_PORTAL_KEY_Membership!;
-export const BAYARCASH_PORTAL_Merchandise = process.env.BAYARCASH_PORTAL_KEY_Merchandise!;
-export const BAYARCASH_PORTAL_PROGRAM = process.env.BAYARCASH_PORTAL_KEY_PROGRAM || process.env.BAYARCASH_PORTAL_KEY_Membership!;
+export const BAYARCASH_PORTAL_KEAHLIAN = process.env.BAYARCASH_PORTAL_KEY_KEAHLIAN!;
+export const BAYARCASH_PORTAL_MERCHANDISE = process.env.BAYARCASH_PORTAL_KEY_MERCHANDISE!;
+export const BAYARCASH_PORTAL_PROGRAM = process.env.BAYARCASH_PORTAL_KEY_PROGRAM || process.env.BAYARCASH_PORTAL_KEY_KEAHLIAN!;
 
 type CreatePaymentIntentParams = {
   portalKey: string;
@@ -28,7 +28,7 @@ type CreatePaymentIntentParams = {
   payerEmail: string;
   payerPhone: string;
   description: string;
-  returnPath: string; // cth: "/Membership/berjaya" atau "/Merchandise/berjaya"
+  returnPath: string; // cth: "/keahlian/berjaya" atau "/merchandise/berjaya"
 };
 
 /**

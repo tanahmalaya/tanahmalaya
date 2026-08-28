@@ -23,13 +23,13 @@ export default function ProductGridClient({ products }: { products: Product[] })
     <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
       {products.map((p) => (
         <div key={p.id} className="bg-white rounded-md shadow-sm overflow-hidden flex flex-col">
-          <Link href={`/Merchandise/${p.id}`} className="relative aspect-square bg-brand-cream">
+          <Link href={`/merchandise/${p.id}`} className="relative aspect-square bg-brand-cream">
             {p.gambarDepan && (
               <Image src={p.gambarDepan} alt={p.nama} fill className="object-cover" />
             )}
           </Link>
           <div className="p-3 flex flex-col flex-1">
-            <Link href={`/Merchandise/${p.id}`} className="text-sm font-semibold mb-1 line-clamp-2">
+            <Link href={`/merchandise/${p.id}`} className="text-sm font-semibold mb-1 line-clamp-2">
               {p.nama}
             </Link>
             <p className="text-brand-gold font-bold text-sm mb-3">{formatRM(p.hargaSen)}</p>

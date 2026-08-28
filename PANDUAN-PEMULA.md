@@ -8,9 +8,9 @@ penjelasan apa yang sedang berlaku dan kenapa.
 
 ## Bahagian 0: Fahami dulu apa yang kita buat
 
-Website ni ada 3 bahagian Utama:
+Website ni ada 3 bahagian utama:
 
-1. **Frontend** — apa yang pelawat nampak (laman Utama, borang, dll)
+1. **Frontend** — apa yang pelawat nampak (laman utama, borang, dll)
 2. **Backend** — "otak" yang proses data (API)
 3. **Database** — tempat simpan semua data (ahli, kelas, produk, dll) —
    kita guna servis luar bernama **Supabase** untuk ni (percuma)
@@ -174,7 +174,7 @@ Tunggu sampai keluar mesej macam `Ready in X ms`. Kemudian:
 - Pergi ke **http://localhost:3000/admin** — log masuk dengan emel/password
   dari Bahagian 5
 
-Website akan **kosong** buat masa ni (takde kelas/produk/Aktiviti lagi) —
+Website akan **kosong** buat masa ni (takde kelas/produk/aktiviti lagi) —
 tu normal, sebab database baru je siap dicipta. Tuan boleh tambah data
 melalui dashboard admin.
 

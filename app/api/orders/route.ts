@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_Merchandise } from "@/lib/bayarcash";
+import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
 import { calculateShipping } from "@/lib/pricing";
 import { z } from "zod";
 
@@ -105,14 +105,14 @@ export async function POST(req: NextRequest) {
   });
 
   const intent = await createBayarcashPaymentIntent({
-    portalKey: BAYARCASH_PORTAL_Merchandise,
+    portalKey: BAYARCASH_PORTAL_MERCHANDISE,
     orderId: order.id,
     amountSen: jumlahSen,
     payerName: data.namaPembeli,
     payerEmail: data.emel,
     payerPhone: data.telefon,
     description: `Pembelian ${descParts.join(", ")} - PLT`.slice(0, 250),
-    returnPath: "/Merchandise/berjaya",
+    returnPath: "/merchandise/berjaya",
   });
 
   return NextResponse.json({ url: intent.url });

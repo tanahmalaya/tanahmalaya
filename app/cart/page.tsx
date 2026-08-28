@@ -15,7 +15,7 @@ export default function CartPage() {
         <div className="text-center py-12 bg-white rounded-md shadow-sm border border-brand-cream">
           <p className="text-gray-600 mb-4">Trolley anda masih kosong.</p>
           <Link
-            href="/Merchandise"
+            href="/merchandise"
             className="inline-block bg-brand-gold text-brand-dark font-semibold px-6 py-2 rounded-sm text-sm"
           >
             LIHAT Merchandise

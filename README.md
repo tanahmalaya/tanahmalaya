@@ -4,9 +4,9 @@ Website rasmi Pertubuhan Literasi Tanah — No. Pendaftaran PPM-001-10-17042026.
 
 ## Ciri-ciri
 
-- Laman awam: Utama, Tentang Kami, Membership, kelas dan program, Merchandise, Aktiviti, Hubungi Kami
-- Borang Membership + pembayaran BayarCash
-- Dashboard admin (`/admin`) — urus kelas, Aktiviti, Merchandise, senarai ahli, iklan komuniti
+- Laman awam: Utama, Tentang Kami, Keahlian, kelas dan program, Merchandise, Aktiviti, Hubungi Kami
+- Borang Keahlian + pembayaran BayarCash
+- Dashboard admin (`/admin`) — urus kelas, aktiviti, merchandise, senarai ahli, iklan komuniti
 - Iklan komuniti auto-rotate (roofman, jomnikah, barang thai, dll)
 
 ## 1. Pasang dependency
@@ -62,7 +62,7 @@ Buka http://localhost:3000 untuk laman awam, dan http://localhost:3000/admin unt
 
 ## 7. Letak gambar sebenar
 
-Gantikan placeholder di `public/hero-geran.jpg` dengan gambar geran hakmilik sebenar, dan muat naik logo/gambar produk/Aktiviti melalui dashboard admin (medan URL gambar — boleh guna perkhidmatan seperti Cloudinary/UploadThing untuk hosting gambar).
+Gantikan placeholder di `public/hero-geran.jpg` dengan gambar geran hakmilik sebenar, dan muat naik logo/gambar produk/aktiviti melalui dashboard admin (medan URL gambar — boleh guna perkhidmatan seperti Cloudinary/UploadThing untuk hosting gambar).
 
 ## 8. Deploy
 

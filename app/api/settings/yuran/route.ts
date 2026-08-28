@@ -1,9 +1,9 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { getYuranMembershipSen } from "@/lib/settings";
+import { getYuranKeahlianSen } from "@/lib/settings";
 
 export async function GET() {
-  const yuranSen = await getYuranMembershipSen();
+  const yuranSen = await getYuranKeahlianSen();
   return NextResponse.json({ yuranSen });
 }
