@@ -29,7 +29,7 @@ type Quote = {
 };
 
 export default function ProductCheckoutForm({ productId, stok }: { productId?: string; stok?: number }) {
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, updateQty, removeFromCart } = useCart();
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -171,11 +171,46 @@ export default function ProductCheckoutForm({ productId, stok }: { productId?: s
         {cart.length === 0 ? (
           <p className="text-xs text-gray-500">Tiada barangan tambahan dalam trolley.</p>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {cart.map((item) => (
-              <div key={item.id} className="text-xs flex justify-between text-gray-700">
-                <span>{item.name} (x{item.quantity})</span>
-                <span>RM {(item.price * item.quantity).toFixed(2)}</span>
+              <div
+                key={item.id}
+                className="text-xs text-gray-700 border-b border-brand-cream/60 pb-2 last:border-0 last:pb-0"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <span className="flex-1">{item.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-500 text-sm leading-none px-1"
+                    aria-label={`Buang ${item.name} daripada trolley`}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => updateQty(item.id, Math.max(1, item.quantity - 1))}
+                      disabled={item.quantity <= 1}
+                      className="w-6 h-6 flex items-center justify-center border border-brand-dark/20 rounded-sm font-semibold leading-none disabled:opacity-30"
+                      aria-label={`Kurangkan kuantiti ${item.name}`}
+                    >
+                      −
+                    </button>
+                    <span className="w-5 text-center">{item.quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateQty(item.id, Math.min(99, item.quantity + 1))}
+                      className="w-6 h-6 flex items-center justify-center border border-brand-dark/20 rounded-sm font-semibold leading-none"
+                      aria-label={`Tambahkan kuantiti ${item.name}`}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span>RM {(item.price * item.quantity).toFixed(2)}</span>
+                </div>
               </div>
             ))}
           </div>
