@@ -117,12 +117,27 @@ export async function submitEasyParcelOrder(params: SubmitOrderParams) {
 
   const data = await res.json();
   const result = data?.result?.[0];
+  const parcel = result?.parcel?.[0];
+
+  // EasyParcel pulangkan sebab kegagalan (cth: baki akaun tak cukup, alamat
+  // tak sah, dll) dalam pelbagai medan berbeza ikut jenis ralat - kita cuba
+  // semua kemungkinan supaya admin nampak sebab SEBENAR, bukan mesej generik.
+  const errorMessage: string | null =
+    result?.remarks ||
+    result?.reason ||
+    parcel?.remarks ||
+    parcel?.reason ||
+    data?.error?.message ||
+    data?.error_remark ||
+    (typeof data?.error === "string" ? data.error : null) ||
+    null;
 
   return {
     success: result?.status === "Success",
     orderNo: result?.order_number ?? null,
-    trackingNumber: result?.parcel?.[0]?.awb ?? null,
-    courierName: result?.parcel?.[0]?.courier ?? null,
+    trackingNumber: parcel?.awb ?? null,
+    courierName: parcel?.courier ?? null,
+    errorMessage,
     raw: result,
   };
 }

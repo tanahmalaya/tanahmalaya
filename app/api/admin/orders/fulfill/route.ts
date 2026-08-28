@@ -64,7 +64,11 @@ export async function POST(req: NextRequest) {
         });
         results.push({ id: orderId, success: true });
       } else {
-        throw new Error("EasyParcel tidak pulangkan tracking number");
+        throw new Error(
+          booking.errorMessage
+            ? `EasyParcel gagal: ${booking.errorMessage}`
+            : "EasyParcel tidak pulangkan tracking number (tiada sebab dipulangkan - semak baki akaun EasyParcel atau cuba lagi)"
+        );
       }
     } catch (e) {
       const message = (e as Error).message;
