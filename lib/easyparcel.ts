@@ -23,6 +23,10 @@ type RateCheckParams = {
   destPostcode: string;
   destState: string;
   weightKg: number;
+  // Kalau diisi, cuba cari kurier yang SAMA dulu (supaya konsisten dengan
+  // apa yang customer nampak/bayar masa checkout) - kalau tak jumpa,
+  // fallback kepada kadar termurah yang tersedia.
+  preferCourierName?: string | null;
 };
 
 type RateResult = {
@@ -56,14 +60,20 @@ export async function checkEasyParcelRate(params: RateCheckParams): Promise<Rate
   const rates = data?.result?.[0]?.rates;
   if (!rates || rates.length === 0) return null;
 
-  // Ambil kadar TERMURAH yang tersedia
-  const cheapest = rates.reduce((a: any, b: any) => (parseFloat(a.price) < parseFloat(b.price) ? a : b));
+  let chosen = params.preferCourierName
+    ? rates.find((r: any) => r.courier_name === params.preferCourierName)
+    : undefined;
+
+  if (!chosen) {
+    // Ambil kadar TERMURAH yang tersedia
+    chosen = rates.reduce((a: any, b: any) => (parseFloat(a.price) < parseFloat(b.price) ? a : b));
+  }
 
   return {
-    rateId: cheapest.rate_id,
-    serviceId: cheapest.service_id,
-    courierName: cheapest.courier_name,
-    priceSen: Math.round(parseFloat(cheapest.price) * 100),
+    rateId: chosen.rate_id,
+    serviceId: chosen.service_id,
+    courierName: chosen.courier_name,
+    priceSen: Math.round(parseFloat(chosen.price) * 100),
   };
 }
 

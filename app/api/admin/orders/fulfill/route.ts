@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
-import { submitEasyParcelOrder } from "@/lib/easyparcel";
+import { submitEasyParcelOrder, checkEasyParcelRate } from "@/lib/easyparcel";
 
 const MAX_BULK = 30;
 
@@ -33,10 +33,27 @@ export async function POST(req: NextRequest) {
         order.items.reduce((sum, item) => sum + (item.product.beratGram ?? 500) * item.kuantiti, 0) / 1000;
       const kandungan = order.items.map((item) => `${item.product.nama} x${item.kuantiti}`).join(", ");
       const nilaiRM = order.jumlahSen / 100;
-      const serviceId = order.serviceId || process.env.EASYPARCEL_DEFAULT_SERVICE_ID || "";
+
+      // service_id yang disimpan masa checkout (atau default statik untuk
+      // produk FLAT) boleh dah LUPUT sebab EasyParcel punya rate quote ada
+      // tempoh sah terhad. Sebelum booking, semak kadar SEKALI LAGI sekarang
+      // supaya service_id yang dipakai untuk booking sentiasa sah/terkini.
+      // Cuba kekalkan kurier yang sama macam masa checkout (courierName
+      // asal) supaya konsisten dengan apa yang customer nampak/bayar; kalau
+      // kurier tu dah tak tersedia, fallback kepada kadar termurah semasa.
+      const freshRate = await checkEasyParcelRate({
+        destPostcode: order.poskod,
+        destState: order.negeri,
+        weightKg: totalBeratKg,
+        preferCourierName: order.courierName,
+      });
+
+      const serviceId =
+        freshRate?.serviceId || order.serviceId || process.env.EASYPARCEL_DEFAULT_SERVICE_ID || "";
+      const courierNameGuna = freshRate?.courierName ?? order.courierName;
 
       if (!serviceId) {
-        throw new Error("Tiada service_id - semak tetapan penghantaran produk");
+        throw new Error("Tiada service_id - semak tetapan penghantaran produk atau destinasi tidak dilayan EasyParcel");
       }
 
       const booking = await submitEasyParcelOrder({
@@ -58,7 +75,8 @@ export async function POST(req: NextRequest) {
           data: {
             easyparcelOrderNo: booking.orderNo,
             trackingNumber: booking.trackingNumber,
-            courierName: booking.courierName ?? order.courierName,
+            courierName: booking.courierName ?? courierNameGuna,
+            serviceId,
             fulfillmentError: null,
           },
         });
