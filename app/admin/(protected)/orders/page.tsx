@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { BelumFulfillPanel, SudahFulfillPanel } from "@/components/OrderFulfillmentPanels";
+import { BelumFulfillPanel, SudahFulfillPanel, GagalFulfillPanel } from "@/components/OrderFulfillmentPanels";
 
 export default async function AdminOrdersPage() {
   const allOrders = await prisma.order.findMany({
@@ -52,16 +52,7 @@ export default async function AdminOrdersPage() {
           <h2 className="font-semibold mb-3 text-red-600">
             Gagal Fulfill ({gagalFulfill.length}) — perlu semakan
           </h2>
-          <div className="space-y-2">
-            {gagalFulfill.map((o) => (
-              <div key={o.id} className="bg-white rounded-md shadow-sm p-4 text-sm border border-red-200">
-                <p className="font-semibold">
-                  #{o.seq} — {o.namaPembeli}
-                </p>
-                <p className="text-red-600 text-xs mt-1">{o.fulfillmentError}</p>
-              </div>
-            ))}
-          </div>
+          <GagalFulfillPanel orders={gagalFulfill} />
         </section>
       )}
 
