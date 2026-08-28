@@ -1,11 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import { requireAdminOnly } from "@/lib/auth";
-import { getYuranKeahlianSen } from "@/lib/settings";
+import { getYuranMembershipSen } from "@/lib/settings";
 
 export default async function AdminSettingsPage() {
   requireAdminOnly();
-  const yuranSen = await getYuranKeahlianSen();
+  const yuranSen = await getYuranMembershipSen();
   const yuranRM = (yuranSen / 100).toFixed(2);
 
   return (
@@ -13,13 +13,13 @@ export default async function AdminSettingsPage() {
       <h1 className="font-display text-2xl font-bold mb-6">Tetapan</h1>
 
       <div className="bg-white rounded-md shadow-sm p-6 max-w-md">
-        <h2 className="font-semibold mb-4">Yuran Keahlian</h2>
+        <h2 className="font-semibold mb-4">Yuran Membership</h2>
         <form action="/api/settings" method="POST" className="space-y-4">
           <div>
             <label className="block text-sm font-semibold mb-1">Jumlah Yuran (RM)</label>
             <input
               type="number"
-              name="yuranKeahlian"
+              name="yuranMembership"
               step="0.01"
               min="0"
               defaultValue={yuranRM}

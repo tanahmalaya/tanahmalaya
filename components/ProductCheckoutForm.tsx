@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useCart } from "@/app/context/CartContext";
 
 const NEGERI_LIST = [
   "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang",
@@ -12,15 +13,23 @@ function formatRM(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
 }
 
-type Quote = {
+type QuoteItem = {
+  id: string;
   namaProduk: string;
+  kuantiti: number;
   hargaBarangSen: number;
+};
+
+type Quote = {
+  items: QuoteItem[];
+  subtotalSen: number;
   shippingSen: number;
   jumlahSen: number;
   courierName: string | null;
 };
 
-export default function ProductCheckoutForm({ productId, stok }: { productId: string; stok: number }) {
+export default function ProductCheckoutForm({ productId, stok }: { productId?: string; stok?: number }) {
+  const { cart, clearCart } = useCart();
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -34,13 +43,16 @@ export default function ProductCheckoutForm({ productId, stok }: { productId: st
 
     const fd = new FormData(e.currentTarget);
 
+    const orderItems = cart.length > 0
+      ? cart.map((item) => ({ productId: item.id, kuantiti: item.quantity }))
+      : [{ productId: fd.get("productId") || productId, kuantiti: Number(fd.get("kuantiti") || 1) }];
+
     try {
       const res = await fetch("/api/orders/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productId: fd.get("productId"),
-          kuantiti: fd.get("kuantiti"),
+          items: orderItems,
           poskod: fd.get("poskod"),
           negeri: fd.get("negeri"),
         }),
@@ -62,13 +74,19 @@ export default function ProductCheckoutForm({ productId, stok }: { productId: st
     if (!formData) return;
     setLoading(true);
     setError("");
+
+    const payload = new FormData();
+    formData.forEach((value, key) => payload.append(key, value));
+    payload.append("cart", JSON.stringify(cart));
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
-        body: formData,
+        body: payload,
       });
       const result = await res.json();
       if (result.url) {
+        clearCart();
         window.location.href = result.url;
       } else {
         setError(result.error || "Gagal mendapatkan pautan pembayaran.");
@@ -83,7 +101,7 @@ export default function ProductCheckoutForm({ productId, stok }: { productId: st
   if (step === "confirm" && quote && formData) {
     return (
       <div className="bg-white p-5 rounded-md shadow-sm space-y-4">
-        <h3 className="font-semibold text-lg">Sahkan Pesanan</h3>
+        <h3 className="font-semibold text-lg border-b pb-2">Sahkan Pesanan</h3>
 
         <div className="text-sm space-y-1 border-b border-brand-cream pb-4">
           <p><strong>Nama:</strong> {String(formData.get("namaPembeli"))}</p>
@@ -95,27 +113,34 @@ export default function ProductCheckoutForm({ productId, stok }: { productId: st
           </p>
         </div>
 
-        <div className="text-sm space-y-1 border-b border-brand-cream pb-4">
-          <div className="flex justify-between">
-            <span>
-              {quote.namaProduk} x{String(formData.get("kuantiti"))}
-            </span>
-            <span>{formatRM(quote.hargaBarangSen)}</span>
-          </div>
-          <div className="flex justify-between text-brand-dark/70">
+        <div className="text-sm space-y-2 border-b border-brand-cream pb-4">
+          <p className="font-semibold">Barangan Pesanan:</p>
+          {quote.items ? (
+            quote.items.map((item, idx) => (
+              <div key={idx} className="flex justify-between">
+                <span>{item.namaProduk} x{item.kuantiti}</span>
+                <span>{formatRM(item.hargaBarangSen)}</span>
+              </div>
+            ))
+          ) : (
+            <div className="flex justify-between">
+              <span>x{String(formData.get("kuantiti") || 1)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-brand-dark/70 pt-2 border-t">
             <span>Penghantaran{quote.courierName ? ` (${quote.courierName})` : ""}</span>
             <span>{formatRM(quote.shippingSen)}</span>
           </div>
         </div>
 
         <div className="flex justify-between font-bold text-lg">
-          <span>Jumlah</span>
+          <span>Jumlah Keseluruhan</span>
           <span className="text-brand-gold">{formatRM(quote.jumlahSen)}</span>
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-2">
           <button
             type="button"
             onClick={() => setStep("form")}
@@ -139,19 +164,39 @@ export default function ProductCheckoutForm({ productId, stok }: { productId: st
 
   return (
     <form onSubmit={handleReview} className="space-y-3 bg-white p-5 rounded-md shadow-sm">
-      <input type="hidden" name="productId" value={productId} />
-      <div>
-        <label className="block text-xs font-semibold mb-1">Kuantiti</label>
-        <input
-          type="number"
-          name="kuantiti"
-          min={1}
-          max={stok}
-          defaultValue={1}
-          required
-          className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm"
-        />
+      <input type="hidden" name="productId" value={productId || ""} />
+
+      <div className="border-b pb-3 mb-3">
+        <h4 className="font-semibold text-sm mb-2">Ringkasan Trolley ({cart.length} Barangan)</h4>
+        {cart.length === 0 ? (
+          <p className="text-xs text-gray-500">Tiada barangan tambahan dalam trolley.</p>
+        ) : (
+          <div className="space-y-1">
+            {cart.map((item) => (
+              <div key={item.id} className="text-xs flex justify-between text-gray-700">
+                <span>{item.name} (x{item.quantity})</span>
+                <span>RM {(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {cart.length === 0 && (
+        <div>
+          <label className="block text-xs font-semibold mb-1">Kuantiti</label>
+          <input
+            type="number"
+            name="kuantiti"
+            min={1}
+            max={stok || 99}
+            defaultValue={1}
+            required
+            className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm"
+          />
+        </div>
+      )}
+
       <div>
         <label className="block text-xs font-semibold mb-1">Nama Penuh</label>
         <input name="namaPembeli" required className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm" />

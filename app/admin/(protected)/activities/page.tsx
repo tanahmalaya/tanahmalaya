@@ -25,7 +25,7 @@ export default async function AdminActivitiesPage() {
           <input name="gambar3" placeholder="URL Gambar 3" className="border border-brand-dark/20 rounded-sm p-3" />
           <input name="gambar4" placeholder="URL Gambar 4" className="border border-brand-dark/20 rounded-sm p-3" />
           <button type="submit" className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-4 py-3 sm:col-span-2">
-            TAMBAH AKTIVITI
+            TAMBAH Aktiviti
           </button>
         </form>
       </div>

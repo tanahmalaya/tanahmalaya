@@ -11,7 +11,7 @@ export default async function AdminAdsPage() {
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Urus Iklan Komuniti</h1>
       <p className="text-brand-dark/60 text-sm mb-6">
-        Iklan di sini akan dipaparkan secara auto-rotate di bahagian bawah laman utama
+        Iklan di sini akan dipaparkan secara auto-rotate di bahagian bawah laman Utama
         (cth: Roofman, JomNikah, Barang Thai).
       </p>
 

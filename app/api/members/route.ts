@@ -2,8 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_KEAHLIAN } from "@/lib/bayarcash";
-import { getYuranKeahlianSen } from "@/lib/settings";
+import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_Membership } from "@/lib/bayarcash";
+import { getYuranMembershipSen } from "@/lib/settings";
 import { z } from "zod";
 
 const schema = z.object({
@@ -41,17 +41,17 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const yuranSen = await getYuranKeahlianSen();
+  const yuranSen = await getYuranMembershipSen();
 
   const intent = await createBayarcashPaymentIntent({
-    portalKey: BAYARCASH_PORTAL_KEAHLIAN,
+    portalKey: BAYARCASH_PORTAL_Membership,
     orderId: pending.id,
     amountSen: yuranSen,
     payerName: pending.fullName,
     payerEmail: pending.email,
     payerPhone: pending.phone,
-    description: `Yuran Keahlian PLT - ${pending.fullName}`,
-    returnPath: "/keahlian/berjaya",
+    description: `Yuran Membership PLT - ${pending.fullName}`,
+    returnPath: "/Membership/berjaya",
   });
 
   return NextResponse.json({ url: intent.url });

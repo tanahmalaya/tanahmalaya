@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const cards = [
-  { title: "BORANG KEAHLIAN", desc: "Sertai kami sebagai ahli berdaftar dan nikmati pelbagai manfaat.", cta: "DAFTAR SEKARANG", href: "/keahlian" },
-  { title: "PROGRAM & KELAS", desc: "Sertai pelbagai program dan kelas anjuran PLT - tanah, kemahiran, dan banyak lagi.", cta: "LIHAT JADUAL", href: "/kelas-tanah" },
-  { title: "MERCHANDISE", desc: "Dapatkan merchandise eksklusif untuk ahli & penyokong PLT.", cta: "KUNJUNGI KEDAI", href: "/merchandise" },
-  { title: "AKTIVITI", desc: "Sertai program, seminar, kembara ilmu dan aktiviti komuniti kami.", cta: "LIHAT AKTIVITI", href: "/aktiviti" },
+  { title: "Borang Membership", desc: "Sertai kami sebagai ahli berdaftar dan nikmati pelbagai manfaat.", cta: "DAFTAR SEKARANG", href: "/Membership" },
+  { title: "Program & Kelas", desc: "Sertai pelbagai program dan kelas anjuran PLT - tanah, kemahiran, dan banyak lagi.", cta: "LIHAT JADUAL", href: "/kelas-tanah" },
+  { title: "Merchandise", desc: "Dapatkan Merchandise eksklusif untuk ahli & penyokong PLT.", cta: "KUNJUNGI KEDAI", href: "/Merchandise" },
+  { title: "Aktiviti", desc: "Sertai program, seminar, kembara ilmu dan Aktiviti komuniti kami.", cta: "LIHAT Aktiviti", href: "/Aktiviti" },
 ];
 
 export default function FeatureCards() {

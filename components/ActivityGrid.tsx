@@ -9,7 +9,7 @@ export default async function ActivityGrid() {
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-16">
-      <h2 className="font-display text-2xl font-bold mb-6">AKTIVITI TERKINI</h2>
+      <h2 className="font-display text-2xl font-bold mb-6">Aktiviti TERKINI</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {activities.map((a) => {
           const gambarList = [a.gambar1, a.gambar2, a.gambar3, a.gambar4].filter(
@@ -31,7 +31,7 @@ export default async function ActivityGrid() {
         })}
         {activities.length === 0 && (
           <p className="col-span-full text-brand-dark/50">
-            Belum ada aktiviti. Tambah dari dashboard admin.
+            Belum ada Aktiviti. Tambah dari dashboard admin.
           </p>
         )}
       </div>

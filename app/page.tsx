@@ -20,7 +20,7 @@ export default async function HomePage() {
       <Hero />
       <FeatureCards />
 
-      <div className="max-w-7xl mx-auto px-6 pt-16 grid lg:grid-cols-3 gap-8 items-start">
+      <div className="max-w-8xl mx-auto px-6 lg:px-10 pt-20 lg:pt-28 grid lg:grid-cols-3 gap-10 lg:gap-14 items-start">
         <div className="lg:col-span-2">
           <ClassTable />
         </div>
@@ -29,9 +29,15 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <ProductGrid />
-      <ActivityGrid />
-      <AdCarousel ads={ads} />
+      <div className="mt-20 lg:mt-28">
+        <ProductGrid />
+      </div>
+      <div className="mt-20 lg:mt-28">
+        <ActivityGrid />
+      </div>
+      <div className="mt-20 lg:mt-28 mb-20 lg:mb-28">
+        <AdCarousel ads={ads} />
+      </div>
     </>
   );
 }

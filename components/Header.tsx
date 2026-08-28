@@ -3,15 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useCart } from "@/app/context/CartContext"; // 1. Import useCart (laraskan path jika berbeza)
 
 const navLinks = [
-  { href: "/", label: "UTAMA" },
-  { href: "/tentang-kami", label: "TENTANG KAMI" },
-  { href: "/keahlian", label: "KEAHLIAN" },
-  { href: "/kelas-tanah", label: "PROGRAM & KELAS" },
-  { href: "/merchandise", label: "MERCHANDISE" },
-  { href: "/aktiviti", label: "AKTIVITI" },
-  { href: "/hubungi-kami", label: "HUBUNGI KAMI" },
+  { href: "/", label: "Utama" },
+  { href: "/tentang-kami", label: "Tentang Kami" },
+  { href: "/Membership", label: "Membership" },
+  { href: "/kelas-tanah", label: "Program & Kelas" },
+  { href: "/Merchandise", label: "Merchandise" },
+  { href: "/Aktiviti", label: "Aktiviti" },
+  { href: "/hubungi-kami", label: "Hubungi Kami" },
 ];
 
 function MenuIcon() {
@@ -33,8 +34,23 @@ function CloseIcon() {
   );
 }
 
+// SVG Ikon Trolley
+function CartIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  );
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false);
+  
+  // 2. Ambil data cart dan kira total item
+  const { cart } = useCart();
+  const totalItems = cart ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
 
   return (
     <header className="bg-brand-dark text-white relative">
@@ -66,9 +82,23 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          {/* 3. Butang Trolley (Paparan Desktop & Mobile) */}
           <Link
-            href="/keahlian"
+            href="/cart" // atau lokasi halaman borang checkout anda
+            className="relative p-2 text-white hover:text-brand-gold transition-colors flex items-center"
+            aria-label="Trolley Pesanan"
+          >
+            <CartIcon />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-brand-dark">
+                {totalItems}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            href="/Membership"
             className="hidden sm:inline-block bg-brand-gold text-brand-dark px-5 py-2 rounded-sm text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity"
           >
             DAFTAR SEKARANG
@@ -99,7 +129,7 @@ export default function Header() {
             </Link>
           ))}
           <Link
-            href="/keahlian"
+            href="/Membership"
             onClick={() => setOpen(false)}
             className="mt-2 bg-brand-gold text-brand-dark text-center px-5 py-3 rounded-sm text-sm font-semibold active:opacity-80"
           >

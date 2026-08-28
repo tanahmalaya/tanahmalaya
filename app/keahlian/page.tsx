@@ -6,7 +6,7 @@ function formatRM(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
 }
 
-export default function KeahlianPage() {
+export default function MembershipPage() {
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -76,7 +76,7 @@ export default function KeahlianPage() {
           </div>
 
           <div className="flex justify-between font-bold text-lg">
-            <span>Yuran Keahlian</span>
+            <span>Yuran Membership</span>
             <span className="text-brand-gold">{formatRM(yuranSen)}</span>
           </div>
 
@@ -107,10 +107,10 @@ export default function KeahlianPage() {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
-      <h1 className="font-display text-3xl font-bold mb-2">Borang Keahlian</h1>
+      <h1 className="font-display text-3xl font-bold mb-2">Borang Membership</h1>
       <p className="text-brand-dark/70 mb-8">
         Sertai Pertubuhan Literasi Tanah dan nikmati akses kepada kelas eksklusif,
-        bahan pembelajaran, dan aktiviti komuniti. Yuran keahlian akan diproses
+        bahan pembelajaran, dan Aktiviti komuniti. Yuran Membership akan diproses
         melalui BayarCash.
       </p>
 

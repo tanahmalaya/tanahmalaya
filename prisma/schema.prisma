@@ -21,8 +21,8 @@ model AdminUser {
   createdAt    DateTime @default(now())
 }
 
-// ---------- KEAHLIAN ----------
-// Rekod SEMENTARA - simpan borang keahlian semasa pelawat tengah bayar.
+// ---------- Membership ----------
+// Rekod SEMENTARA - simpan borang Membership semasa pelawat tengah bayar.
 // Bila bayaran BERJAYA, rekod Member sebenar baru dicipta dan ini dipadam.
 model PendingRegistration {
   id        String   @id @default(cuid())
@@ -54,7 +54,7 @@ enum MemberStatus {
   MENUNGGU_BAYARAN
 }
 
-// ---------- PROGRAM & KELAS ----------
+// ---------- Program & Kelas ----------
 model LandClass {
   id          String   @id @default(cuid())
   tarikh      DateTime
@@ -104,7 +104,7 @@ enum RegistrationStatus {
   GAGAL
 }
 
-// ---------- AKTIVITI ----------
+// ---------- Aktiviti ----------
 model Activity {
   id          String   @id @default(cuid())
   tarikh      DateTime
@@ -118,7 +118,7 @@ model Activity {
   updatedAt   DateTime @updatedAt
 }
 
-// ---------- MERCHANDISE ----------
+// ---------- Merchandise ----------
 model Setting {
   key   String @id
   value String
@@ -129,7 +129,7 @@ model Product {
   nama           String
   penerangan     String?
   hargaSen       Int      // simpan dalam sen supaya elak isu titik perpuluhan
-  gambarDepan    String?  // gambar utama - dipaparkan dalam senarai produk
+  gambarDepan    String?  // gambar Utama - dipaparkan dalam senarai produk
   gambarBelakang String?
   gambarSisi     String?
   sizingChartUrl String?  // carta saiz (untuk baju, dll)

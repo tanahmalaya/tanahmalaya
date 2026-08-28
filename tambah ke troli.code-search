@@ -1,0 +1,9 @@
+# Query: tambah ke troli
+# ContextLines: 1
+
+1 result - 1 file
+
+components\ProductGridClient.tsx:
+  47              >
+  48:               {p.stok > 0 ? "ADD TO CART" : "SOLD OUT"}
+  49              </button>

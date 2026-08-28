@@ -5,9 +5,13 @@ import { prisma } from "@/lib/prisma";
 import { calculateShipping } from "@/lib/pricing";
 import { z } from "zod";
 
-const schema = z.object({
+const itemSchema = z.object({
   productId: z.string().min(1),
   kuantiti: z.coerce.number().int().min(1),
+});
+
+const schema = z.object({
+  items: z.array(itemSchema).min(1, "Troli kosong"),
   poskod: z.string().regex(/^\d{5}$/, "Poskod mesti 5 digit"),
   negeri: z.string().min(2),
 });
@@ -16,27 +20,40 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const data = schema.parse(body);
 
-  const product = await prisma.product.findUnique({ where: { id: data.productId } });
-  if (!product || !product.aktif) {
-    return NextResponse.json({ error: "Produk tidak ditemui" }, { status: 404 });
-  }
-  if (product.stok < data.kuantiti) {
-    return NextResponse.json({ error: "Stok tidak mencukupi" }, { status: 400 });
-  }
+  let subtotalSen = 0;
+  let shippingSen = 0;
+  let courierName: string | null = null;
+  const items: { id: string; namaProduk: string; kuantiti: number; hargaBarangSen: number }[] = [];
 
-  const hargaBarangSen = product.hargaSen * data.kuantiti;
-  const { shippingSen, courierName } = await calculateShipping(
-    product,
-    data.kuantiti,
-    data.poskod,
-    data.negeri
-  );
+  for (const it of data.items) {
+    const product = await prisma.product.findUnique({ where: { id: it.productId } });
+    if (!product || !product.aktif) {
+      return NextResponse.json({ error: "Salah satu produk dalam troli tidak lagi tersedia" }, { status: 404 });
+    }
+    if (product.stok < it.kuantiti) {
+      return NextResponse.json({ error: `Stok tidak mencukupi untuk ${product.nama}` }, { status: 400 });
+    }
+
+    const hargaBarangSen = product.hargaSen * it.kuantiti;
+    subtotalSen += hargaBarangSen;
+
+    const shipping = await calculateShipping(product, it.kuantiti, data.poskod, data.negeri);
+    shippingSen += shipping.shippingSen;
+    if (shipping.courierName) courierName = shipping.courierName;
+
+    items.push({
+      id: product.id,
+      namaProduk: product.nama,
+      kuantiti: it.kuantiti,
+      hargaBarangSen,
+    });
+  }
 
   return NextResponse.json({
-    namaProduk: product.nama,
-    hargaBarangSen,
+    items,
+    subtotalSen,
     shippingSen,
-    jumlahSen: hargaBarangSen + shippingSen,
+    jumlahSen: subtotalSen + shippingSen,
     courierName,
   });
 }

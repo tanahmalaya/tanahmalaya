@@ -16,6 +16,10 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-body)", "sans-serif"],
         display: ["var(--font-display)", "serif"]
+      },
+      maxWidth: {
+        "8xl": "96rem",   // 1536px - kandungan lebar untuk skrin besar
+        "9xl": "104rem"   // 1664px - untuk seksyen paling lebar (contoh Hero)
       }
     }
   },

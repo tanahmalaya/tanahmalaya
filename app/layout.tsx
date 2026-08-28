@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+// 1. Import CartProvider (sesuai path fail context anda)
+import { CartProvider } from "@/app/context/CartContext";
 
 export const metadata: Metadata = {
   title: "Pertubuhan Literasi Tanah | tanahmalaya.org",
   description:
-    "Pertubuhan Literasi Tanah komited untuk mendidik masyarakat tentang hak milik, undang-undang tanah dan pemilikan harta secara sah dan berilmu.",
+    "Pertubuhan Literasi Tanah komited untuk mendidik masyarakat tentang hak milik, undang-undang tanah dan p",
   metadataBase: new URL("https://tanahmalaya.org"),
 };
 
@@ -18,9 +20,12 @@ export default function RootLayout({
   return (
     <html lang="ms">
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        {/* 2. Wrap semua kandungan di dalam CartProvider */}
+        <CartProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );
