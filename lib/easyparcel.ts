@@ -126,13 +126,20 @@ export async function submitEasyParcelOrder(params: SubmitOrderParams) {
   });
 
   const data = await res.json();
+
+  // DEBUG: log respons PENUH ke Vercel function logs supaya boleh disahkan
+  // struktur field sebenar EasyParcel (nama field "status"/"parcel"/"awb"
+  // dsb dalam kod ni tekaan asal berdasarkan dokumentasi umum - belum
+  // disahkan 100% dengan akaun sebenar Tuan).
+  console.log("[EasyParcel] EPSubmitOrderBulk raw response:", JSON.stringify(data));
+
   const result = data?.result?.[0];
   const parcel = result?.parcel?.[0];
 
   // EasyParcel pulangkan sebab kegagalan (cth: baki akaun tak cukup, alamat
-  // tak sah, dll) dalam pelbagai medan berbeza ikut jenis ralat - kita cuba
-  // semua kemungkinan supaya admin nampak sebab SEBENAR, bukan mesej generik.
-  const errorMessage: string | null =
+  // tak sah, dll) - ATAU mesej BERJAYA - dalam pelbagai medan berbeza ikut
+  // jenis respons. Kita simpan apa yang ada supaya boleh dipaparkan.
+  const remarks: string | null =
     result?.remarks ||
     result?.reason ||
     parcel?.remarks ||
@@ -142,12 +149,24 @@ export async function submitEasyParcelOrder(params: SubmitOrderParams) {
     (typeof data?.error === "string" ? data.error : null) ||
     null;
 
+  // Terima pelbagai kemungkinan ejaan/case untuk status "berjaya", sebab
+  // kita tak pasti 100% format tepat akaun Tuan.
+  const statusRaw = String(result?.status ?? "").toLowerCase();
+  const looksSuccessful =
+    statusRaw === "success" || statusRaw === "1" || statusRaw === "true" || statusRaw === "ok";
+
+  const trackingNumber =
+    parcel?.awb ?? parcel?.tracking_number ?? parcel?.awb_no ?? result?.awb ?? result?.tracking_number ?? null;
+
   return {
-    success: result?.status === "Success",
-    orderNo: result?.order_number ?? null,
-    trackingNumber: parcel?.awb ?? null,
-    courierName: parcel?.courier ?? null,
-    errorMessage,
+    success: looksSuccessful,
+    orderNo: result?.order_number ?? result?.order_no ?? null,
+    trackingNumber,
+    courierName: parcel?.courier ?? parcel?.courier_name ?? null,
+    errorMessage: remarks,
+    // Sertakan sekeping respons mentah supaya admin nampak terus dalam
+    // dashboard - buang bila dah pasti field mapping betul.
+    rawDebug: JSON.stringify(result ?? data).slice(0, 500),
     raw: result,
   };
 }

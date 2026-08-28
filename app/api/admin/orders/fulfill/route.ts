@@ -81,11 +81,19 @@ export async function POST(req: NextRequest) {
           },
         });
         results.push({ id: orderId, success: true });
+      } else if (booking.success && !booking.trackingNumber) {
+        // EasyParcel kata "berjaya" tapi kita tak jumpa tracking number
+        // dalam respons - JANGAN retry automatik (risiko booking berganda).
+        // Simpan order number (kalau ada) + respons mentah untuk semakan
+        // manual oleh admin terus dalam dashboard EasyParcel.
+        throw new Error(
+          `EasyParcel kata BERJAYA (order_number: ${booking.orderNo ?? "?"}) tapi tracking number tak dikesan - JANGAN cuba fulfill semula, sila semak terus dalam dashboard EasyParcel dan masukkan tracking number manual. Respons: ${booking.rawDebug}`
+        );
       } else {
         throw new Error(
           booking.errorMessage
-            ? `EasyParcel gagal: ${booking.errorMessage}`
-            : "EasyParcel tidak pulangkan tracking number (tiada sebab dipulangkan - semak baki akaun EasyParcel atau cuba lagi)"
+            ? `EasyParcel gagal: ${booking.errorMessage} | Respons: ${booking.rawDebug}`
+            : `EasyParcel tidak pulangkan tracking number. Respons: ${booking.rawDebug}`
         );
       }
     } catch (e) {
