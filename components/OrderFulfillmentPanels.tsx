@@ -15,9 +15,131 @@ type OrderView = {
   courierName: string | null;
   fulfillmentError: string | null;
   items: OrderItemView[];
+  jumlahSen: number;
+  createdAt?: string;
+  refundSen?: number | null;
+  refundReason?: string | null;
+  refundedAt?: string | null;
 };
 
 const MAX_BULK = 30;
+
+function formatRM(sen: number | null | undefined) {
+  if (sen == null) return "-";
+  return `RM ${(sen / 100).toLocaleString("ms-MY", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function formatTarikh(iso?: string | null) {
+  if (!iso) return "-";
+  return new Date(iso).toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+/**
+ * Butang + modal ringkas untuk refund SATU order. Simpan sendiri state
+ * (open/loading/error) supaya boleh terus digunakan dalam mana-mana panel
+ * (Sudah Fulfill, Selesai) tanpa perlu angkat state ke page.tsx (server
+ * component).
+ */
+function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
+  const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState((order.jumlahSen / 100).toFixed(2));
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function submit() {
+    setLoading(true);
+    setError(null);
+    try {
+      const refundSen = Math.round(parseFloat(amount) * 100);
+      const res = await fetch("/api/admin/orders/refund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id, refundSen, refundReason: reason }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Ralat semasa proses refund.");
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    } catch (e) {
+      setError("Ralat rangkaian. Sila cuba lagi.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}
+        className="text-xs underline text-red-600 shrink-0"
+      >
+        Refund
+      </button>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={() => !loading && setOpen(false)}
+        >
+          <div
+            className="bg-white rounded-md p-5 w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-semibold mb-3">Refund Order</h3>
+            <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Jumlah Refund (RM)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max={(order.jumlahSen / 100).toFixed(2)}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full border border-brand-dark/20 rounded-sm px-3 py-2 mb-3 text-sm"
+            />
+            <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Sebab Refund</label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+              className="w-full border border-brand-dark/20 rounded-sm px-3 py-2 mb-3 text-sm"
+              placeholder="cth: barang rosak, pelanggan batal, stok tak cukup"
+            />
+            {error && <p className="text-red-600 text-xs mb-3">{error}</p>}
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                disabled={loading}
+                className="text-sm px-4 py-2 text-brand-dark/60"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={submit}
+                disabled={loading}
+                className="bg-red-600 text-white text-sm font-semibold rounded-sm px-4 py-2 disabled:opacity-50"
+              >
+                {loading ? "Memproses..." : "Sahkan Refund"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export function BelumFulfillPanel({ orders }: { orders: OrderView[] }) {
   const [selected, setSelected] = useState<string[]>([]);
@@ -46,10 +168,11 @@ export function BelumFulfillPanel({ orders }: { orders: OrderView[] }) {
       if (failed.length > 0) {
         alert(`${failed.length} order gagal fulfill (lihat bahagian "Gagal Fulfill" untuk butiran).`);
       }
-      // Bawa ke laman cetak untuk yang BERJAYA
+      // Bawa ke laman slip pembungkusan (tanpa harga) untuk yang BERJAYA -
+      // ni yang staff packing guna untuk bungkus barang.
       const successIds = (data.results || []).filter((r: any) => r.success).map((r: any) => r.id);
       if (successIds.length > 0) {
-        router.push(`/admin/orders/print?ids=${successIds.join(",")}`);
+        router.push(`/admin/orders/packing-slip?ids=${successIds.join(",")}`);
       } else {
         router.refresh();
       }
@@ -111,7 +234,6 @@ export function BelumFulfillPanel({ orders }: { orders: OrderView[] }) {
 
 export function SudahFulfillPanel({ orders }: { orders: OrderView[] }) {
   const [selected, setSelected] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   function toggle(id: string) {
@@ -124,7 +246,7 @@ export function SudahFulfillPanel({ orders }: { orders: OrderView[] }) {
 
   function handlePrint() {
     if (selected.length === 0) return;
-    router.push(`/admin/orders/print?ids=${selected.join(",")}`);
+    router.push(`/admin/orders/packing-slip?ids=${selected.join(",")}`);
   }
 
   return (
@@ -141,34 +263,34 @@ export function SudahFulfillPanel({ orders }: { orders: OrderView[] }) {
           disabled={selected.length === 0}
           className="ml-auto bg-brand-gold text-brand-dark font-semibold text-sm rounded-sm px-4 py-2 disabled:opacity-50"
         >
-          CETAK SENARAI ({selected.length})
+          CETAK SLIP PEMBUNGKUSAN ({selected.length})
         </button>
       </div>
 
       <div className="space-y-2">
         {orders.map((o) => (
-          <label
-            key={o.id}
-            className="flex items-start gap-3 bg-white rounded-md shadow-sm p-4 cursor-pointer"
-          >
-            <input
-              type="checkbox"
-              checked={selected.includes(o.id)}
-              onChange={() => toggle(o.id)}
-              className="mt-1"
-            />
-            <div className="flex-1 text-sm">
-              <p className="font-semibold">
-                #{o.seq} — {o.namaPembeli}
-              </p>
-              <p className="text-brand-dark/60">
-                {o.courierName} — {o.trackingNumber}
-              </p>
-              <p className="text-brand-dark/70 mt-1">
-                {o.items.map((it) => `${it.nama} x${it.kuantiti}`).join(", ")}
-              </p>
-            </div>
-          </label>
+          <div key={o.id} className="flex items-start gap-3 bg-white rounded-md shadow-sm p-4">
+            <label className="flex items-start gap-3 flex-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selected.includes(o.id)}
+                onChange={() => toggle(o.id)}
+                className="mt-1"
+              />
+              <div className="flex-1 text-sm">
+                <p className="font-semibold">
+                  #{o.seq} — {o.namaPembeli}
+                </p>
+                <p className="text-brand-dark/60">
+                  {o.courierName} — {o.trackingNumber}
+                </p>
+                <p className="text-brand-dark/70 mt-1">
+                  {o.items.map((it) => `${it.nama} x${it.kuantiti}`).join(", ")}
+                </p>
+              </div>
+            </label>
+            <RefundButton order={o} />
+          </div>
         ))}
         {orders.length === 0 && <p className="text-brand-dark/50 text-sm">Tiada order sedia untuk dicetak.</p>}
       </div>
@@ -307,6 +429,86 @@ export function GagalFulfillPanel({ orders }: { orders: OrderView[] }) {
         copy baris-baris (bukan header) ke dalam template rasmi EasyParcel Tuan, semak semula
         berat/dimensi bungkusan, baru upload.
       </p>
+    </div>
+  );
+}
+
+/** Senarai ringkas, baca-sahaja - tiada tindakan diperlukan daripada staff. */
+export function MenungguBayaranPanel({ orders }: { orders: OrderView[] }) {
+  return (
+    <div className="space-y-2">
+      {orders.map((o) => (
+        <div key={o.id} className="bg-white rounded-md shadow-sm p-4 text-sm opacity-80">
+          <p className="font-semibold">
+            #{o.seq} — {o.namaPembeli}
+          </p>
+          <p className="text-brand-dark/60">
+            {o.poskod}, {o.bandar}, {o.negeri} — {formatRM(o.jumlahSen)}
+          </p>
+          <p className="text-brand-dark/40 text-xs mt-1">
+            Belum bayar ({formatTarikh(o.createdAt)}) - tiada tindakan fulfillment diperlukan.
+          </p>
+        </div>
+      ))}
+      {orders.length === 0 && <p className="text-brand-dark/50 text-sm">Tiada order menunggu bayaran.</p>}
+    </div>
+  );
+}
+
+/** Senarai ringkas, baca-sahaja - untuk rujukan/customer service, bukan fulfillment. */
+export function GagalBayaranPanel({ orders }: { orders: OrderView[] }) {
+  return (
+    <div className="space-y-2">
+      {orders.map((o) => (
+        <div key={o.id} className="bg-white rounded-md shadow-sm p-4 text-sm opacity-60">
+          <p className="font-semibold">
+            #{o.seq} — {o.namaPembeli}
+          </p>
+          <p className="text-brand-dark/60">{formatRM(o.jumlahSen)} — {formatTarikh(o.createdAt)}</p>
+        </div>
+      ))}
+      {orders.length === 0 && <p className="text-brand-dark/50 text-sm">Tiada order gagal bayar.</p>}
+    </div>
+  );
+}
+
+/** Order yang dah dicetak & dipos (status SELESAI). Boleh refund dari sini. */
+export function SelesaiPanel({ orders }: { orders: OrderView[] }) {
+  return (
+    <div className="space-y-2">
+      {orders.map((o) => (
+        <div key={o.id} className="bg-white rounded-md shadow-sm p-4 text-sm flex items-start justify-between gap-3">
+          <div className="opacity-70">
+            <p className="font-semibold">
+              #{o.seq} — {o.namaPembeli}
+            </p>
+            <p className="text-brand-dark/60">
+              {o.courierName} — {o.trackingNumber}
+            </p>
+          </div>
+          <RefundButton order={o} />
+        </div>
+      ))}
+      {orders.length === 0 && <p className="text-brand-dark/50 text-sm">Tiada lagi.</p>}
+    </div>
+  );
+}
+
+/** Order yang dah direfund - papar jumlah, sebab dan tarikh. */
+export function DipulangkanPanel({ orders }: { orders: OrderView[] }) {
+  return (
+    <div className="space-y-2">
+      {orders.map((o) => (
+        <div key={o.id} className="bg-white rounded-md shadow-sm p-4 text-sm border border-brand-dark/10">
+          <p className="font-semibold">
+            #{o.seq} — {o.namaPembeli}
+          </p>
+          <p className="text-brand-dark/60">Jumlah refund: {formatRM(o.refundSen)}</p>
+          {o.refundReason && <p className="text-brand-dark/60">Sebab: {o.refundReason}</p>}
+          <p className="text-brand-dark/40 text-xs mt-1">Tarikh refund: {formatTarikh(o.refundedAt)}</p>
+        </div>
+      ))}
+      {orders.length === 0 && <p className="text-brand-dark/50 text-sm">Tiada order dipulangkan.</p>}
     </div>
   );
 }

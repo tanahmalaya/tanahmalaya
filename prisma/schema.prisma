@@ -172,14 +172,20 @@ model Order {
   trackingNumber       String?
   fulfillmentError     String?   // diisi kalau cubaan fulfill gagal
   printedAt            DateTime? // masa staff klik "Selesai Cetak"
+  // Refund
+  refundSen            Int?      // jumlah refund dalam sen (boleh partial, <= jumlahSen)
+  refundReason         String?
+  refundedAt           DateTime?
   createdAt   DateTime @default(now())
   items       OrderItem[]
 }
 
 enum OrderStatus {
-  MENUNGGU
-  BERJAYA
-  GAGAL
+  MENUNGGU     // menunggu bayaran
+  BERJAYA      // bayaran berjaya, tunggu fulfill/pos
+  GAGAL        // bayaran gagal
+  SELESAI      // dah dicetak & dipos (auto bila staff klik "Selesai Cetak")
+  DIPULANGKAN  // refund
 }
 
 model OrderItem {

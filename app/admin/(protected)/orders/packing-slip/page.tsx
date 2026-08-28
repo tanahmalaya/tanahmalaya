@@ -8,7 +8,6 @@ type OrderPrintView = {
   id: string;
   seq: number;
   createdAt: string;
-  status: "MENUNGGU" | "BERJAYA" | "GAGAL";
   namaPembeli: string;
   emel: string;
   telefon: string;
@@ -18,25 +17,8 @@ type OrderPrintView = {
   negeri: string;
   trackingNumber: string | null;
   courierName: string | null;
-  bayarcashRef: string | null;
-  jumlahKecilSen: number;
-  shippingSen: number;
-  jumlahSen: number;
-  items: { nama: string; kuantiti: number; hargaSen: number; subjumlahSen: number }[];
+  items: { nama: string; kuantiti: number }[];
 };
-
-const STATUS_LABEL: Record<OrderPrintView["status"], string> = {
-  MENUNGGU: "Menunggu Bayaran",
-  BERJAYA: "Bayaran Berjaya",
-  GAGAL: "Bayaran Gagal",
-};
-
-function formatRM(sen: number) {
-  return `RM ${(sen / 100).toLocaleString("ms-MY", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
 
 function formatTarikh(iso: string) {
   return new Date(iso).toLocaleDateString("ms-MY", {
@@ -46,7 +28,13 @@ function formatTarikh(iso: string) {
   });
 }
 
-export default function PrintOrdersPage() {
+/**
+ * Slip pembungkusan - SENGAJA TIADA HARGA. Ni yang staff packing guna untuk
+ * bungkus & tampal dalam kotak, supaya harga tak terdedah kepada sesiapa
+ * yang buka parcel. Untuk invois penuh (dengan harga, untuk rekod/akaun),
+ * guna laman "/admin/orders/print".
+ */
+export default function PackingSlipPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const ids = searchParams.get("ids")?.split(",") || [];
@@ -62,6 +50,7 @@ export default function PrintOrdersPage() {
         setOrders(data.orders || []);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleDonePrint() {
@@ -93,15 +82,15 @@ export default function PrintOrdersPage() {
           {done ? "SELESAI ✓" : "SELESAI CETAK"}
         </button>
         <Link
-          href={`/admin/orders/packing-slip?ids=${ids.join(",")}`}
+          href={`/admin/orders/print?ids=${ids.join(",")}`}
           className="text-sm underline text-brand-dark/60 ml-auto"
         >
-          Lihat Slip Pembungkusan (tanpa harga) →
+          Lihat Invois Penuh (dengan harga) →
         </Link>
       </div>
 
       <h1 className="text-2xl font-bold mb-6 print:hidden">
-        Invois Pesanan — {orders.length} Pesanan
+        Slip Pembungkusan — {orders.length} Pesanan
       </h1>
 
       <div className="space-y-6">
@@ -110,26 +99,23 @@ export default function PrintOrdersPage() {
             key={o.id}
             className="border border-brand-dark/20 rounded-md p-6 break-inside-avoid print:break-after-page"
           >
-            {/* Header invois */}
             <div className="flex justify-between items-start border-b border-brand-dark/10 pb-3 mb-3">
               <div>
-                <p className="font-bold text-lg">Invois #{o.seq}</p>
+                <p className="font-bold text-lg">Pesanan #{o.seq}</p>
                 <p className="text-sm text-brand-dark/70">Tarikh: {formatTarikh(o.createdAt)}</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold">{STATUS_LABEL[o.status]}</p>
-                {o.bayarcashRef && (
-                  <p className="text-xs text-brand-dark/60">Ruj. Bayaran: {o.bayarcashRef}</p>
-                )}
-              </div>
+              {(o.courierName || o.trackingNumber) && (
+                <div className="text-right text-sm">
+                  <p className="font-semibold">{o.courierName || "-"}</p>
+                  <p className="text-brand-dark/60">{o.trackingNumber || "-"}</p>
+                </div>
+              )}
             </div>
 
-            {/* Pelanggan & alamat */}
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
                 <p className="text-xs font-semibold text-brand-dark/60 uppercase mb-1">Pelanggan</p>
                 <p className="font-semibold">{o.namaPembeli}</p>
-                <p className="text-sm text-brand-dark/70">{o.emel}</p>
                 <p className="text-sm text-brand-dark/70">{o.telefon}</p>
               </div>
               <div>
@@ -142,53 +128,22 @@ export default function PrintOrdersPage() {
               </div>
             </div>
 
-            {/* Kurier & tracking - papar hanya jika sudah ada (bukan dari EasyParcel di sini) */}
-            {(o.courierName || o.trackingNumber) && (
-              <p className="text-sm mb-3">
-                <strong>Kurier:</strong> {o.courierName || "-"} —{" "}
-                <strong>Tracking:</strong> {o.trackingNumber || "-"}
-              </p>
-            )}
-
-            {/* Jadual item */}
-            <table className="w-full text-sm mb-3">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-dark/20 text-left">
                   <th className="py-1 font-semibold">Produk</th>
-                  <th className="py-1 font-semibold text-center">Kuantiti</th>
-                  <th className="py-1 font-semibold text-right">Harga Seunit</th>
-                  <th className="py-1 font-semibold text-right">Jumlah</th>
+                  <th className="py-1 font-semibold text-right">Kuantiti</th>
                 </tr>
               </thead>
               <tbody>
                 {o.items.map((it, i) => (
                   <tr key={i} className="border-b border-brand-dark/5">
                     <td className="py-1">{it.nama}</td>
-                    <td className="py-1 text-center">{it.kuantiti}</td>
-                    <td className="py-1 text-right">{formatRM(it.hargaSen)}</td>
-                    <td className="py-1 text-right">{formatRM(it.subjumlahSen)}</td>
+                    <td className="py-1 text-right">{it.kuantiti}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
-            {/* Jumlah keseluruhan */}
-            <div className="flex justify-end">
-              <div className="w-56 text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-brand-dark/70">Jumlah Kecil</span>
-                  <span>{formatRM(o.jumlahKecilSen)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-brand-dark/70">Penghantaran</span>
-                  <span>{formatRM(o.shippingSen)}</span>
-                </div>
-                <div className="flex justify-between font-bold text-base border-t border-brand-dark/20 pt-1">
-                  <span>Jumlah Keseluruhan</span>
-                  <span>{formatRM(o.jumlahSen)}</span>
-                </div>
-              </div>
-            </div>
           </div>
         ))}
       </div>

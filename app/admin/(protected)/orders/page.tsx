@@ -1,16 +1,66 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { BelumFulfillPanel, SudahFulfillPanel, GagalFulfillPanel } from "@/components/OrderFulfillmentPanels";
+import {
+  BelumFulfillPanel,
+  SudahFulfillPanel,
+  GagalFulfillPanel,
+  MenungguBayaranPanel,
+  GagalBayaranPanel,
+  SelesaiPanel,
+  DipulangkanPanel,
+} from "@/components/OrderFulfillmentPanels";
+
+const ORDER_INCLUDE = { items: { include: { product: true } } } as const;
 
 export default async function AdminOrdersPage() {
-  const allOrders = await prisma.order.findMany({
-    where: { status: "BERJAYA" },
-    orderBy: { seq: "asc" },
-    include: { items: { include: { product: true } } },
-  });
+  // Query berasingan ikut seksyen dashboard (bukan satu fetch besar semua
+  // order) - lebih pantas dan elak dashboard "banjir" dek order MENUNGGU
+  // lama (troli ditinggalkan) yang tak relevan lagi untuk fulfillment.
+  const [belumFulfillRaw, gagalFulfillRaw, sudahFulfillRaw, selesaiRaw, menungguRaw, gagalBayarRaw, dipulangkanRaw] =
+    await Promise.all([
+      prisma.order.findMany({
+        where: { status: "BERJAYA", trackingNumber: null, fulfillmentError: null },
+        orderBy: { seq: "asc" },
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "BERJAYA", fulfillmentError: { not: null } },
+        orderBy: { seq: "asc" },
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "BERJAYA", trackingNumber: { not: null }, printedAt: null },
+        orderBy: { seq: "asc" },
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "SELESAI" },
+        orderBy: { seq: "desc" },
+        take: 30,
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "MENUNGGU" },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "GAGAL" },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "DIPULANGKAN" },
+        orderBy: { refundedAt: "desc" },
+        take: 30,
+        include: ORDER_INCLUDE,
+      }),
+    ]);
 
-  const toView = (o: (typeof allOrders)[number]) => ({
+  const toView = (o: typeof belumFulfillRaw[number]) => ({
     id: o.id,
     seq: o.seq,
     namaPembeli: o.namaPembeli,
@@ -21,24 +71,33 @@ export default async function AdminOrdersPage() {
     courierName: o.courierName,
     fulfillmentError: o.fulfillmentError,
     items: o.items.map((it) => ({ nama: it.product.nama, kuantiti: it.kuantiti })),
+    jumlahSen: o.jumlahSen,
+    createdAt: o.createdAt.toISOString(),
+    refundSen: o.refundSen,
+    refundReason: o.refundReason,
+    refundedAt: o.refundedAt ? o.refundedAt.toISOString() : null,
   });
 
-  const belumFulfill = allOrders
-    .filter((o) => !o.trackingNumber && !o.fulfillmentError)
-    .map(toView);
-  const gagalFulfill = allOrders
-    .filter((o) => !o.trackingNumber && o.fulfillmentError)
-    .map(toView);
-  const sudahFulfill = allOrders
-    .filter((o) => o.trackingNumber && !o.printedAt)
-    .map(toView);
-  const selesai = allOrders
-    .filter((o) => o.trackingNumber && o.printedAt)
-    .map(toView);
+  const belumFulfill = belumFulfillRaw.map(toView);
+  const gagalFulfill = gagalFulfillRaw.map(toView);
+  const sudahFulfill = sudahFulfillRaw.map(toView);
+  const selesai = selesaiRaw.map(toView);
+  const menunggu = menungguRaw.map(toView);
+  const gagalBayar = gagalBayarRaw.map(toView);
+  const dipulangkan = dipulangkanRaw.map(toView);
 
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Pesanan &amp; Penghantaran</h1>
+
+      {menunggu.length > 0 && (
+        <section className="mb-10">
+          <h2 className="font-semibold mb-3 text-brand-dark/60">
+            Menunggu Bayaran ({menunggu.length})
+          </h2>
+          <MenungguBayaranPanel orders={menunggu} />
+        </section>
+      )}
 
       <section className="mb-10">
         <h2 className="font-semibold mb-3">
@@ -64,24 +123,30 @@ export default async function AdminOrdersPage() {
         <SudahFulfillPanel orders={sudahFulfill} />
       </section>
 
-      <section>
+      <section className="mb-10">
         <h2 className="font-semibold mb-3">
-          3. Selesai Packing <span className="text-brand-dark/50 font-normal">({selesai.length})</span>
+          3. Selesai <span className="text-brand-dark/50 font-normal">({selesai.length})</span>
         </h2>
-        <div className="space-y-2">
-          {selesai.slice(0, 20).map((o) => (
-            <div key={o.id} className="bg-white rounded-md shadow-sm p-4 text-sm opacity-70">
-              <p className="font-semibold">
-                #{o.seq} — {o.namaPembeli}
-              </p>
-              <p className="text-brand-dark/60">
-                {o.courierName} — {o.trackingNumber}
-              </p>
-            </div>
-          ))}
-          {selesai.length === 0 && <p className="text-brand-dark/50 text-sm">Tiada lagi.</p>}
-        </div>
+        <SelesaiPanel orders={selesai} />
       </section>
+
+      {dipulangkan.length > 0 && (
+        <section className="mb-10">
+          <h2 className="font-semibold mb-3 text-brand-dark/60">
+            Dipulangkan / Refund ({dipulangkan.length})
+          </h2>
+          <DipulangkanPanel orders={dipulangkan} />
+        </section>
+      )}
+
+      {gagalBayar.length > 0 && (
+        <section>
+          <h2 className="font-semibold mb-3 text-brand-dark/40">
+            Gagal Bayaran ({gagalBayar.length})
+          </h2>
+          <GagalBayaranPanel orders={gagalBayar} />
+        </section>
+      )}
     </div>
   );
 }
