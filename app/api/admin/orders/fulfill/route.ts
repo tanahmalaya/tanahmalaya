@@ -3,7 +3,12 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
-import { submitEasyParcelOrder, checkEasyParcelRate } from "@/lib/easyparcel";
+import {
+  submitEasyParcelOrder,
+  checkEasyParcelRate,
+  payEasyParcelOrder,
+  checkEasyParcelOrderStatus,
+} from "@/lib/easyparcel";
 
 const MAX_BULK = 30;
 
@@ -29,6 +34,33 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+      // Order ni DAH ADA order_number EasyParcel daripada percubaan
+      // sebelum ni (submit berjaya tapi tracking belum siap masa tu) -
+      // JANGAN submit order baru (risiko booking berganda + charge dua
+      // kali). Terus cuba proses bayaran + tarik tracking untuk order
+      // sedia ada tu.
+      if (order.easyparcelOrderNo && !order.trackingNumber) {
+        const resolved = await resolveExistingEasyParcelOrder(order.easyparcelOrderNo);
+        if (resolved.trackingNumber) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              trackingNumber: resolved.trackingNumber,
+              courierName: resolved.courierName ?? order.courierName,
+              fulfillmentError: null,
+            },
+          });
+          results.push({ id: orderId, success: true });
+          continue;
+        }
+        // Order sedia ada masih belum ada tracking lepas cuba pay + check
+        // status - simpan mesej terkini dan minta semakan manual (JANGAN
+        // submit order baru untuk order_number yang sama).
+        throw new Error(
+          `Order EasyParcel (order_number: ${order.easyparcelOrderNo}) sedia ada tapi tracking number masih belum siap selepas cuba proses bayaran & semak status. JANGAN cuba fulfill semula (elak booking berganda) - sila semak terus dalam dashboard EasyParcel dan masukkan tracking number manual (guna scripts/set-tracking.js) jika order tu sebenarnya dah berjaya. Respons: ${resolved.rawDebug}`
+        );
+      }
+
       const totalBeratKg =
         order.items.reduce((sum, item) => sum + (item.product.beratGram ?? 500) * item.kuantiti, 0) / 1000;
       const kandungan = order.items.map((item) => `${item.product.nama} x${item.kuantiti}`).join(", ");
@@ -82,12 +114,38 @@ export async function POST(req: NextRequest) {
         });
         results.push({ id: orderId, success: true });
       } else if (booking.success && !booking.trackingNumber) {
-        // EasyParcel kata "berjaya" tapi kita tak jumpa tracking number
-        // dalam respons - JANGAN retry automatik (risiko booking berganda).
-        // Simpan order number (kalau ada) + respons mentah untuk semakan
-        // manual oleh admin terus dalam dashboard EasyParcel.
+        // EasyParcel kata order "berjaya" DICIPTA (order_number wujud) tapi
+        // tracking number belum ada dalam respons submit - ni NORMAL, sebab
+        // AWB EasyParcel cuma di-generate lepas order dibayar (EPPayOrderBulk).
+        // Simpan order_number dulu (supaya percubaan akan datang tak submit
+        // order BARU untuk order yang sama), lepas tu terus cuba bayar +
+        // tarik tracking dalam permintaan yang sama.
+        if (booking.orderNo) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: { easyparcelOrderNo: booking.orderNo, serviceId },
+          });
+        }
+
+        const resolved = booking.orderNo
+          ? await resolveExistingEasyParcelOrder(booking.orderNo)
+          : { trackingNumber: null, courierName: null, rawDebug: booking.rawDebug };
+
+        if (resolved.trackingNumber) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              trackingNumber: resolved.trackingNumber,
+              courierName: resolved.courierName ?? courierNameGuna,
+              fulfillmentError: null,
+            },
+          });
+          results.push({ id: orderId, success: true });
+          continue;
+        }
+
         throw new Error(
-          `EasyParcel kata BERJAYA (order_number: ${booking.orderNo ?? "?"}) tapi tracking number tak dikesan - JANGAN cuba fulfill semula, sila semak terus dalam dashboard EasyParcel dan masukkan tracking number manual. Respons: ${booking.rawDebug}`
+          `EasyParcel kata BERJAYA (order_number: ${booking.orderNo ?? "?"}) tapi tracking number tak dikesan walaupun dah cuba proses bayaran automatik - JANGAN cuba fulfill semula (order_number dah disimpan, percubaan seterusnya akan cuba bayar/semak status sahaja, bukan cipta order baru). Sila semak terus dalam dashboard EasyParcel dan masukkan tracking number manual jika perlu. Respons submit: ${booking.rawDebug} | Respons susulan: ${resolved.rawDebug}`
         );
       } else {
         throw new Error(
@@ -107,4 +165,36 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ results });
+}
+
+/**
+ * Untuk order_number EasyParcel yang DAH WUJUD (submit dah berjaya
+ * sebelum ni) tapi belum ada tracking number lagi: cuba proses bayaran
+ * dulu (EPPayOrderBulk - ni langkah yang biasanya generate AWB), dan
+ * kalau tracking masih tak masuk serta-merta, cuba semak status order
+ * (EPOrderStatusBulk) sekali sebagai fallback.
+ *
+ * TIDAK PERNAH panggil submitEasyParcelOrder di sini - fungsi ni hanya
+ * proses/susuli order yang sedia ada, jadi selamat dari risiko booking
+ * berganda walaupun dipanggil berulang kali untuk order_number yang sama.
+ */
+async function resolveExistingEasyParcelOrder(orderNo: string) {
+  const payResult = await payEasyParcelOrder(orderNo);
+  if (payResult.trackingNumber) {
+    return {
+      trackingNumber: payResult.trackingNumber,
+      courierName: payResult.courierName,
+      rawDebug: payResult.rawDebug,
+    };
+  }
+
+  // Pay tak terus bagi tracking (contoh: order tu rupanya dah dibayar
+  // sebelum ni, atau AWB ambil masa sedikit untuk siap) - cuba semak
+  // status sekali sebagai percubaan terakhir sebelum minta semakan manual.
+  const statusResult = await checkEasyParcelOrderStatus(orderNo);
+  return {
+    trackingNumber: statusResult.trackingNumber,
+    courierName: statusResult.courierName,
+    rawDebug: `${payResult.rawDebug} | status-check: ${statusResult.rawDebug}`,
+  };
 }

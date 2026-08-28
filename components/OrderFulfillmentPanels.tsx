@@ -300,10 +300,12 @@ export function GagalFulfillPanel({ orders }: { orders: OrderView[] }) {
       </div>
 
       <p className="text-brand-dark/50 text-xs mt-3">
-        "CUBA FULFILL SEMULA" akan cuba hantar order terus ke EasyParcel melalui API sekali lagi.
-        Kalau ia asyik gagal, guna "MUAT TURUN CSV" untuk dapatkan fail yang boleh Tuan upload MANUAL
-        dalam dashboard EasyParcel (Bulk Order Upload) - buka fail tu, copy baris-baris (bukan header)
-        ke dalam template rasmi EasyParcel Tuan, semak semula berat/dimensi bungkusan, baru upload.
+        "CUBA FULFILL SEMULA" kini SELAMAT ditekan berulang kali untuk order yang dah ada order_number
+        EasyParcel - ia TIDAK akan cipta booking baru, cuma cuba proses bayaran/semak status order sedia
+        ada untuk tarik tracking number. Kalau ia asyik gagal, guna "MUAT TURUN CSV" untuk dapatkan fail
+        yang boleh Tuan upload MANUAL dalam dashboard EasyParcel (Bulk Order Upload) - buka fail tu,
+        copy baris-baris (bukan header) ke dalam template rasmi EasyParcel Tuan, semak semula
+        berat/dimensi bungkusan, baru upload.
       </p>
     </div>
   );
