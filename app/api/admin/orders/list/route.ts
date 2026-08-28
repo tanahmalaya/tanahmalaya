@@ -17,18 +17,38 @@ export async function GET(req: NextRequest) {
     include: { items: { include: { product: true } } },
   });
 
-  const result = orders.map((o) => ({
-    id: o.id,
-    seq: o.seq,
-    namaPembeli: o.namaPembeli,
-    alamat: o.alamat,
-    poskod: o.poskod,
-    bandar: o.bandar,
-    negeri: o.negeri,
-    trackingNumber: o.trackingNumber,
-    courierName: o.courierName,
-    items: o.items.map((it) => ({ nama: it.product.nama, kuantiti: it.kuantiti })),
-  }));
+  const result = orders.map((o) => {
+    const jumlahKecilSen = o.items.reduce(
+      (sum, it) => sum + it.hargaSen * it.kuantiti,
+      0
+    );
+
+    return {
+      id: o.id,
+      seq: o.seq,
+      createdAt: o.createdAt,
+      status: o.status,
+      namaPembeli: o.namaPembeli,
+      emel: o.emel,
+      telefon: o.telefon,
+      alamat: o.alamat,
+      poskod: o.poskod,
+      bandar: o.bandar,
+      negeri: o.negeri,
+      trackingNumber: o.trackingNumber,
+      courierName: o.courierName,
+      bayarcashRef: o.bayarcashRef,
+      jumlahKecilSen,
+      shippingSen: o.shippingSen,
+      jumlahSen: o.jumlahSen,
+      items: o.items.map((it) => ({
+        nama: it.product.nama,
+        kuantiti: it.kuantiti,
+        hargaSen: it.hargaSen,
+        subjumlahSen: it.hargaSen * it.kuantiti,
+      })),
+    };
+  });
 
   return NextResponse.json({ orders: result });
 }
