@@ -6,13 +6,13 @@ import Image from "next/image";
 import { useCart } from "@/app/context/CartContext"; // 1. Import useCart (laraskan path jika berbeza)
 
 const navLinks = [
-  { href: "/", label: "UTAMA" },
-  { href: "/tentang-kami", label: "TENTANG KAMI" },
-  { href: "/keahlian", label: "KEAHLIAN" },
-  { href: "/kelas-tanah", label: "PROGRAM & KELAS" },
-  { href: "/merchandise", label: "MERCHANDISE" },
-  { href: "/aktiviti", label: "AKTIVITI" },
-  { href: "/hubungi-kami", label: "HUBUNGI KAMI" },
+  { href: "/", label: "Utama" },
+  { href: "/tentang-kami", label: "Tentang Kami" },
+  { href: "/keahlian", label: "Keahlian" },
+  { href: "/kelas-tanah", label: "Program & Kelas" },
+  { href: "/merchandise", label: "Merchandise" },
+  { href: "/aktiviti", label: "Aktiviti" },
+  { href: "/hubungi-kami", label: "Hubungi Kami" },
 ];
 
 function MenuIcon() {
@@ -101,7 +101,7 @@ export default function Header() {
             href="/keahlian"
             className="hidden sm:inline-block bg-brand-gold text-brand-dark px-5 py-2 rounded-sm text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity"
           >
-            DAFTAR SEKARANG
+            Daftar Sekarang
           </Link>
 
           {/* Butang hamburger - mobile sahaja */}
@@ -133,7 +133,7 @@ export default function Header() {
             onClick={() => setOpen(false)}
             className="mt-2 bg-brand-gold text-brand-dark text-center px-5 py-3 rounded-sm text-sm font-semibold active:opacity-80"
           >
-            DAFTAR SEKARANG
+            Daftar Sekarang
           </Link>
         </nav>
       )}
