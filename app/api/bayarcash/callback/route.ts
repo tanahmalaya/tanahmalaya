@@ -60,12 +60,19 @@ export async function POST(req: NextRequest) {
     });
 
     if (isPaid) {
-      // Kurangkan stok
+      // Kurangkan stok - ikut saiz (jika produk ada saiz) atau stok keseluruhan produk
       for (const item of order.items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: { stok: { decrement: item.kuantiti } },
-        });
+        if (item.productSizeId) {
+          await prisma.productSize.update({
+            where: { id: item.productSizeId },
+            data: { stok: { decrement: item.kuantiti } },
+          });
+        } else {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { stok: { decrement: item.kuantiti } },
+          });
+        }
       }
       // Nota: tempahan kurier EasyParcel TIDAK lagi automatik di sini -
       // staff akan "Fulfill" secara berkumpulan dari dashboard /admin/orders.

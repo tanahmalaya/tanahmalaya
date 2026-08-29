@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Bucket =
-  | "MENUNGGU"
-  | "BELUM_FULFILL"
-  | "GAGAL_FULFILL"
-  | "SUDAH_FULFILL"
-  | "SELESAI"
-  | "DIPULANGKAN"
-  | "GAGAL_BAYARAN";
+  | "PENDING_PAYMENT"
+  | "NEW_READY_STOCK"
+  | "NEW_PREORDER"
+  | "PROCESSING_FAILED"
+  | "IN_PROCESS"
+  | "SHIPPED"
+  | "REFUNDED"
+  | "PAYMENT_FAILED";
 
 export type OrderRow = {
   id: string;
@@ -23,6 +24,7 @@ export type OrderRow = {
   items: { nama: string; kuantiti: number }[];
   jumlahSen: number;
   trackingNumber: string | null;
+  awbUrl: string | null;
   courierName: string | null;
   fulfillmentError: string | null;
   refundSen: number | null;
@@ -34,43 +36,45 @@ export type OrderRow = {
 const MAX_BULK = 30;
 
 const TAB_DEF: { key: Bucket | "ALL"; label: string }[] = [
-  { key: "ALL", label: "Semua" },
-  { key: "MENUNGGU", label: "Menunggu Bayaran" },
-  { key: "BELUM_FULFILL", label: "Belum Fulfill" },
-  { key: "GAGAL_FULFILL", label: "Gagal Fulfill" },
-  { key: "SUDAH_FULFILL", label: "Sudah Fulfill" },
-  { key: "SELESAI", label: "Selesai" },
-  { key: "DIPULANGKAN", label: "Dipulangkan" },
-  { key: "GAGAL_BAYARAN", label: "Gagal Bayaran" },
+  { key: "ALL", label: "All" },
+  { key: "PENDING_PAYMENT", label: "Pending Payment" },
+  { key: "NEW_READY_STOCK", label: "New Orders - Ready Stock" },
+  { key: "NEW_PREORDER", label: "New Orders - Pre-order" },
+  { key: "PROCESSING_FAILED", label: "Processing Failed" },
+  { key: "IN_PROCESS", label: "In Process Orders" },
+  { key: "SHIPPED", label: "Shipped" },
+  { key: "REFUNDED", label: "Refunded" },
+  { key: "PAYMENT_FAILED", label: "Payment Failed" },
 ];
 
 const STATUS_BADGE: Record<Bucket, { label: string; className: string }> = {
-  MENUNGGU: { label: "Menunggu Bayaran", className: "bg-gray-100 text-gray-600" },
-  BELUM_FULFILL: { label: "Belum Fulfill", className: "bg-[#c6e1c6] text-[#5b841b]" },
-  GAGAL_FULFILL: { label: "Gagal Fulfill", className: "bg-red-100 text-red-700" },
-  SUDAH_FULFILL: { label: "Dah Fulfill", className: "bg-[#c8d7e1] text-[#2e4453]" },
-  SELESAI: { label: "Selesai", className: "bg-[#c8d7e1] text-[#2e4453]" },
-  DIPULANGKAN: { label: "Dipulangkan", className: "bg-purple-100 text-purple-700" },
-  GAGAL_BAYARAN: { label: "Gagal Bayaran", className: "bg-gray-200 text-gray-500" },
+  PENDING_PAYMENT: { label: "Pending Payment", className: "bg-gray-100 text-gray-600" },
+  NEW_READY_STOCK: { label: "New (Ready Stock)", className: "bg-[#c6e1c6] text-[#5b841b]" },
+  NEW_PREORDER: { label: "New (Pre-order)", className: "bg-[#f0dab3] text-[#8a5a1f]" },
+  PROCESSING_FAILED: { label: "Processing Failed", className: "bg-red-100 text-red-700" },
+  IN_PROCESS: { label: "In Process", className: "bg-[#c8d7e1] text-[#2e4453]" },
+  SHIPPED: { label: "Shipped", className: "bg-[#c8d7e1] text-[#2e4453]" },
+  REFUNDED: { label: "Refunded", className: "bg-purple-100 text-purple-700" },
+  PAYMENT_FAILED: { label: "Payment Failed", className: "bg-gray-200 text-gray-500" },
 };
 
-const ACTIONABLE: Bucket[] = ["BELUM_FULFILL", "GAGAL_FULFILL", "SUDAH_FULFILL"];
-const REFUNDABLE: Bucket[] = ["SUDAH_FULFILL", "SELESAI"];
+const ACTIONABLE: Bucket[] = ["NEW_READY_STOCK", "NEW_PREORDER", "PROCESSING_FAILED", "IN_PROCESS"];
+const REFUNDABLE: Bucket[] = ["IN_PROCESS", "SHIPPED"];
 
 function formatRM(sen: number | null | undefined) {
   if (sen == null) return "-";
-  return `RM ${(sen / 100).toLocaleString("ms-MY", {
+  return `RM ${(sen / 100).toLocaleString("en-MY", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 }
 
-function formatTarikh(iso?: string | null) {
+function formatDate(iso?: string | null) {
   if (!iso) return "-";
-  return new Date(iso).toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-/** Butang + modal ringkas untuk refund SATU order. */
+/** Single-order refund button + confirmation modal. */
 function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState((order.jumlahSen / 100).toFixed(2));
@@ -91,13 +95,13 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Ralat semasa proses refund.");
+        setError(data.error || "Error processing refund.");
         return;
       }
       setOpen(false);
       router.refresh();
     } catch (e) {
-      setError("Ralat rangkaian. Sila cuba lagi.");
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -122,7 +126,7 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
         >
           <div className="bg-white rounded-md p-5 w-full max-w-sm text-sm" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-semibold mb-3">Refund Order</h3>
-            <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Jumlah Refund (RM)</label>
+            <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Refund Amount (RM)</label>
             <input
               type="number"
               step="0.01"
@@ -132,18 +136,18 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
               onChange={(e) => setAmount(e.target.value)}
               className="w-full border border-brand-dark/20 rounded-sm px-3 py-2 mb-3 text-sm"
             />
-            <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Sebab Refund</label>
+            <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Refund Reason</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               className="w-full border border-brand-dark/20 rounded-sm px-3 py-2 mb-3 text-sm"
-              placeholder="cth: barang rosak, pelanggan batal, stok tak cukup"
+              placeholder="e.g. damaged item, customer cancelled, insufficient stock"
             />
             {error && <p className="text-red-600 text-xs mb-3">{error}</p>}
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setOpen(false)} disabled={loading} className="text-sm px-4 py-2 text-brand-dark/60">
-                Batal
+                Cancel
               </button>
               <button
                 type="button"
@@ -151,7 +155,7 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
                 disabled={loading}
                 className="bg-red-600 text-white text-sm font-semibold rounded-sm px-4 py-2 disabled:opacity-50"
               >
-                {loading ? "Memproses..." : "Sahkan Refund"}
+                {loading ? "Processing..." : "Confirm Refund"}
               </button>
             </div>
           </div>
@@ -162,11 +166,13 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
 }
 
 /**
- * Jadual order tunggal + tab status (gaya WooCommerce/Dashify) yang
- * menggantikan seksyen-seksyen berasingan lama. Setiap "bucket" (tab) bawa
- * set tindakan pukal (bulk action) sendiri sebab setiap satu perlukan
- * tindakan operasi yang berbeza (fulfill / retry / cetak slip), bukan
- * sekadar label status macam WooCommerce asal.
+ * Single order table + status tabs (WooCommerce/Dashify style) that
+ * replaces the old separate sections. Each "bucket" (tab) carries its own
+ * bulk action set since each stage needs a different operation (process /
+ * retry / print AWB), not just a status label like the original WooCommerce.
+ *
+ * Stage flow mirrors the packing SOP: New Orders (Ready Stock / Pre-order)
+ * -> In Process Orders (print AWB, then staff manually confirms) -> Shipped.
  */
 export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
   const [tab, setTab] = useState<Bucket | "ALL">("ALL");
@@ -197,7 +203,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
     setSelected(visible.slice(0, MAX_BULK).map((o) => o.id));
   }
 
-  async function handleFulfill() {
+  async function handleProcess() {
     if (selected.length === 0) return;
     setLoading(true);
     try {
@@ -209,7 +215,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
       const data = await res.json();
       const failed = (data.results || []).filter((r: any) => !r.success);
       if (failed.length > 0) {
-        alert(`${failed.length} order gagal fulfill (lihat tab "Gagal Fulfill" untuk butiran).`);
+        alert(`${failed.length} order(s) failed to process (see "Processing Failed" tab for details).`);
       }
       const successIds = (data.results || []).filter((r: any) => r.success).map((r: any) => r.id);
       if (successIds.length > 0) {
@@ -219,7 +225,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
         router.refresh();
       }
     } catch (e) {
-      alert("Ralat semasa fulfill. Sila cuba lagi.");
+      alert("Error processing orders. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -236,14 +242,14 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
       });
       const data = await res.json();
       const stillFailed = (data.results || []).filter((r: any) => !r.success);
-      const berjaya = (data.results || []).filter((r: any) => r.success);
+      const success = (data.results || []).filter((r: any) => r.success);
       if (stillFailed.length > 0) {
-        alert(`${berjaya.length} berjaya, ${stillFailed.length} masih gagal. Sila semak mesej ralat terkini.`);
+        alert(`${success.length} succeeded, ${stillFailed.length} still failed. Please check the latest error message.`);
       }
       setSelected([]);
       router.refresh();
     } catch (e) {
-      alert("Ralat semasa cuba fulfill semula. Sila cuba lagi.");
+      alert("Error retrying processing. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -258,7 +264,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderIds: selected }),
       });
-      if (!res.ok) throw new Error("Gagal jana fail");
+      if (!res.ok) throw new Error("Failed to generate file");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -269,13 +275,13 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (e) {
-      alert("Ralat semasa jana fail eksport. Sila cuba lagi.");
+      alert("Error generating export file. Please try again.");
     } finally {
       setExporting(false);
     }
   }
 
-  function handlePrintSlip() {
+  function handlePrintAwb() {
     if (selected.length === 0) return;
     router.push(`/admin/orders/packing-slip?ids=${selected.join(",")}`);
   }
@@ -300,61 +306,61 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
       {showToolbar && (
         <div className="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-brand-dark/10 bg-brand-cream/40">
           <button type="button" onClick={selectAllVisible} className="text-xs underline text-brand-gold">
-            Pilih Semua (maks {MAX_BULK})
+            Select All (max {MAX_BULK})
           </button>
           <button type="button" onClick={() => setSelected([])} className="text-xs underline text-brand-dark/50">
-            Buang Pilihan
+            Clear Selection
           </button>
           <div className="ml-auto flex gap-2">
-            {tab === "GAGAL_FULFILL" && (
+            {tab === "PROCESSING_FAILED" && (
               <button
                 type="button"
                 onClick={handleExport}
                 disabled={selected.length === 0 || exporting}
                 className="bg-white border border-brand-dark/20 text-brand-dark font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
               >
-                {exporting ? "Menjana..." : `MUAT TURUN CSV (${selected.length})`}
+                {exporting ? "Generating..." : `DOWNLOAD CSV (${selected.length})`}
               </button>
             )}
-            {tab === "BELUM_FULFILL" && (
+            {(tab === "NEW_READY_STOCK" || tab === "NEW_PREORDER") && (
               <button
                 type="button"
-                onClick={handleFulfill}
+                onClick={handleProcess}
                 disabled={selected.length === 0 || loading}
                 className="bg-brand-gold text-brand-dark font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
               >
-                {loading ? "Memproses..." : `FULFILL (${selected.length})`}
+                {loading ? "Processing..." : `PROCESS ORDER (${selected.length})`}
               </button>
             )}
-            {tab === "GAGAL_FULFILL" && (
+            {tab === "PROCESSING_FAILED" && (
               <button
                 type="button"
                 onClick={handleRetry}
                 disabled={selected.length === 0 || loading}
                 className="bg-brand-gold text-brand-dark font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
               >
-                {loading ? "Memproses..." : `CUBA FULFILL SEMULA (${selected.length})`}
+                {loading ? "Processing..." : `RETRY PROCESSING (${selected.length})`}
               </button>
             )}
-            {tab === "SUDAH_FULFILL" && (
+            {tab === "IN_PROCESS" && (
               <button
                 type="button"
-                onClick={handlePrintSlip}
+                onClick={handlePrintAwb}
                 disabled={selected.length === 0}
                 className="bg-brand-gold text-brand-dark font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
               >
-                CETAK SLIP PEMBUNGKUSAN ({selected.length})
+                PRINT AWB ({selected.length})
               </button>
             )}
           </div>
         </div>
       )}
 
-      {tab === "GAGAL_FULFILL" && (
+      {tab === "PROCESSING_FAILED" && (
         <p className="px-5 pt-3 text-[11px] text-brand-dark/50">
-          "CUBA FULFILL SEMULA" selamat ditekan berulang kali untuk order yang dah ada order_number
-          EasyParcel - ia TIDAK cipta booking baru. Kalau asyik gagal, guna "MUAT TURUN CSV" untuk upload
-          manual dalam dashboard EasyParcel.
+          "RETRY PROCESSING" is safe to click repeatedly for orders that already have an EasyParcel
+          order number - it does NOT create a new booking. If it keeps failing, use "DOWNLOAD CSV" to
+          upload manually in the EasyParcel dashboard.
         </p>
       )}
 
@@ -364,11 +370,11 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
             <tr>
               <th className="p-4 w-10"></th>
               <th className="p-4">Order</th>
-              <th className="p-4">Tarikh</th>
+              <th className="p-4">Date</th>
               <th className="p-4">Status</th>
-              <th className="p-4">Alamat</th>
-              <th className="p-4">Barangan</th>
-              <th className="p-4">Aksi</th>
+              <th className="p-4">Address</th>
+              <th className="p-4">Items</th>
+              <th className="p-4">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-dark/5">
@@ -393,7 +399,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                     </p>
                     <p className="text-brand-dark/40">{formatRM(o.jumlahSen)}</p>
                   </td>
-                  <td className="p-4 whitespace-nowrap">{formatTarikh(o.createdAt)}</td>
+                  <td className="p-4 whitespace-nowrap">{formatDate(o.createdAt)}</td>
                   <td className="p-4">
                     <span className={`inline-block px-2.5 py-1 rounded text-[11px] font-semibold ${badge.className}`}>
                       {badge.label}
@@ -406,7 +412,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                     {o.items.map((it) => `${it.nama} x${it.kuantiti}`).join(", ")}
                   </td>
                   <td className="p-4 max-w-[12rem]">
-                    {o.bucket === "GAGAL_FULFILL" && o.fulfillmentError && (
+                    {o.bucket === "PROCESSING_FAILED" && o.fulfillmentError && (
                       <p className="text-red-600 text-[11px]">{o.fulfillmentError}</p>
                     )}
                     {(o.courierName || o.trackingNumber) && (
@@ -419,11 +425,11 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                         <RefundButton order={o} />
                       </div>
                     )}
-                    {o.bucket === "DIPULANGKAN" && (
+                    {o.bucket === "REFUNDED" && (
                       <div className="text-[11px] text-brand-dark/50 space-y-0.5">
                         <p>{formatRM(o.refundSen)}</p>
                         {o.refundReason && <p>{o.refundReason}</p>}
-                        <p>{formatTarikh(o.refundedAt)}</p>
+                        <p>{formatDate(o.refundedAt)}</p>
                       </div>
                     )}
                   </td>
@@ -433,7 +439,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
           </tbody>
         </table>
         {visible.length === 0 && (
-          <p className="p-6 text-center text-brand-dark/40 text-sm">Tiada order dalam kategori ni.</p>
+          <p className="p-6 text-center text-brand-dark/40 text-sm">No orders in this category.</p>
         )}
       </div>
     </div>

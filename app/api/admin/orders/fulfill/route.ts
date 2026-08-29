@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
             data: {
               trackingNumber: resolved.trackingNumber,
               courierName: resolved.courierName ?? order.courierName,
+              awbUrl: resolved.awbUrl,
               fulfillmentError: null,
             },
           });
@@ -108,6 +109,7 @@ export async function POST(req: NextRequest) {
             easyparcelOrderNo: booking.orderNo,
             trackingNumber: booking.trackingNumber,
             courierName: booking.courierName ?? courierNameGuna,
+            awbUrl: booking.awbUrl,
             serviceId,
             fulfillmentError: null,
           },
@@ -137,6 +139,7 @@ export async function POST(req: NextRequest) {
             data: {
               trackingNumber: resolved.trackingNumber,
               courierName: resolved.courierName ?? courierNameGuna,
+              awbUrl: resolved.awbUrl,
               fulfillmentError: null,
             },
           });
@@ -184,6 +187,7 @@ async function resolveExistingEasyParcelOrder(orderNo: string) {
     return {
       trackingNumber: payResult.trackingNumber,
       courierName: payResult.courierName,
+      awbUrl: payResult.awbUrl,
       rawDebug: payResult.rawDebug,
     };
   }
@@ -195,6 +199,7 @@ async function resolveExistingEasyParcelOrder(orderNo: string) {
   return {
     trackingNumber: statusResult.trackingNumber,
     courierName: statusResult.courierName,
+    awbUrl: statusResult.awbUrl,
     rawDebug: `${payResult.rawDebug} | status-check: ${statusResult.rawDebug}`,
   };
 }

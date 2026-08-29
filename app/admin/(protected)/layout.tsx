@@ -5,7 +5,7 @@ import { getAdminSession } from "@/lib/auth";
 const adminNavItems = [
   { href: "/admin", label: "Ringkasan" },
   { href: "/admin/members", label: "Senarai Ahli" },
-  { href: "/admin/orders", label: "Pesanan" },
+  { href: "/admin/orders", label: "Orders" },
   { href: "/admin/classes", label: "Kelas dan Program" },
   { href: "/admin/activities", label: "Aktiviti" },
   { href: "/admin/products", label: "Merchandise" },

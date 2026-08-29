@@ -28,24 +28,63 @@ type Quote = {
   courierName: string | null;
 };
 
-export default function ProductCheckoutForm({ productId, stok }: { productId?: string; stok?: number }) {
-  const { cart, clearCart, updateQty, removeFromCart } = useCart();
+type SizeInfo = { saiz: string; label: string; stok: number };
+
+export default function ProductCheckoutForm({
+  productId,
+  nama,
+  price,
+  stok,
+  sizes = [],
+}: {
+  productId?: string;
+  nama?: string;
+  price?: number;
+  stok?: number;
+  sizes?: SizeInfo[];
+}) {
+  const { cart, addToCart, clearCart, updateQty, removeFromCart } = useCart();
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [error, setError] = useState("");
+  const [selectedSize, setSelectedSize] = useState<string | null>(
+    sizes.find((s) => s.stok > 0)?.saiz ?? null
+  );
+  const [qty, setQty] = useState(1);
+
+  const selectedSizeInfo = sizes.find((s) => s.saiz === selectedSize) || null;
+  const maxQty = sizes.length > 0 ? selectedSizeInfo?.stok ?? 0 : stok || 99;
+
+  function handleAddToCart() {
+    if (!productId || !nama || price == null) return;
+    if (sizes.length > 0 && !selectedSize) {
+      setError("Sila pilih saiz dahulu.");
+      return;
+    }
+    setError("");
+    const cartId = selectedSize ? `${productId}:${selectedSize}` : productId;
+    const label = selectedSizeInfo ? `${nama} (${selectedSizeInfo.label})` : nama;
+    addToCart({ id: cartId, productId, saiz: selectedSize, name: label, price, quantity: qty });
+  }
 
   async function handleReview(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
+    if (cart.length === 0 && sizes.length > 0 && !selectedSize) {
+      setError("Sila pilih saiz dahulu.");
+      return;
+    }
+
     setLoading(true);
 
     const fd = new FormData(e.currentTarget);
 
     const orderItems = cart.length > 0
-      ? cart.map((item) => ({ productId: item.id, kuantiti: item.quantity }))
-      : [{ productId: fd.get("productId") || productId, kuantiti: Number(fd.get("kuantiti") || 1) }];
+      ? cart.map((item) => ({ productId: item.productId, kuantiti: item.quantity, saiz: item.saiz }))
+      : [{ productId: fd.get("productId") || productId, kuantiti: Number(fd.get("kuantiti") || 1), saiz: selectedSize }];
 
     try {
       const res = await fetch("/api/orders/quote", {
@@ -165,6 +204,57 @@ export default function ProductCheckoutForm({ productId, stok }: { productId?: s
   return (
     <form onSubmit={handleReview} className="space-y-3 bg-white p-5 rounded-md shadow-sm">
       <input type="hidden" name="productId" value={productId || ""} />
+      <input type="hidden" name="saiz" value={selectedSize || ""} />
+
+      {sizes.length > 0 && (
+        <div>
+          <label className="block text-xs font-semibold mb-2">Saiz</label>
+          <div className="flex flex-wrap gap-2">
+            {sizes.map((s) => (
+              <button
+                key={s.saiz}
+                type="button"
+                disabled={s.stok <= 0}
+                onClick={() => {
+                  setSelectedSize(s.saiz);
+                  setQty(1);
+                }}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-sm border disabled:opacity-30 disabled:line-through ${
+                  selectedSize === s.saiz
+                    ? "bg-brand-gold border-brand-gold text-brand-dark"
+                    : "border-brand-dark/20 text-brand-dark"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {productId && nama && price != null && (
+        <div className="flex items-end gap-3">
+          <div>
+            <label className="block text-xs font-semibold mb-1">Kuantiti</label>
+            <input
+              type="number"
+              min={1}
+              max={maxQty || 1}
+              value={qty}
+              onChange={(e) => setQty(Math.max(1, Math.min(maxQty || 1, Number(e.target.value) || 1)))}
+              className="w-20 border border-brand-dark/20 rounded-sm p-2 text-sm"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={maxQty <= 0 || (sizes.length > 0 && !selectedSize)}
+            className="flex-1 border border-brand-dark/30 text-brand-dark font-semibold text-sm py-2 rounded-sm disabled:opacity-40"
+          >
+            TAMBAH KE TROLI
+          </button>
+        </div>
+      )}
 
       <div className="border-b pb-3 mb-3">
         <h4 className="font-semibold text-sm mb-2">Ringkasan Trolley ({cart.length} Barangan)</h4>
@@ -217,20 +307,7 @@ export default function ProductCheckoutForm({ productId, stok }: { productId?: s
         )}
       </div>
 
-      {cart.length === 0 && (
-        <div>
-          <label className="block text-xs font-semibold mb-1">Kuantiti</label>
-          <input
-            type="number"
-            name="kuantiti"
-            min={1}
-            max={stok || 99}
-            defaultValue={1}
-            required
-            className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm"
-          />
-        </div>
-      )}
+      {cart.length === 0 && <input type="hidden" name="kuantiti" value={qty} />}
 
       <div>
         <label className="block text-xs font-semibold mb-1">Nama Penuh</label>

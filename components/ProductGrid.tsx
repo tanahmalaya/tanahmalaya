@@ -6,6 +6,7 @@ export default async function ProductGrid() {
     where: { aktif: true },
     orderBy: { createdAt: "desc" },
     take: 5,
+    include: { sizes: true },
   });
 
   return <ProductGridClient products={products} />;

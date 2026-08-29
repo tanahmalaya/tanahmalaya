@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { SIZE_LABEL } from "@/lib/productSize";
 
 export async function GET(req: NextRequest) {
   if (!getAdminSession()) {
@@ -36,13 +37,14 @@ export async function GET(req: NextRequest) {
       bandar: o.bandar,
       negeri: o.negeri,
       trackingNumber: o.trackingNumber,
+      awbUrl: o.awbUrl,
       courierName: o.courierName,
       bayarcashRef: o.bayarcashRef,
       jumlahKecilSen,
       shippingSen: o.shippingSen,
       jumlahSen: o.jumlahSen,
       items: o.items.map((it) => ({
-        nama: it.product.nama,
+        nama: it.saiz ? `${it.product.nama} (${SIZE_LABEL[it.saiz]})` : it.product.nama,
         kuantiti: it.kuantiti,
         hargaSen: it.hargaSen,
         subjumlahSen: it.hargaSen * it.kuantiti,

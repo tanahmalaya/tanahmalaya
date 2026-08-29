@@ -2,14 +2,15 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import OrdersTable, { type OrderRow } from "@/components/OrdersTable";
+import { SIZE_LABEL } from "@/lib/productSize";
 
 const ORDER_INCLUDE = { items: { include: { product: true } } } as const;
 
 export default async function AdminOrdersPage() {
   // Query berasingan ikut kategori (bukan satu fetch besar semua order) -
-  // lebih pantas dan elak dashboard "banjir" dek order MENUNGGU lama
-  // (troli ditinggalkan) yang tak relevan lagi untuk fulfillment.
-  const [belumFulfillRaw, gagalFulfillRaw, sudahFulfillRaw, selesaiRaw, menungguRaw, gagalBayarRaw, dipulangkanRaw] =
+  // lebih pantas dan elak dashboard "banjir" dek order status MENUNGGU lama
+  // (troli ditinggalkan) yang tak relevan lagi untuk processing.
+  const [newOrdersRaw, processingFailedRaw, inProcessRaw, shippedRaw, pendingPaymentRaw, paymentFailedRaw, refundedRaw] =
     await Promise.all([
       prisma.order.findMany({
         where: { status: "BERJAYA", trackingNumber: null, fulfillmentError: null },
@@ -52,7 +53,7 @@ export default async function AdminOrdersPage() {
       }),
     ]);
 
-  const toRow = (o: typeof belumFulfillRaw[number], bucket: OrderRow["bucket"]): OrderRow => ({
+  const toRow = (o: typeof newOrdersRaw[number], bucket: OrderRow["bucket"]): OrderRow => ({
     id: o.id,
     seq: o.seq,
     namaPembeli: o.namaPembeli,
@@ -60,9 +61,13 @@ export default async function AdminOrdersPage() {
     poskod: o.poskod,
     bandar: o.bandar,
     negeri: o.negeri,
-    items: o.items.map((it) => ({ nama: it.product.nama, kuantiti: it.kuantiti })),
+    items: o.items.map((it) => ({
+      nama: it.saiz ? `${it.product.nama} (${SIZE_LABEL[it.saiz]})` : it.product.nama,
+      kuantiti: it.kuantiti,
+    })),
     jumlahSen: o.jumlahSen,
     trackingNumber: o.trackingNumber,
+    awbUrl: o.awbUrl,
     courierName: o.courierName,
     fulfillmentError: o.fulfillmentError,
     refundSen: o.refundSen,
@@ -71,19 +76,26 @@ export default async function AdminOrdersPage() {
     bucket,
   });
 
+  // New orders dipecahkan ikut jenis produk - order campuran (ada
+  // sekurang-kurangnya satu item PREORDER) diletak dalam kumpulan Pre-order
+  // supaya staff tak silap proses/pos sebelum stok preorder sampai.
+  const newOrdersPreorder = newOrdersRaw.filter((o) => o.items.some((it) => it.product.status === "PREORDER"));
+  const newOrdersReady = newOrdersRaw.filter((o) => !o.items.some((it) => it.product.status === "PREORDER"));
+
   const allOrders: OrderRow[] = [
-    ...menungguRaw.map((o) => toRow(o, "MENUNGGU")),
-    ...belumFulfillRaw.map((o) => toRow(o, "BELUM_FULFILL")),
-    ...gagalFulfillRaw.map((o) => toRow(o, "GAGAL_FULFILL")),
-    ...sudahFulfillRaw.map((o) => toRow(o, "SUDAH_FULFILL")),
-    ...selesaiRaw.map((o) => toRow(o, "SELESAI")),
-    ...dipulangkanRaw.map((o) => toRow(o, "DIPULANGKAN")),
-    ...gagalBayarRaw.map((o) => toRow(o, "GAGAL_BAYARAN")),
+    ...pendingPaymentRaw.map((o) => toRow(o, "PENDING_PAYMENT")),
+    ...newOrdersReady.map((o) => toRow(o, "NEW_READY_STOCK")),
+    ...newOrdersPreorder.map((o) => toRow(o, "NEW_PREORDER")),
+    ...processingFailedRaw.map((o) => toRow(o, "PROCESSING_FAILED")),
+    ...inProcessRaw.map((o) => toRow(o, "IN_PROCESS")),
+    ...shippedRaw.map((o) => toRow(o, "SHIPPED")),
+    ...refundedRaw.map((o) => toRow(o, "REFUNDED")),
+    ...paymentFailedRaw.map((o) => toRow(o, "PAYMENT_FAILED")),
   ];
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">Pesanan &amp; Penghantaran</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">Orders &amp; Shipping</h1>
       <OrdersTable orders={allOrders} />
     </div>
   );

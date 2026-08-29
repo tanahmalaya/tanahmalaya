@@ -3,9 +3,14 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { parseSizesFromForm } from "@/lib/productSize";
 
 export async function GET() {
-  const products = await prisma.product.findMany({ where: { aktif: true }, orderBy: { createdAt: "desc" } });
+  const products = await prisma.product.findMany({
+    where: { aktif: true },
+    orderBy: { createdAt: "desc" },
+    include: { sizes: true },
+  });
   return NextResponse.json(products);
 }
 
@@ -16,16 +21,20 @@ export async function POST(req: NextRequest) {
 
   const form = await req.formData();
   const hargaRM = parseFloat(String(form.get("harga")));
+  const status = String(form.get("status") || "READY_STOCK") as "READY_STOCK" | "PREORDER";
   const shippingMode = String(form.get("shippingMode") || "FLAT") as "FLAT" | "BERAT";
   const shippingFlatRM = form.get("shippingFlatRM");
   const beratGram = form.get("beratGram");
+  const stokInput = form.get("stok");
+  const sizes = parseSizesFromForm(form);
 
   await prisma.product.create({
     data: {
       nama: String(form.get("nama")),
       penerangan: String(form.get("penerangan") || "") || null,
       hargaSen: Math.round(hargaRM * 100),
-      stok: parseInt(String(form.get("stok")), 10),
+      status,
+      stok: sizes.length > 0 ? 0 : parseInt(String(stokInput || "0"), 10) || 0,
       gambarDepan: String(form.get("gambarDepan") || "") || null,
       gambarBelakang: String(form.get("gambarBelakang") || "") || null,
       gambarSisi: String(form.get("gambarSisi") || "") || null,
@@ -33,6 +42,7 @@ export async function POST(req: NextRequest) {
       shippingMode,
       shippingFlatSen: shippingFlatRM ? Math.round(parseFloat(String(shippingFlatRM)) * 100) : null,
       beratGram: beratGram ? parseInt(String(beratGram), 10) : null,
+      sizes: sizes.length > 0 ? { create: sizes } : undefined,
     },
   });
 

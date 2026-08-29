@@ -3,7 +3,10 @@
 import { createContext, useContext, useState } from "react";
 
 export type CartItem = {
+  /** Kunci unik baris troli - "productId" sahaja, atau "productId:saiz" kalau produk ada saiz. */
   id: string;
+  productId: string;
+  saiz: string | null;
   name: string;
   price: number;
   quantity: number;

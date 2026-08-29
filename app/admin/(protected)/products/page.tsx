@@ -2,10 +2,16 @@ export const dynamic = "force-dynamic";
 
 import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
+import { SIZE_OPTIONS, SIZE_LABEL, PRODUCT_STATUS_LABEL, totalStok } from "@/lib/productSize";
 
 export default async function AdminProductsPage() {
   requireAdminOnly();
-  const products = await prisma.product.findMany({ orderBy: { createdAt: "desc" } });
+  const products = await prisma.product.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { sizes: true },
+  });
 
   return (
     <div>
@@ -15,9 +21,43 @@ export default async function AdminProductsPage() {
         <h2 className="font-semibold mb-4">Tambah Produk</h2>
         <form action="/api/products" method="POST" className="grid sm:grid-cols-2 gap-4">
           <input name="nama" placeholder="Nama Produk" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
-          <textarea name="penerangan" placeholder="Penerangan produk (pilihan) - bahan, saiz tersedia, dll" className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
+          <textarea name="penerangan" placeholder="Penerangan produk (pilihan) - bahan, dll" className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
           <input name="harga" type="number" step="0.01" placeholder="Harga (RM)" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <input name="stok" type="number" placeholder="Stok" required className="border border-brand-dark/20 rounded-sm p-3" />
+          <div>
+            <label className="block text-xs font-semibold mb-1">Status</label>
+            <select name="status" className="w-full border border-brand-dark/20 rounded-sm p-3">
+              <option value="READY_STOCK">Ready Stock</option>
+              <option value="PREORDER">Pre-order</option>
+            </select>
+          </div>
+
+          <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
+            <p className="text-sm font-semibold mb-1">Saiz Baju (pilihan)</p>
+            <p className="text-xs text-brand-dark/50 mb-3">
+              Isi stok untuk saiz yang berkenaan sahaja (kosongkan saiz yang tiada). Kalau produk ni bukan
+              pakaian, biarkan semua kosong dan isi "Stok" di bawah sebagai ganti.
+            </p>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {SIZE_OPTIONS.map((s) => (
+                <div key={s.value}>
+                  <label className="block text-xs font-semibold mb-1">{s.label}</label>
+                  <input
+                    name={`saiz_${s.value}`}
+                    type="number"
+                    min={0}
+                    placeholder="Stok"
+                    className="w-full border border-brand-dark/20 rounded-sm p-2 text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <input
+            name="stok"
+            type="number"
+            placeholder="Stok (jika produk TIADA saiz)"
+            className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2"
+          />
 
           <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
             <p className="text-sm font-semibold mb-3">Gambar Produk</p>
@@ -55,7 +95,16 @@ export default async function AdminProductsPage() {
       <div className="bg-white rounded-md shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-brand-cream text-left">
-            <tr><th className="p-4">Gambar</th><th className="p-4">Nama</th><th className="p-4">Harga</th><th className="p-4">Stok</th><th className="p-4">Aktif</th><th className="p-4"></th></tr>
+            <tr>
+              <th className="p-4">Gambar</th>
+              <th className="p-4">Nama</th>
+              <th className="p-4">Harga</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Saiz</th>
+              <th className="p-4">Stok</th>
+              <th className="p-4">Aktif</th>
+              <th className="p-4"></th>
+            </tr>
           </thead>
           <tbody>
             {products.map((p) => (
@@ -68,14 +117,24 @@ export default async function AdminProductsPage() {
                 </td>
                 <td className="p-4">{p.nama}</td>
                 <td className="p-4">RM{(p.hargaSen / 100).toFixed(2)}</td>
-                <td className="p-4">{p.stok}</td>
+                <td className="p-4">{PRODUCT_STATUS_LABEL[p.status]}</td>
+                <td className="p-4">
+                  {p.sizes.length > 0
+                    ? p.sizes.map((s) => `${SIZE_LABEL[s.saiz]} (${s.stok})`).join(", ")
+                    : "-"}
+                </td>
+                <td className="p-4">{totalStok(p)}</td>
                 <td className="p-4">{p.aktif ? "Ya" : "Tidak"}</td>
                 <td className="p-4">
-                  <form action={`/api/products/${p.id}/delete`} method="POST">
-                    <button type="submit" className="text-red-600 text-xs font-semibold hover:underline">
-                      PADAM
-                    </button>
-                  </form>
+                  <div className="flex items-center gap-3">
+                    <Link href={`/admin/products/${p.id}/edit`} className="text-brand-gold text-xs font-bold">
+                      EDIT
+                    </Link>
+                    <DeleteEntityButton
+                      action={`/api/products/${p.id}/delete`}
+                      confirmText={`Padam produk "${p.nama}"? Tindakan ini tidak boleh dibatalkan.`}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

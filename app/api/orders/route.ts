@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
 import { calculateShipping } from "@/lib/pricing";
+import { SIZE_LABEL } from "@/lib/productSize";
 import { z } from "zod";
 
 const infoSchema = z.object({
@@ -29,15 +30,19 @@ export async function POST(req: NextRequest) {
   });
 
   // Ambil senarai barangan dari troli (field "cart", JSON), atau fallback
-  // kepada satu produk (productId/kuantiti) kalau beli terus tanpa troli.
+  // kepada satu produk (productId/kuantiti/saiz) kalau beli terus tanpa troli.
   const cartRaw = form.get("cart");
-  let cartItems: { id: string; quantity: number }[] = [];
+  let cartItems: { productId: string; quantity: number; saiz: string | null }[] = [];
 
   if (cartRaw) {
     try {
       const parsed = JSON.parse(String(cartRaw));
       if (Array.isArray(parsed) && parsed.length > 0) {
-        cartItems = parsed.map((it: any) => ({ id: it.id, quantity: it.quantity }));
+        cartItems = parsed.map((it: any) => ({
+          productId: it.productId,
+          quantity: it.quantity,
+          saiz: it.saiz ?? null,
+        }));
       }
     } catch {
       // abaikan, guna fallback di bawah
@@ -47,25 +52,48 @@ export async function POST(req: NextRequest) {
   if (cartItems.length === 0) {
     const productId = form.get("productId");
     const kuantiti = form.get("kuantiti");
+    const saiz = form.get("saiz");
     if (!productId) {
       return NextResponse.json({ error: "Troli kosong" }, { status: 400 });
     }
-    cartItems = [{ id: String(productId), quantity: Number(kuantiti || 1) }];
+    cartItems = [{ productId: String(productId), quantity: Number(kuantiti || 1), saiz: saiz ? String(saiz) : null }];
   }
 
   let subtotalSen = 0;
   let shippingSen = 0;
   let courierName: string | null = null;
   let serviceId: string | null = null;
-  const orderItemsData: { productId: string; kuantiti: number; hargaSen: number }[] = [];
+  const orderItemsData: {
+    productId: string;
+    productSizeId: string | null;
+    saiz: "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null;
+    kuantiti: number;
+    hargaSen: number;
+  }[] = [];
   const descParts: string[] = [];
 
   for (const ci of cartItems) {
-    const product = await prisma.product.findUnique({ where: { id: ci.id } });
+    const product = await prisma.product.findUnique({ where: { id: ci.productId }, include: { sizes: true } });
     if (!product || !product.aktif) {
       return NextResponse.json({ error: "Salah satu produk dalam troli tidak lagi tersedia" }, { status: 404 });
     }
-    if (product.stok < ci.quantity) {
+
+    let productSizeId: string | null = null;
+    let saizLabel: string | null = null;
+    if (product.sizes.length > 0) {
+      const size = product.sizes.find((s) => s.saiz === ci.saiz);
+      if (!size) {
+        return NextResponse.json({ error: `Sila pilih saiz untuk ${product.nama}` }, { status: 400 });
+      }
+      if (size.stok < ci.quantity) {
+        return NextResponse.json(
+          { error: `Stok tidak mencukupi untuk ${product.nama} (Saiz: ${SIZE_LABEL[size.saiz]})` },
+          { status: 400 }
+        );
+      }
+      productSizeId = size.id;
+      saizLabel = size.saiz;
+    } else if (product.stok < ci.quantity) {
       return NextResponse.json({ error: `Stok tidak mencukupi untuk ${product.nama}` }, { status: 400 });
     }
 
@@ -78,10 +106,12 @@ export async function POST(req: NextRequest) {
 
     orderItemsData.push({
       productId: product.id,
+      productSizeId,
+      saiz: saizLabel as "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null,
       kuantiti: ci.quantity,
       hargaSen: product.hargaSen,
     });
-    descParts.push(`${product.nama} x${ci.quantity}`);
+    descParts.push(`${product.nama}${saizLabel ? ` (${SIZE_LABEL[saizLabel]})` : ""} x${ci.quantity}`);
   }
 
   const jumlahSen = subtotalSen + shippingSen;

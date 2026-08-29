@@ -3,11 +3,13 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateShipping } from "@/lib/pricing";
+import { SIZE_LABEL } from "@/lib/productSize";
 import { z } from "zod";
 
 const itemSchema = z.object({
   productId: z.string().min(1),
   kuantiti: z.coerce.number().int().min(1),
+  saiz: z.string().nullish(),
 });
 
 const schema = z.object({
@@ -26,11 +28,25 @@ export async function POST(req: NextRequest) {
   const items: { id: string; namaProduk: string; kuantiti: number; hargaBarangSen: number }[] = [];
 
   for (const it of data.items) {
-    const product = await prisma.product.findUnique({ where: { id: it.productId } });
+    const product = await prisma.product.findUnique({ where: { id: it.productId }, include: { sizes: true } });
     if (!product || !product.aktif) {
       return NextResponse.json({ error: "Salah satu produk dalam troli tidak lagi tersedia" }, { status: 404 });
     }
-    if (product.stok < it.kuantiti) {
+
+    let namaProduk = product.nama;
+    if (product.sizes.length > 0) {
+      const size = product.sizes.find((s) => s.saiz === it.saiz);
+      if (!size) {
+        return NextResponse.json({ error: `Sila pilih saiz untuk ${product.nama}` }, { status: 400 });
+      }
+      if (size.stok < it.kuantiti) {
+        return NextResponse.json(
+          { error: `Stok tidak mencukupi untuk ${product.nama} (Saiz: ${SIZE_LABEL[size.saiz]})` },
+          { status: 400 }
+        );
+      }
+      namaProduk = `${product.nama} (Saiz: ${SIZE_LABEL[size.saiz]})`;
+    } else if (product.stok < it.kuantiti) {
       return NextResponse.json({ error: `Stok tidak mencukupi untuk ${product.nama}` }, { status: 400 });
     }
 
@@ -43,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     items.push({
       id: product.id,
-      namaProduk: product.nama,
+      namaProduk,
       kuantiti: it.kuantiti,
       hargaBarangSen,
     });

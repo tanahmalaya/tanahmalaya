@@ -26,26 +26,31 @@ type OrderPrintView = {
 };
 
 const STATUS_LABEL: Record<OrderPrintView["status"], string> = {
-  MENUNGGU: "Menunggu Bayaran",
-  BERJAYA: "Bayaran Berjaya",
-  GAGAL: "Bayaran Gagal",
+  MENUNGGU: "Pending Payment",
+  BERJAYA: "Payment Successful",
+  GAGAL: "Payment Failed",
 };
 
 function formatRM(sen: number) {
-  return `RM ${(sen / 100).toLocaleString("ms-MY", {
+  return `RM ${(sen / 100).toLocaleString("en-MY", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 }
 
-function formatTarikh(iso: string) {
-  return new Date(iso).toLocaleDateString("ms-MY", {
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-MY", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
 
+/**
+ * Full invoice (with price) - for internal accounting records only. Not
+ * part of the packing workflow (see /admin/orders/packing-slip for the
+ * actual AWB + item details used during packing/shipping).
+ */
 export default function PrintOrdersPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -64,7 +69,7 @@ export default function PrintOrdersPage() {
       });
   }, []);
 
-  async function handleDonePrint() {
+  async function handleMarkShipped() {
     await fetch("/api/admin/orders/mark-printed", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -74,7 +79,7 @@ export default function PrintOrdersPage() {
     setTimeout(() => router.push("/admin/orders"), 1500);
   }
 
-  if (loading) return <div className="p-8">Memuatkan...</div>;
+  if (loading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -83,25 +88,25 @@ export default function PrintOrdersPage() {
           onClick={() => window.print()}
           className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-5 py-2"
         >
-          CETAK (PDF)
+          PRINT (PDF)
         </button>
         <button
-          onClick={handleDonePrint}
+          onClick={handleMarkShipped}
           disabled={done}
           className="bg-brand-dark text-white font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
         >
-          {done ? "SELESAI ✓" : "SELESAI CETAK"}
+          {done ? "SHIPPED ✓" : "MARK AS SHIPPED"}
         </button>
         <Link
           href={`/admin/orders/packing-slip?ids=${ids.join(",")}`}
           className="text-sm underline text-brand-dark/60 ml-auto"
         >
-          Lihat Slip Pembungkusan (tanpa harga) →
+          View AWB &amp; Packing Details (no price) →
         </Link>
       </div>
 
       <h1 className="text-2xl font-bold mb-6 print:hidden">
-        Invois Pesanan — {orders.length} Pesanan
+        Order Invoice — {orders.length} Order(s)
       </h1>
 
       <div className="space-y-6">
@@ -110,31 +115,31 @@ export default function PrintOrdersPage() {
             key={o.id}
             className="border border-brand-dark/20 rounded-md p-6 break-inside-avoid print:break-after-page"
           >
-            {/* Header invois */}
+            {/* Invoice header */}
             <div className="flex justify-between items-start border-b border-brand-dark/10 pb-3 mb-3">
               <div>
-                <p className="font-bold text-lg">Invois #{o.seq}</p>
-                <p className="text-sm text-brand-dark/70">Tarikh: {formatTarikh(o.createdAt)}</p>
+                <p className="font-bold text-lg">Invoice #{o.seq}</p>
+                <p className="text-sm text-brand-dark/70">Date: {formatDate(o.createdAt)}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-semibold">{STATUS_LABEL[o.status]}</p>
                 {o.bayarcashRef && (
-                  <p className="text-xs text-brand-dark/60">Ruj. Bayaran: {o.bayarcashRef}</p>
+                  <p className="text-xs text-brand-dark/60">Payment Ref: {o.bayarcashRef}</p>
                 )}
               </div>
             </div>
 
-            {/* Pelanggan & alamat */}
+            {/* Customer & address */}
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
-                <p className="text-xs font-semibold text-brand-dark/60 uppercase mb-1">Pelanggan</p>
+                <p className="text-xs font-semibold text-brand-dark/60 uppercase mb-1">Customer</p>
                 <p className="font-semibold">{o.namaPembeli}</p>
                 <p className="text-sm text-brand-dark/70">{o.emel}</p>
                 <p className="text-sm text-brand-dark/70">{o.telefon}</p>
               </div>
               <div>
                 <p className="text-xs font-semibold text-brand-dark/60 uppercase mb-1">
-                  Alamat Penghantaran
+                  Shipping Address
                 </p>
                 <p className="text-sm text-brand-dark/70">
                   {o.alamat}, {o.poskod} {o.bandar}, {o.negeri}
@@ -142,22 +147,22 @@ export default function PrintOrdersPage() {
               </div>
             </div>
 
-            {/* Kurier & tracking - papar hanya jika sudah ada (bukan dari EasyParcel di sini) */}
+            {/* Courier & tracking - shown only when already available */}
             {(o.courierName || o.trackingNumber) && (
               <p className="text-sm mb-3">
-                <strong>Kurier:</strong> {o.courierName || "-"} —{" "}
+                <strong>Courier:</strong> {o.courierName || "-"} —{" "}
                 <strong>Tracking:</strong> {o.trackingNumber || "-"}
               </p>
             )}
 
-            {/* Jadual item */}
+            {/* Item table */}
             <table className="w-full text-sm mb-3">
               <thead>
                 <tr className="border-b border-brand-dark/20 text-left">
-                  <th className="py-1 font-semibold">Produk</th>
-                  <th className="py-1 font-semibold text-center">Kuantiti</th>
-                  <th className="py-1 font-semibold text-right">Harga Seunit</th>
-                  <th className="py-1 font-semibold text-right">Jumlah</th>
+                  <th className="py-1 font-semibold">Product</th>
+                  <th className="py-1 font-semibold text-center">Qty</th>
+                  <th className="py-1 font-semibold text-right">Unit Price</th>
+                  <th className="py-1 font-semibold text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -172,19 +177,19 @@ export default function PrintOrdersPage() {
               </tbody>
             </table>
 
-            {/* Jumlah keseluruhan */}
+            {/* Totals */}
             <div className="flex justify-end">
               <div className="w-56 text-sm space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-brand-dark/70">Jumlah Kecil</span>
+                  <span className="text-brand-dark/70">Subtotal</span>
                   <span>{formatRM(o.jumlahKecilSen)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-brand-dark/70">Penghantaran</span>
+                  <span className="text-brand-dark/70">Shipping</span>
                   <span>{formatRM(o.shippingSen)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-base border-t border-brand-dark/20 pt-1">
-                  <span>Jumlah Keseluruhan</span>
+                  <span>Total</span>
                   <span>{formatRM(o.jumlahSen)}</span>
                 </div>
               </div>

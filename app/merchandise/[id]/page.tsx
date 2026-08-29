@@ -4,18 +4,24 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import ProductCheckoutForm from "@/components/ProductCheckoutForm";
+import { PRODUCT_STATUS_LABEL, SIZE_LABEL, totalStok } from "@/lib/productSize";
 
 function formatHarga(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
 }
 
 export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = await prisma.product.findUnique({ where: { id: params.id } });
+  const product = await prisma.product.findUnique({
+    where: { id: params.id },
+    include: { sizes: true },
+  });
   if (!product || !product.aktif) return notFound();
 
   const gallery = [product.gambarDepan, product.gambarBelakang, product.gambarSisi].filter(
     (url): url is string => Boolean(url)
   );
+  const stok = totalStok(product);
+  const sizes = product.sizes.map((s) => ({ saiz: s.saiz, label: SIZE_LABEL[s.saiz] || s.saiz, stok: s.stok }));
 
   return (
     <section className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10">
@@ -36,16 +42,23 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
 
       <div>
         <h1 className="font-display text-3xl font-bold mb-2">{product.nama}</h1>
-        <p className="text-2xl text-brand-gold font-bold mb-4">{formatHarga(product.hargaSen)}</p>
+        <div className="flex items-center gap-3 mb-4">
+          <p className="text-2xl text-brand-gold font-bold">{formatHarga(product.hargaSen)}</p>
+          <span className="bg-brand-cream text-brand-dark text-xs font-semibold px-2 py-1 rounded-sm">
+            {PRODUCT_STATUS_LABEL[product.status] || product.status}
+          </span>
+        </div>
         {product.penerangan && (
           <p className="text-brand-dark/70 mb-6 whitespace-pre-line">{product.penerangan}</p>
         )}
-        <p className="text-sm text-brand-dark/60 mb-6">
-          Stok: {product.stok > 0 ? `${product.stok} tersedia` : "Habis stok"}
-        </p>
+        {sizes.length === 0 && (
+          <p className="text-sm text-brand-dark/60 mb-6">
+            Stok: {stok > 0 ? `${stok} tersedia` : "Habis stok"}
+          </p>
+        )}
 
-        {product.stok > 0 ? (
-          <ProductCheckoutForm productId={product.id} stok={product.stok} />
+        {stok > 0 ? (
+          <ProductCheckoutForm productId={product.id} nama={product.nama} price={product.hargaSen / 100} stok={product.stok} sizes={sizes} />
         ) : (
           <button disabled className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full opacity-50">
             HABIS STOK

@@ -133,7 +133,8 @@ model Product {
   gambarBelakang String?
   gambarSisi     String?
   sizingChartUrl String?  // carta saiz (untuk baju, dll)
-  stok           Int      @default(0)
+  stok           Int      @default(0) // stok keseluruhan - diguna HANYA jika produk tiada saiz (lihat ProductSize)
+  status         ProductStatus @default(READY_STOCK)
   aktif          Boolean  @default(true)
   // Penghantaran: FLAT = kadar tetap, BERAT = kira automatik ikut berat & poskod
   shippingMode   ShippingMode @default(FLAT)
@@ -142,11 +143,40 @@ model Product {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   orderItems     OrderItem[]
+  sizes          ProductSize[] // kosong = produk tiada pilihan saiz (guna field "stok" di atas)
+}
+
+enum ProductStatus {
+  READY_STOCK
+  PREORDER
 }
 
 enum ShippingMode {
   FLAT
   BERAT
+}
+
+// Stok per-saiz untuk produk berbentuk pakaian (baju, dll). Bila produk ada
+// sekurang-kurangnya satu baris di sini, pelanggan WAJIB pilih saiz semasa
+// checkout dan stok ditrack berasingan ikut saiz (bukan Product.stok).
+model ProductSize {
+  id        String   @id @default(cuid())
+  productId String
+  saiz      Saiz
+  stok      Int      @default(0)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@unique([productId, saiz])
+}
+
+enum Saiz {
+  S
+  M
+  L
+  XL
+  XXL  // dipaparkan sebagai "2XL"
+  XXXL // dipaparkan sebagai "3XL"
 }
 
 model Order {
@@ -170,8 +200,9 @@ model Order {
   serviceId            String?
   easyparcelOrderNo    String?
   trackingNumber       String?
-  fulfillmentError     String?   // diisi kalau cubaan fulfill gagal
-  printedAt            DateTime? // masa staff klik "Selesai Cetak"
+  awbUrl               String?   // pautan PDF label AWB sebenar dari EasyParcel (untuk cetak)
+  fulfillmentError     String?   // diisi kalau cubaan proses order gagal
+  printedAt            DateTime? // masa staff klik "Mark as Shipped"
   // Refund
   refundSen            Int?      // jumlah refund dalam sen (boleh partial, <= jumlahSen)
   refundReason         String?
@@ -189,13 +220,16 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  productId String
-  kuantiti  Int
-  hargaSen  Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  id            String  @id @default(cuid())
+  orderId       String
+  productId     String
+  productSizeId String? // rujukan baris ProductSize (jika produk ada saiz)
+  saiz          Saiz?   // saiz yang dibeli, disimpan terus supaya kekal dalam rekod order walaupun ProductSize dipadam kemudian
+  kuantiti      Int
+  hargaSen      Int
+  order         Order        @relation(fields: [orderId], references: [id])
+  product       Product      @relation(fields: [productId], references: [id])
+  productSize   ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: SetNull)
 }
 
 // ---------- IKLAN KOMUNITI (auto-rotate) ----------

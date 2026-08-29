@@ -95,10 +95,30 @@ type OrderBookingResult = {
   orderNo: string | null;
   trackingNumber: string | null;
   courierName: string | null;
+  awbUrl: string | null;
   errorMessage: string | null;
   rawDebug: string;
   raw: any;
 };
+
+/**
+ * Cari pautan PDF label AWB dalam respons EasyParcel - nama field TAK
+ * disahkan 100% (dokumentasi rasmi tak bagi contoh JSON penuh), jadi kita
+ * cuba beberapa nama field biasa digunakan oleh integrasi EasyParcel lain
+ * (plugin WooCommerce/WHMCS). Kalau tiada yang match, staff kena semak
+ * terus dalam dashboard EasyParcel dan cetak dari sana secara manual.
+ */
+function extractAwbUrl(result: any, parcel: any): string | null {
+  return (
+    parcel?.awb_id_link ??
+    parcel?.awb_link ??
+    parcel?.label_link ??
+    parcel?.awb_url ??
+    result?.awb_id_link ??
+    result?.awb_link ??
+    null
+  );
+}
 
 /**
  * Tempah penghantaran sebenar dengan EasyParcel selepas bayaran berjaya.
@@ -182,6 +202,7 @@ export async function submitEasyParcelOrder(params: SubmitOrderParams): Promise<
     orderNo: result?.order_number ?? result?.order_no ?? null,
     trackingNumber,
     courierName: parcel?.courier ?? parcel?.courier_name ?? null,
+    awbUrl: extractAwbUrl(result, parcel),
     errorMessage: remarks,
     // Sertakan sekeping respons mentah supaya admin nampak terus dalam
     // dashboard - buang bila dah pasti field mapping betul.
@@ -257,6 +278,7 @@ export async function payEasyParcelOrder(orderNo: string): Promise<OrderBookingR
     orderNo: result?.order_number ?? result?.order_no ?? orderNo,
     trackingNumber,
     courierName: parcel?.courier ?? parcel?.courier_name ?? null,
+    awbUrl: extractAwbUrl(result, parcel),
     errorMessage: remarks,
     rawDebug: JSON.stringify(result ?? data).slice(0, 500),
     raw: result,
@@ -310,6 +332,7 @@ export async function checkEasyParcelOrderStatus(orderNo: string): Promise<Order
     orderNo: result?.order_number ?? result?.order_no ?? orderNo,
     trackingNumber,
     courierName: parcel?.courier ?? parcel?.courier_name ?? null,
+    awbUrl: extractAwbUrl(result, parcel),
     errorMessage: remarks,
     rawDebug: JSON.stringify(result ?? data).slice(0, 500),
     raw: result,
