@@ -2,14 +2,26 @@ export const dynamic = "force-dynamic";
 
 import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 
-export default async function AdminActivitiesPage() {
+export default async function AdminActivitiesPage({
+  searchParams,
+}: {
+  searchParams: { error?: string };
+}) {
   requireAdminOnly();
   const activities = await prisma.activity.findMany({ orderBy: { tarikh: "desc" } });
 
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Urus Aktiviti</h1>
+
+      {searchParams.error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md p-4 mb-6">
+          {searchParams.error}
+        </div>
+      )}
 
       <div className="bg-white rounded-md shadow-sm p-6 mb-8">
         <h2 className="font-semibold mb-4">Tambah Aktiviti</h2>
@@ -33,16 +45,39 @@ export default async function AdminActivitiesPage() {
       <div className="bg-white rounded-md shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-brand-cream text-left">
-            <tr><th className="p-4">Tarikh</th><th className="p-4">Tajuk</th><th className="p-4">Keterangan</th></tr>
+            <tr>
+              <th className="p-4">Tarikh</th>
+              <th className="p-4">Tajuk</th>
+              <th className="p-4">Keterangan</th>
+              <th className="p-4">Aksi</th>
+            </tr>
           </thead>
           <tbody>
             {activities.map((a) => (
               <tr key={a.id} className="border-t border-brand-cream">
-                <td className="p-4">{a.tarikh.toLocaleDateString("ms-MY")}</td>
+                <td className="p-4 whitespace-nowrap">{a.tarikh.toLocaleDateString("ms-MY")}</td>
                 <td className="p-4">{a.tajuk}</td>
                 <td className="p-4">{a.keterangan}</td>
+                <td className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Link href={`/admin/activities/${a.id}/edit`} className="text-brand-gold text-xs font-bold">
+                      EDIT
+                    </Link>
+                    <DeleteEntityButton
+                      action={`/api/activities/${a.id}/delete`}
+                      confirmText={`Padam aktiviti "${a.tajuk}"? Tindakan ini tidak boleh dibatalkan.`}
+                    />
+                  </div>
+                </td>
               </tr>
             ))}
+            {activities.length === 0 && (
+              <tr>
+                <td colSpan={4} className="p-4 text-center text-brand-dark/50">
+                  Tiada aktiviti lagi.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

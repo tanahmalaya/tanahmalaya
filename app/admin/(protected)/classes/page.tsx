@@ -3,8 +3,13 @@ export const dynamic = "force-dynamic";
 import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 
-export default async function AdminClassesPage() {
+export default async function AdminClassesPage({
+  searchParams,
+}: {
+  searchParams: { error?: string };
+}) {
   requireAdminOnly();
   const classes = await prisma.landClass.findMany({
     orderBy: { tarikh: "desc" },
@@ -13,6 +18,12 @@ export default async function AdminClassesPage() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Urus Program &amp; Kelas</h1>
+
+      {searchParams.error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md p-4 mb-6">
+          {searchParams.error}
+        </div>
+      )}
 
       <div className="bg-white rounded-md shadow-sm p-6 mb-8">
         <h2 className="font-semibold mb-4">Tambah Program/Kelas Baharu</h2>
@@ -52,12 +63,13 @@ export default async function AdminClassesPage() {
               <th className="p-4">Yuran</th>
               <th className="p-4">Status</th>
               <th className="p-4">Peserta</th>
+              <th className="p-4">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {classes.map((k) => (
               <tr key={k.id} className="border-t border-brand-cream">
-                <td className="p-4">{k.tarikh.toLocaleDateString("ms-MY")}</td>
+                <td className="p-4 whitespace-nowrap">{k.tarikh.toLocaleDateString("ms-MY")}</td>
                 <td className="p-4">{k.namaKelas}</td>
                 <td className="p-4">{k.jenisKelas}</td>
                 <td className="p-4">{k.yuranSen === 0 ? "Percuma" : `RM${(k.yuranSen / 100).toFixed(2)}`}</td>
@@ -67,8 +79,26 @@ export default async function AdminClassesPage() {
                     LIHAT PESERTA
                   </Link>
                 </td>
+                <td className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Link href={`/admin/classes/${k.id}/edit`} className="text-brand-gold text-xs font-bold">
+                      EDIT
+                    </Link>
+                    <DeleteEntityButton
+                      action={`/api/classes/${k.id}/delete`}
+                      confirmText={`Padam program/kelas "${k.namaKelas}"? Tindakan ini tidak boleh dibatalkan.`}
+                    />
+                  </div>
+                </td>
               </tr>
             ))}
+            {classes.length === 0 && (
+              <tr>
+                <td colSpan={7} className="p-4 text-center text-brand-dark/50">
+                  Tiada program/kelas lagi.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
