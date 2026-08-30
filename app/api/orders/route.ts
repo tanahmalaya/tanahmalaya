@@ -78,6 +78,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Salah satu produk dalam troli tidak lagi tersedia" }, { status: 404 });
     }
 
+    // PREORDER dibuat ikut tempahan - stok tak sekat kuantiti/pembelian.
+    const isPreorder = product.status === "PREORDER";
+
     let productSizeId: string | null = null;
     let saizLabel: string | null = null;
     if (product.sizes.length > 0) {
@@ -85,7 +88,7 @@ export async function POST(req: NextRequest) {
       if (!size) {
         return NextResponse.json({ error: `Sila pilih saiz untuk ${product.nama}` }, { status: 400 });
       }
-      if (size.stok < ci.quantity) {
+      if (!isPreorder && size.stok < ci.quantity) {
         return NextResponse.json(
           { error: `Stok tidak mencukupi untuk ${product.nama} (Saiz: ${SIZE_LABEL[size.saiz]})` },
           { status: 400 }
@@ -93,7 +96,7 @@ export async function POST(req: NextRequest) {
       }
       productSizeId = size.id;
       saizLabel = size.saiz;
-    } else if (product.stok < ci.quantity) {
+    } else if (!isPreorder && product.stok < ci.quantity) {
       return NextResponse.json({ error: `Stok tidak mencukupi untuk ${product.nama}` }, { status: 400 });
     }
 

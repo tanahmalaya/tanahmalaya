@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
-import { PRODUCT_STATUS_LABEL, totalStok } from "@/lib/productSize";
+import { PRODUCT_STATUS_LABEL, isAvailableForOrder, totalStok } from "@/lib/productSize";
 
 type Product = {
   id: string;
@@ -26,6 +26,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
     <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
       {products.map((p) => {
         const stok = totalStok(p);
+        const tersedia = isAvailableForOrder(p);
         const hasSizes = p.sizes.length > 0;
         return (
           <div key={p.id} className="bg-white rounded-md shadow-sm overflow-hidden flex flex-col">
@@ -46,10 +47,10 @@ export default function ProductGridClient({ products }: { products: Product[] })
                 <Link
                   href={`/merchandise/${p.id}`}
                   className={`mt-auto text-center bg-brand-gold text-brand-dark text-xs font-semibold py-2 rounded-sm ${
-                    stok <= 0 ? "opacity-40 pointer-events-none" : ""
+                    tersedia ? "" : "opacity-40 pointer-events-none"
                   }`}
                 >
-                  {stok > 0 ? "PILIH SAIZ" : "SOLD OUT"}
+                  {tersedia ? "PILIH SAIZ" : "SOLD OUT"}
                 </Link>
               ) : (
                 <button
@@ -63,10 +64,10 @@ export default function ProductGridClient({ products }: { products: Product[] })
                       quantity: 1,
                     })
                   }
-                  disabled={stok <= 0}
+                  disabled={!tersedia}
                   className="mt-auto bg-brand-gold text-brand-dark text-xs font-semibold py-2 rounded-sm disabled:opacity-40"
                 >
-                  {stok > 0 ? "ADD TO CART" : "SOLD OUT"}
+                  {tersedia ? "ADD TO CART" : "SOLD OUT"}
                 </button>
               )}
             </div>

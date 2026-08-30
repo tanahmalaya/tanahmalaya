@@ -28,6 +28,25 @@ export function totalStok(product: { stok: number; sizes?: { stok: number }[] })
   return product.stok;
 }
 
+/**
+ * Produk boleh dibeli ke tidak. PREORDER sentiasa boleh dibeli (dibuat ikut
+ * tempahan, bukan had stok sedia ada) - READY_STOCK perlu ada stok > 0.
+ */
+export function isAvailableForOrder(product: {
+  status: string;
+  stok: number;
+  sizes?: { stok: number }[];
+}) {
+  if (product.status === "PREORDER") return true;
+  return totalStok(product) > 0;
+}
+
+/** Sama macam isAvailableForOrder tapi untuk satu saiz - PREORDER abaikan stok saiz tu. */
+export function isSizeAvailable(size: { stok: number }, product: { status: string }) {
+  if (product.status === "PREORDER") return true;
+  return size.stok > 0;
+}
+
 /** Baca input saiz_S, saiz_M, ... daripada FormData - kosong = saiz tak ditawarkan. */
 export function parseSizesFromForm(form: FormData) {
   return SIZE_OPTIONS.map((s) => {

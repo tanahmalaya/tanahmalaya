@@ -62,7 +62,9 @@ export default async function EditProductPage({ params }: { params: { id: string
             <p className="text-sm font-semibold mb-1">Saiz Baju (pilihan)</p>
             <p className="text-xs text-brand-dark/50 mb-3">
               Isi stok untuk saiz yang berkenaan sahaja (kosongkan saiz yang tiada). Kalau produk ni bukan
-              pakaian, biarkan semua kosong dan isi "Stok" di bawah sebagai ganti.
+              pakaian, biarkan semua kosong dan isi "Stok" di bawah sebagai ganti. Untuk status Pre-order,
+              stok saiz tak menyekat pembelian (boleh isi 0) - pelanggan tetap boleh tempah. Ready Stock
+              yang stoknya habis akan auto bertukar ke Pre-order.
             </p>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
               {SIZE_OPTIONS.map((s) => (

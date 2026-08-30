@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import AddToCartWidget from "@/components/AddToCartWidget";
-import { PRODUCT_STATUS_LABEL, SIZE_LABEL, totalStok } from "@/lib/productSize";
+import { PRODUCT_STATUS_LABEL, SIZE_LABEL, isAvailableForOrder, totalStok } from "@/lib/productSize";
 
 function formatHarga(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
@@ -21,6 +21,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     (url): url is string => Boolean(url)
   );
   const stok = totalStok(product);
+  const tersedia = isAvailableForOrder(product);
   const sizes = product.sizes.map((s) => ({ saiz: s.saiz, label: SIZE_LABEL[s.saiz] || s.saiz, stok: s.stok }));
 
   return (
@@ -53,12 +54,21 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         )}
         {sizes.length === 0 && (
           <p className="text-sm text-brand-dark/60 mb-6">
-            Stok: {stok > 0 ? `${stok} tersedia` : "Habis stok"}
+            {product.status === "PREORDER"
+              ? "Pre-order - dibuat ikut tempahan"
+              : `Stok: ${stok > 0 ? `${stok} tersedia` : "Habis stok"}`}
           </p>
         )}
 
-        {stok > 0 ? (
-          <AddToCartWidget productId={product.id} nama={product.nama} price={product.hargaSen / 100} stok={product.stok} sizes={sizes} />
+        {tersedia ? (
+          <AddToCartWidget
+            productId={product.id}
+            nama={product.nama}
+            price={product.hargaSen / 100}
+            stok={product.stok}
+            status={product.status}
+            sizes={sizes}
+          />
         ) : (
           <button disabled className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full opacity-50">
             HABIS STOK

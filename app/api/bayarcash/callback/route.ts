@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nextMemberNo } from "@/lib/members";
+import { totalStok } from "@/lib/productSize";
 
 // BayarCash akan hantar POST ke sini selepas pembayaran selesai/gagal.
 // Rujuk dokumentasi rasmi BayarCash untuk nama field sebenar (payload di
@@ -60,7 +61,11 @@ export async function POST(req: NextRequest) {
       // (checkout dah semak stok masa order dicipta, tapi tak "reserve" - race condition
       // masih boleh berlaku antara semakan tu dengan bayaran betul-betul berjaya di sini).
       const oversoldItems: string[] = [];
+      // PREORDER dibuat ikut tempahan - stok tak dikurangkan/tak boleh oversold.
+      const readyStockProductIds = new Set<string>();
       for (const item of order.items) {
+        if (item.product.status === "PREORDER") continue;
+        readyStockProductIds.add(item.productId);
         if (item.productSizeId) {
           const { count } = await prisma.productSize.updateMany({
             where: { id: item.productSizeId, stok: { gte: item.kuantiti } },
@@ -83,6 +88,15 @@ export async function POST(req: NextRequest) {
       }
       if (oversoldItems.length > 0) {
         oversoldNote = `STOK TIDAK CUKUP semasa bayaran berjaya untuk: ${oversoldItems.join(", ")}. Sila hubungi pelanggan (pembayaran dah diterima).`;
+      }
+
+      // Stok Ready Stock dah habis (0) selepas jualan ni - auto tukar produk ke Pre-order
+      // supaya pelanggan lain masih boleh tempah sementara restock.
+      for (const productId of readyStockProductIds) {
+        const prod = await prisma.product.findUnique({ where: { id: productId }, include: { sizes: true } });
+        if (prod && prod.status === "READY_STOCK" && totalStok(prod) <= 0) {
+          await prisma.product.update({ where: { id: productId }, data: { status: "PREORDER" } });
+        }
       }
       // Nota: tempahan kurier EasyParcel TIDAK lagi automatik di sini -
       // staff akan "Fulfill" secara berkumpulan dari dashboard /admin/orders.

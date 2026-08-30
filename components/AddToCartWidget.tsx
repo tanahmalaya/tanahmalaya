@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
+import { isSizeAvailable } from "@/lib/productSize";
 
 type SizeInfo = { saiz: string; label: string; stok: number };
 
@@ -11,24 +12,31 @@ export default function AddToCartWidget({
   nama,
   price,
   stok,
+  status,
   sizes = [],
 }: {
   productId: string;
   nama: string;
   price: number;
   stok: number;
+  status: string;
   sizes?: SizeInfo[];
 }) {
   const { addToCart } = useCart();
+  const isPreorder = status === "PREORDER";
   const [selectedSize, setSelectedSize] = useState<string | null>(
-    sizes.find((s) => s.stok > 0)?.saiz ?? null
+    sizes.find((s) => isSizeAvailable(s, { status }))?.saiz ?? null
   );
   const [qty, setQty] = useState(1);
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
 
   const selectedSizeInfo = sizes.find((s) => s.saiz === selectedSize) || null;
-  const maxQty = sizes.length > 0 ? selectedSizeInfo?.stok ?? 0 : stok || 99;
+  const maxQty = isPreorder
+    ? 99
+    : sizes.length > 0
+      ? selectedSizeInfo?.stok ?? 0
+      : stok || 99;
 
   function handleAddToCart() {
     if (sizes.length > 0 && !selectedSize) {
@@ -52,7 +60,7 @@ export default function AddToCartWidget({
               <button
                 key={s.saiz}
                 type="button"
-                disabled={s.stok <= 0}
+                disabled={!isSizeAvailable(s, { status })}
                 onClick={() => {
                   setSelectedSize(s.saiz);
                   setQty(1);
