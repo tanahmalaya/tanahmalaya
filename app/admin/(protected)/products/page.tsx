@@ -6,7 +6,11 @@ import Link from "next/link";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import { SIZE_OPTIONS, SIZE_LABEL, PRODUCT_STATUS_LABEL, totalStok } from "@/lib/productSize";
 
-export default async function AdminProductsPage() {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: { error?: string };
+}) {
   requireAdminOnly();
   const products = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
@@ -16,6 +20,12 @@ export default async function AdminProductsPage() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Urus Merchandise</h1>
+
+      {searchParams.error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md p-4 mb-6">
+          {searchParams.error}
+        </div>
+      )}
 
       <div className="bg-white rounded-md shadow-sm p-6 mb-8">
         <h2 className="font-semibold mb-4">Tambah Produk</h2>

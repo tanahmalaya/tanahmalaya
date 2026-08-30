@@ -51,32 +51,51 @@ export async function POST(req: NextRequest) {
     include: { items: { include: { product: true } } },
   });
   if (order) {
+    let oversoldNote: string | null = null;
+
+    if (isPaid) {
+      // Kurangkan stok - ikut saiz (jika produk ada saiz) atau stok keseluruhan produk.
+      // Guna updateMany dengan syarat "stok >= kuantiti" supaya decrement atomic dan
+      // stok TAK boleh jadi negatif walaupun ada dua order serentak untuk stok terakhir
+      // (checkout dah semak stok masa order dicipta, tapi tak "reserve" - race condition
+      // masih boleh berlaku antara semakan tu dengan bayaran betul-betul berjaya di sini).
+      const oversoldItems: string[] = [];
+      for (const item of order.items) {
+        if (item.productSizeId) {
+          const { count } = await prisma.productSize.updateMany({
+            where: { id: item.productSizeId, stok: { gte: item.kuantiti } },
+            data: { stok: { decrement: item.kuantiti } },
+          });
+          if (count === 0) {
+            await prisma.productSize.update({ where: { id: item.productSizeId }, data: { stok: 0 } });
+            oversoldItems.push(item.saiz ? `${item.product.nama} (${item.saiz})` : item.product.nama);
+          }
+        } else {
+          const { count } = await prisma.product.updateMany({
+            where: { id: item.productId, stok: { gte: item.kuantiti } },
+            data: { stok: { decrement: item.kuantiti } },
+          });
+          if (count === 0) {
+            await prisma.product.update({ where: { id: item.productId }, data: { stok: 0 } });
+            oversoldItems.push(item.product.nama);
+          }
+        }
+      }
+      if (oversoldItems.length > 0) {
+        oversoldNote = `STOK TIDAK CUKUP semasa bayaran berjaya untuk: ${oversoldItems.join(", ")}. Sila hubungi pelanggan (pembayaran dah diterima).`;
+      }
+      // Nota: tempahan kurier EasyParcel TIDAK lagi automatik di sini -
+      // staff akan "Fulfill" secara berkumpulan dari dashboard /admin/orders.
+    }
+
     await prisma.order.update({
       where: { id: orderId },
       data: {
         status: isPaid ? "BERJAYA" : "GAGAL",
         bayarcashRef: payload.transaction_id ?? null,
+        ...(oversoldNote ? { fulfillmentError: oversoldNote } : {}),
       },
     });
-
-    if (isPaid) {
-      // Kurangkan stok - ikut saiz (jika produk ada saiz) atau stok keseluruhan produk
-      for (const item of order.items) {
-        if (item.productSizeId) {
-          await prisma.productSize.update({
-            where: { id: item.productSizeId },
-            data: { stok: { decrement: item.kuantiti } },
-          });
-        } else {
-          await prisma.product.update({
-            where: { id: item.productId },
-            data: { stok: { decrement: item.kuantiti } },
-          });
-        }
-      }
-      // Nota: tempahan kurier EasyParcel TIDAK lagi automatik di sini -
-      // staff akan "Fulfill" secara berkumpulan dari dashboard /admin/orders.
-    }
 
     return NextResponse.json({ ok: true });
   }
