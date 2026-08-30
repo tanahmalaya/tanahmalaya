@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
-import { calculateShipping } from "@/lib/pricing";
+import { calculateShipping, AlamatTidakSahError } from "@/lib/pricing";
 import { SIZE_LABEL } from "@/lib/productSize";
 import { z } from "zod";
 
@@ -99,7 +99,15 @@ export async function POST(req: NextRequest) {
 
     subtotalSen += product.hargaSen * ci.quantity;
 
-    const shipping = await calculateShipping(product, ci.quantity, data.poskod, data.negeri);
+    let shipping;
+    try {
+      shipping = await calculateShipping(product, ci.quantity, data.poskod, data.negeri);
+    } catch (e) {
+      if (e instanceof AlamatTidakSahError) {
+        return NextResponse.json({ error: e.message }, { status: 400 });
+      }
+      throw e;
+    }
     shippingSen += shipping.shippingSen;
     if (shipping.courierName) courierName = shipping.courierName;
     if (shipping.serviceId) serviceId = shipping.serviceId;
