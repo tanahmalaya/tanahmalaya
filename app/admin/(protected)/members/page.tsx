@@ -43,7 +43,14 @@ export default async function AdminMembersPage() {
           <tbody>
             {members.map((m) => (
               <tr key={m.id} className="border-t border-brand-cream">
-                <td className="p-4 font-medium">{m.memberNo}</td>
+                <td className="p-4 font-medium">
+                  {m.memberNo}
+                  {m.noAhliLama && (
+                    <span className="block text-xs font-normal text-brand-dark/50">
+                      (dahulu {m.noAhliLama})
+                    </span>
+                  )}
+                </td>
                 <td className="p-4">{m.fullName}</td>
                 <td className="p-4">{m.phone}</td>
                 <td className="p-4">{m.email}</td>

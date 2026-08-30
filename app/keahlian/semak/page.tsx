@@ -16,6 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 type MemberResult = {
   memberNo: string;
+  noAhliLama: string | null;
   fullName: string;
   status: string;
   joinedAt: string;
@@ -188,7 +189,14 @@ function SemakKeahlianContent() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70 font-semibold">Nombor Ahli</span>
-                <span className="font-bold text-xl text-brand-gold">{result.memberNo}</span>
+                <span className="font-bold text-xl text-brand-gold text-right">
+                  {result.memberNo}
+                  {result.noAhliLama && (
+                    <span className="block text-xs font-normal text-white/50">
+                      (dahulu {result.noAhliLama})
+                    </span>
+                  )}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70 font-semibold">Status</span>

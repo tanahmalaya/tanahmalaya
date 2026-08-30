@@ -36,6 +36,7 @@ model PendingRegistration {
 model Member {
   id            String   @id @default(cuid())
   memberNo      String   @unique // cth: PLT-001
+  noAhliLama    String?  // no ahli asal (cth: TM-002) jika ahli lama daftar semula & dapat memberNo baharu
   fullName      String
   icNumber      String   @unique // no kad pengenalan, tanpa tanda "-"
   phone         String

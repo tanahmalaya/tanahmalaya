@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     memberNo: member.memberNo,
+    noAhliLama: member.noAhliLama,
     fullName: member.fullName,
     status: member.status,
     joinedAt: member.joinedAt,
