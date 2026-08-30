@@ -1,3 +1,5 @@
+import BackButton from "@/components/BackButton";
+
 export const metadata = {
   title: "Terma Perkhidmatan | Pertubuhan Literasi Tanah",
 };
@@ -14,6 +16,7 @@ function Seksyen({ tajuk, children }: { tajuk: string; children: React.ReactNode
 export default function TermaPerkhidmatanPage() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16">
+      <BackButton className="mb-4" />
       <h1 className="font-display text-3xl font-bold mb-2">Terma Perkhidmatan</h1>
       <p className="text-sm text-brand-dark/60 mb-10">Kemaskini terakhir: 30 Ogos 2026</p>
 

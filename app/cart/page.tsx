@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import CheckoutSteps from "@/components/CheckoutSteps";
+import BackButton from "@/components/BackButton";
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart } = useCart();
@@ -13,6 +14,7 @@ export default function CartPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
+      <BackButton href="/merchandise" label="Kembali ke Merchandise" className="mb-4" />
       <CheckoutSteps current="cart" />
       <h1 className="text-2xl font-bold mb-6 text-brand-dark">Troli</h1>
 

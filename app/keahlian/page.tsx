@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconUserCircle, IconShieldCheck, IconIdCard } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
+import BackButton from "@/components/BackButton";
 
 function formatRM(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
@@ -93,10 +94,13 @@ export default function KeahlianPage() {
       </div>
 
       {/* Breadcrumb */}
-      <div className="max-w-4xl mx-auto px-6 py-3 text-xs text-white/50 flex items-center gap-2">
-        <Link href="/" className="hover:text-white">Utama</Link>
-        <span>&rsaquo;</span>
-        <span className="text-brand-gold font-semibold">Keahlian</span>
+      <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-2">
+        <BackButton href="/" label="Kembali" variant="dark" />
+        <div className="text-xs text-white/50 flex items-center gap-2">
+          <Link href="/" className="hover:text-white">Utama</Link>
+          <span>&rsaquo;</span>
+          <span className="text-brand-gold font-semibold">Keahlian</span>
+        </div>
       </div>
 
       {/* Content */}

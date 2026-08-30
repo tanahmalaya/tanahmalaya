@@ -7,6 +7,7 @@ import Link from "next/link";
 import { IconUserCircle, IconShieldCheck, IconIdCard, IconSearch } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
 import WhatsappGroupCard from "@/components/keahlian/WhatsappGroupCard";
+import BackButton from "@/components/BackButton";
 
 const STATUS_LABEL: Record<string, string> = {
   AKTIF: "Aktif",
@@ -100,12 +101,15 @@ function SemakKeahlianContent() {
       </div>
 
       {/* Breadcrumb */}
-      <div className="max-w-4xl mx-auto px-6 py-3 text-xs text-white/50 flex items-center gap-2">
-        <Link href="/" className="hover:text-white">Utama</Link>
-        <span>&rsaquo;</span>
-        <Link href="/keahlian" className="hover:text-white">Keahlian</Link>
-        <span>&rsaquo;</span>
-        <span className="text-brand-gold font-semibold">Semak Keahlian</span>
+      <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-2">
+        <BackButton href="/keahlian" label="Kembali" variant="dark" />
+        <div className="text-xs text-white/50 flex items-center gap-2">
+          <Link href="/" className="hover:text-white">Utama</Link>
+          <span>&rsaquo;</span>
+          <Link href="/keahlian" className="hover:text-white">Keahlian</Link>
+          <span>&rsaquo;</span>
+          <span className="text-brand-gold font-semibold">Semak Keahlian</span>
+        </div>
       </div>
 
       {/* Content */}
