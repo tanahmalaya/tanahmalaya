@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     payerEmail: pending.email,
     payerPhone: pending.phone,
     description: `Yuran Keahlian PLT - ${pending.fullName}`,
-    returnPath: "/keahlian/berjaya",
+    returnPath: `/keahlian/semak?fullName=${encodeURIComponent(pending.fullName)}&icNumber=${encodeURIComponent(pending.icNumber)}`,
   });
 
   return NextResponse.json({ url: intent.url });

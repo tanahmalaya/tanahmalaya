@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { Suspense, useEffect, useState, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { IconUserCircle, IconShieldCheck, IconIdCard, IconSearch } from "@/components/keahlian/icons";
+import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
+import WhatsappGroupCard from "@/components/keahlian/WhatsappGroupCard";
 
 const STATUS_LABEL: Record<string, string> = {
   AKTIF: "Aktif",
@@ -17,77 +21,32 @@ type MemberResult = {
   joinedAt: string;
 };
 
-function IconUserCircle() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="10" r="3" />
-      <path d="M6.5 19a6 6 0 0 1 11 0" />
-    </svg>
-  );
-}
-
-function IconShieldCheck() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  );
-}
-
-function IconIdCard() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <circle cx="9" cy="11" r="2" />
-      <path d="M6.5 16c.4-1.6 1.7-2.5 2.5-2.5s2.1.9 2.5 2.5" />
-      <line x1="14" y1="9" x2="18" y2="9" />
-      <line x1="14" y1="13" x2="18" y2="13" />
-    </svg>
-  );
-}
-
-function IconSearch() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="7" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
-
-function IconInfo() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="11" x2="12" y2="16" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-  );
-}
-
 export default function SemakKeahlianPage() {
+  return (
+    <Suspense fallback={null}>
+      <SemakKeahlianContent />
+    </Suspense>
+  );
+}
+
+function SemakKeahlianContent() {
+  const searchParams = useSearchParams();
+  const [fullName, setFullName] = useState("");
+  const [icNumber, setIcNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<MemberResult | null>(null);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function checkMember(name: string, ic: string) {
     setError("");
     setResult(null);
     setLoading(true);
-
-    const fd = new FormData(e.currentTarget);
 
     try {
       const res = await fetch("/api/members/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: fd.get("fullName"),
-          icNumber: fd.get("icNumber"),
-        }),
+        body: JSON.stringify({ fullName: name, icNumber: ic }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal semak keahlian");
@@ -97,6 +56,24 @@ export default function SemakKeahlianPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Baru habis daftar & bayar (dihantar dari /keahlian selepas BayarCash) -
+  // prefill & terus semak automatik supaya ahli baru terus nampak status dia.
+  useEffect(() => {
+    const qName = searchParams.get("fullName");
+    const qIc = searchParams.get("icNumber");
+    if (qName && qIc) {
+      setFullName(qName);
+      setIcNumber(qIc);
+      checkMember(qName, qIc);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    checkMember(fullName, icNumber);
   }
 
   return (
@@ -148,6 +125,8 @@ export default function SemakKeahlianPage() {
               <input
                 name="fullName"
                 required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="Contoh: Ahmad bin Ali"
                 className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
               />
@@ -158,6 +137,8 @@ export default function SemakKeahlianPage() {
                 name="icNumber"
                 required
                 pattern="[0-9]{12}"
+                value={icNumber}
+                onChange={(e) => setIcNumber(e.target.value)}
                 placeholder="Contoh: 900101011234"
                 className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
               />
@@ -224,17 +205,12 @@ export default function SemakKeahlianPage() {
           )}
         </div>
 
-        {/* Org info */}
-        <div className="border border-brand-gold/30 rounded-md p-5 flex items-start gap-3">
-          <span className="text-brand-gold shrink-0 mt-0.5">
-            <IconInfo />
-          </span>
-          <div className="text-sm text-white/80 space-y-1">
-            <p className="text-brand-gold font-semibold mb-1.5">MAKLUMAT PERTUBUHAN</p>
-            <p><span className="inline-block w-36 text-white/50">Nama Pertubuhan</span>: Pertubuhan Literasi Tanah</p>
-            <p><span className="inline-block w-36 text-white/50">No. Pendaftaran</span>: PPM-001-10-17042026</p>
-          </div>
-        </div>
+        {/* Step 3 - sertai WhatsApp group - hanya papar selepas semakan jumpa
+            rekod ahli sebenar (result != null), elak QR group didedahkan
+            kepada sesiapa saja yang buka laman ni tanpa disahkan ahli dulu. */}
+        {result && <WhatsappGroupCard />}
+
+        <OrgInfoCard />
       </div>
     </div>
   );
