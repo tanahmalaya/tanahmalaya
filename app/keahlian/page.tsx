@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import Link from "next/link";
 
 function formatRM(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
@@ -112,6 +113,14 @@ export default function KeahlianPage() {
         Sertai Pertubuhan Literasi Tanah dan nikmati akses kepada kelas eksklusif,
         bahan pembelajaran, dan aktiviti komuniti. Yuran keahlian akan diproses
         melalui BayarCash.
+      </p>
+
+      <p className="text-sm text-brand-dark/60 mb-8">
+        Sudah mendaftar?{" "}
+        <Link href="/keahlian/semak" className="text-brand-gold underline">
+          Semak nombor ahli anda di sini
+        </Link>
+        .
       </p>
 
       <form onSubmit={handleReview} className="space-y-5 bg-white p-8 rounded-md shadow-sm">
