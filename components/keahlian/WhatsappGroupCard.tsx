@@ -16,7 +16,7 @@ export default function WhatsappGroupCard() {
 
       <div className="flex flex-col sm:flex-row items-center gap-5">
         <div className="bg-white rounded-md p-3 shrink-0">
-          <Image src="/whatsapp-group-qr.svg" width={140} height={140} alt="QR kod WhatsApp group P. L. Tanah Members" />
+          <Image src="/whatsapp-group-qr.svg" width={140} height={140} alt="QR kod WhatsApp group P. L. Tanah Members" priority />
         </div>
         <div className="flex-1 space-y-3 text-center sm:text-left">
           <p className="text-white/60 text-xs">
