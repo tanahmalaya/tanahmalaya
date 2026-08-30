@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { IconUserCircle, IconShieldCheck, IconIdCard, IconSearch } from "@/components/keahlian/icons";
+import { IconUserCircle, IconShieldCheck, IconIdCard } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
 
 function formatRM(sen: number) {
@@ -162,8 +162,8 @@ export default function KeahlianPage() {
               disabled={loading}
               className="w-full bg-brand-gold text-brand-dark font-semibold py-3 rounded-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <IconSearch />
-              {loading && step === "form" ? "MEMUATKAN..." : "SEMAK PENDAFTARAN"}
+              <IconUserCircle />
+              {loading && step === "form" ? "MEMUATKAN..." : "DAFTAR KEAHLIAN"}
             </button>
           </form>
 
@@ -189,7 +189,7 @@ export default function KeahlianPage() {
                 <IconIdCard />
               </div>
               <p className="text-white/60 text-sm max-w-xs">
-                Lengkapkan borang di atas dan klik &ldquo;SEMAK PENDAFTARAN&rdquo; untuk sahkan maklumat dan yuran keahlian sebelum bayaran.
+                Lengkapkan borang di atas dan klik &ldquo;DAFTAR KEAHLIAN&rdquo; untuk sahkan maklumat dan yuran keahlian sebelum bayaran.
               </p>
             </div>
           ) : (
