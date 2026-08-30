@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 // 1. Import CartProvider (sesuai path fail context anda)
 import { CartProvider } from "@/app/context/CartContext";
+import { CheckoutProvider } from "@/app/context/CheckoutContext";
 
 export const metadata: Metadata = {
   title: "Pertubuhan Literasi Tanah | tanahmalaya.org",
@@ -22,9 +23,11 @@ export default function RootLayout({
       <body>
         {/* 2. Wrap semua kandungan di dalam CartProvider */}
         <CartProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <CheckoutProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </CheckoutProvider>
         </CartProvider>
       </body>
     </html>

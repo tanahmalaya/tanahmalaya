@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+
+const STORAGE_KEY = "plt-cart";
 
 export type CartItem = {
   /** Kunci unik baris troli - "productId" sahaja, atau "productId:saiz" kalau produk ada saiz. */
@@ -24,6 +26,29 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  // Muatkan troli dari localStorage sekali sahaja bila component mount -
+  // supaya troli tak hilang bila customer refresh/navigate antara halaman
+  // checkout (/cart, /checkout/information, dll).
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (saved) setCart(JSON.parse(saved));
+    } catch {
+      // abaikan - mula dengan troli kosong
+    }
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return; // elak overwrite storage dengan [] sebelum load selesai
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    } catch {
+      // abaikan (cth: private browsing yang sekat localStorage)
+    }
+  }, [cart, loaded]);
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {

@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import ProductCheckoutForm from "@/components/ProductCheckoutForm";
+import AddToCartWidget from "@/components/AddToCartWidget";
 import { PRODUCT_STATUS_LABEL, SIZE_LABEL, totalStok } from "@/lib/productSize";
 
 function formatHarga(sen: number) {
@@ -58,7 +58,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         )}
 
         {stok > 0 ? (
-          <ProductCheckoutForm productId={product.id} nama={product.nama} price={product.hargaSen / 100} stok={product.stok} sizes={sizes} />
+          <AddToCartWidget productId={product.id} nama={product.nama} price={product.hargaSen / 100} stok={product.stok} sizes={sizes} />
         ) : (
           <button disabled className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full opacity-50">
             HABIS STOK

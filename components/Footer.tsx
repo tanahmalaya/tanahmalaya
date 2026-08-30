@@ -25,6 +25,7 @@ export default function Footer() {
             <li><Link href="/merchandise">Merchandise</Link></li>
             <li><Link href="/aktiviti">Aktiviti</Link></li>
             <li><Link href="/hubungi-kami">Hubungi Kami</Link></li>
+            <li><Link href="/terma-perkhidmatan">Terma Perkhidmatan</Link></li>
           </ul>
         </div>
 
