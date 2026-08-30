@@ -203,6 +203,9 @@ model Order {
   awbUrl               String?   // pautan PDF label AWB sebenar dari EasyParcel (untuk cetak)
   fulfillmentError     String?   // diisi kalau cubaan proses order gagal
   printedAt            DateTime? // masa staff klik "Mark as Shipped"
+  // Status terkini dari webhook EasyParcel (topic "tracking/create"), cth: "Delivery In Transit"
+  courierStatus        String?
+  courierStatusAt      DateTime?
   // Refund
   refundSen            Int?      // jumlah refund dalam sen (boleh partial, <= jumlahSen)
   refundReason         String?
