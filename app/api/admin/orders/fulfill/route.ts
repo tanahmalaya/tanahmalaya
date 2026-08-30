@@ -8,6 +8,7 @@ import {
   checkEasyParcelRate,
   payEasyParcelOrder,
   checkEasyParcelOrderStatus,
+  fetchEasyParcelAwbLink,
 } from "@/lib/easyparcel";
 
 const MAX_BULK = 30;
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
             easyparcelOrderNo: booking.orderNo,
             trackingNumber: booking.trackingNumber,
             courierName: booking.courierName ?? courierNameGuna,
-            awbUrl: booking.awbUrl,
+            awbUrl: booking.awbUrl ?? (await backfillAwbUrl(booking.trackingNumber)),
             serviceId,
             fulfillmentError: null,
           },
@@ -187,7 +188,7 @@ async function resolveExistingEasyParcelOrder(orderNo: string) {
     return {
       trackingNumber: payResult.trackingNumber,
       courierName: payResult.courierName,
-      awbUrl: payResult.awbUrl,
+      awbUrl: payResult.awbUrl ?? (await backfillAwbUrl(payResult.trackingNumber)),
       rawDebug: payResult.rawDebug,
     };
   }
@@ -199,7 +200,16 @@ async function resolveExistingEasyParcelOrder(orderNo: string) {
   return {
     trackingNumber: statusResult.trackingNumber,
     courierName: statusResult.courierName,
-    awbUrl: statusResult.awbUrl,
+    awbUrl: statusResult.awbUrl ?? (statusResult.trackingNumber ? await backfillAwbUrl(statusResult.trackingNumber) : null),
     rawDebug: `${payResult.rawDebug} | status-check: ${statusResult.rawDebug}`,
   };
+}
+
+/**
+ * EPOrderStatusBulk/EPPayOrderBulk pada akaun ni tak pulangkan pautan PDF AWB
+ * terus - kena tarik guna EPParcelStatusBulk (bulk[0][awb_no]) sebaliknya.
+ */
+async function backfillAwbUrl(awbNo: string): Promise<string | null> {
+  const lookup = await fetchEasyParcelAwbLink(awbNo);
+  return lookup.awbUrl;
 }

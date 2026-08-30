@@ -285,6 +285,42 @@ export async function payEasyParcelOrder(orderNo: string): Promise<OrderBookingR
   };
 }
 
+type AwbLookupResult = {
+  awbUrl: string | null;
+  shipStatus: string | null;
+  rawDebug: string;
+};
+
+/**
+ * Tarik pautan PDF AWB sebenar guna nombor tracking (AWB) - endpoint
+ * EPOrderStatusBulk/EPPayOrderBulk pada akaun ni TIDAK pulangkan pautan AWB
+ * (disahkan bila diuji terus), tapi EPParcelStatusBulk (guna awb_no) ADA
+ * pulangkan field "awb_id_link". Guna fungsi ni untuk backfill awbUrl bila
+ * order dah ada trackingNumber tapi awbUrl masih kosong.
+ */
+export async function fetchEasyParcelAwbLink(awbNo: string): Promise<AwbLookupResult> {
+  const form = new URLSearchParams();
+  form.set("api", EASYPARCEL_API_KEY);
+  form.set("bulk[0][awb_no]", awbNo);
+
+  const res = await fetch(`${EASYPARCEL_BASE_URL}?ac=EPParcelStatusBulk`, {
+    method: "POST",
+    body: form,
+  });
+
+  const data = await res.json();
+  console.log("[EasyParcel] EPParcelStatusBulk raw response:", JSON.stringify(data));
+
+  const result = data?.result?.[0];
+  const parcel = result?.parcel?.[0];
+
+  return {
+    awbUrl: parcel?.awb_id_link ?? null,
+    shipStatus: parcel?.ship_status ?? null,
+    rawDebug: JSON.stringify(result ?? data).slice(0, 500),
+  };
+}
+
 /**
  * Fallback: semak status order sedia ada di EasyParcel (guna order_number)
  * untuk tarik AWB/tracking number bila ia belum siap serta-merta lepas
