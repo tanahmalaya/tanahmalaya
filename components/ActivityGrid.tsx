@@ -4,7 +4,6 @@ import ActivityImages from "@/components/ActivityImages";
 export default async function ActivityGrid() {
   const activities = await prisma.activity.findMany({
     orderBy: { tarikh: "desc" },
-    take: 4,
   });
 
   return (

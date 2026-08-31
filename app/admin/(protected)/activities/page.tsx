@@ -27,8 +27,7 @@ export default async function AdminActivitiesPage({
         <h2 className="font-semibold mb-4">Tambah Aktiviti</h2>
         <form action="/api/activities" method="POST" className="grid sm:grid-cols-2 gap-4">
           <input type="date" name="tarikh" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <input name="tajuk" placeholder="Tajuk" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <textarea name="keterangan" placeholder="Keterangan" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
+          <input name="tajuk" placeholder="Tajuk" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
           <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
             <p className="text-sm font-semibold mb-3">Gambar (sehingga 4 keping, semua pilihan)</p>
           </div>
@@ -48,7 +47,6 @@ export default async function AdminActivitiesPage({
             <tr>
               <th className="p-4">Tarikh</th>
               <th className="p-4">Tajuk</th>
-              <th className="p-4">Keterangan</th>
               <th className="p-4">Aksi</th>
             </tr>
           </thead>
@@ -57,7 +55,6 @@ export default async function AdminActivitiesPage({
               <tr key={a.id} className="border-t border-brand-cream">
                 <td className="p-4 whitespace-nowrap">{a.tarikh.toLocaleDateString("ms-MY")}</td>
                 <td className="p-4">{a.tajuk}</td>
-                <td className="p-4">{a.keterangan}</td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <Link href={`/admin/activities/${a.id}/edit`} className="text-brand-gold text-xs font-bold">
@@ -73,7 +70,7 @@ export default async function AdminActivitiesPage({
             ))}
             {activities.length === 0 && (
               <tr>
-                <td colSpan={4} className="p-4 text-center text-brand-dark/50">
+                <td colSpan={3} className="p-4 text-center text-brand-dark/50">
                   Tiada aktiviti lagi.
                 </td>
               </tr>

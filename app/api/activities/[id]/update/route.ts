@@ -17,7 +17,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       data: {
         tarikh: new Date(String(form.get("tarikh"))),
         tajuk: String(form.get("tajuk")),
-        keterangan: String(form.get("keterangan")),
+        keterangan: String(form.get("keterangan") || ""),
         gambar1: String(form.get("gambar1") || "") || null,
         gambar2: String(form.get("gambar2") || "") || null,
         gambar3: String(form.get("gambar3") || "") || null,

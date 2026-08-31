@@ -23,8 +23,7 @@ export default async function EditActivityPage({ params }: { params: { id: strin
       <div className="bg-white rounded-md shadow-sm p-6">
         <form action={`/api/activities/${activity.id}/update`} method="POST" className="grid sm:grid-cols-2 gap-4">
           <input type="date" name="tarikh" defaultValue={tarikhValue} required className="border border-brand-dark/20 rounded-sm p-3" />
-          <input name="tajuk" defaultValue={activity.tajuk} placeholder="Tajuk" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <textarea name="keterangan" defaultValue={activity.keterangan} placeholder="Keterangan" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
+          <input name="tajuk" defaultValue={activity.tajuk} placeholder="Tajuk" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
           <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
             <p className="text-sm font-semibold mb-3">Gambar (sehingga 4 keping, semua pilihan)</p>
           </div>
