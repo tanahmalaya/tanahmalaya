@@ -24,7 +24,7 @@ export default function AddToCartWidget({
   status: string;
   sizes?: SizeInfo[];
 }) {
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const isPreorder = status === "PREORDER";
   const [selectedSize, setSelectedSize] = useState<string | null>(
     sizes.find((s) => isSizeAvailable(s, { status }))?.saiz ?? null
@@ -32,7 +32,7 @@ export default function AddToCartWidget({
   const [qty, setQty] = useState(1);
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
-  const [showPromo, setShowPromo] = useState(false);
+  const [promoVariant, setPromoVariant] = useState<"congrats" | "invite" | null>(null);
 
   const selectedSizeInfo = sizes.find((s) => s.saiz === selectedSize) || null;
   const maxQty = isPreorder
@@ -49,9 +49,11 @@ export default function AddToCartWidget({
     setError("");
     const cartId = selectedSize ? `${productId}:${selectedSize}` : productId;
     const label = selectedSizeInfo ? `${nama} (${selectedSizeInfo.label})` : nama;
+    const hasJaketSebelumIni = cart.some((i) => isJaket(i.name));
     addToCart({ id: cartId, productId, saiz: selectedSize, name: label, price, quantity: qty });
     setAdded(true);
-    if (isJaket(nama)) setShowPromo(true);
+    if (isJaket(nama)) setPromoVariant("congrats");
+    else if (!hasJaketSebelumIni) setPromoVariant("invite");
   }
 
   return (
@@ -119,7 +121,9 @@ export default function AddToCartWidget({
         </div>
       )}
 
-      {showPromo && <JaketPromoPopup onClose={() => setShowPromo(false)} />}
+      {promoVariant && (
+        <JaketPromoPopup variant={promoVariant} onClose={() => setPromoVariant(null)} />
+      )}
     </div>
   );
 }

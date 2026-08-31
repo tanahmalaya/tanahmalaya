@@ -3,7 +3,32 @@
 import Link from "next/link";
 import { PROMO_ROUND_NECK_PERCENT, PROMO_LAIN_PERCENT } from "@/lib/promo";
 
-export default function JaketPromoPopup({ onClose }: { onClose: () => void }) {
+type Variant = "congrats" | "invite";
+
+const COPY: Record<Variant, { emoji: string; title: string; body: string; cta: string }> = {
+  congrats: {
+    emoji: "🎉",
+    title: "Tahniah!",
+    body: "Dengan pembelian jaket anda, anda layak mendapat diskaun automatik untuk barangan lain dalam troli:",
+    cta: "TAMBAH BARANGAN LAIN",
+  },
+  invite: {
+    emoji: "💡",
+    title: "Jimat Lagi!",
+    body: "Tambah jaket ke troli dan dapat diskaun automatik untuk barangan dalam troli anda:",
+    cta: "LIHAT PRODUK LAIN",
+  },
+};
+
+export default function JaketPromoPopup({
+  onClose,
+  variant = "congrats",
+}: {
+  onClose: () => void;
+  variant?: Variant;
+}) {
+  const copy = COPY[variant];
+
   return (
     <div
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"
@@ -21,11 +46,9 @@ export default function JaketPromoPopup({ onClose }: { onClose: () => void }) {
         >
           &times;
         </button>
-        <p className="text-3xl mb-2">🎉</p>
-        <h2 className="font-display text-xl font-bold mb-2">Tahniah!</h2>
-        <p className="text-sm text-brand-dark/70 mb-4">
-          Dengan pembelian jaket anda, anda layak mendapat diskaun automatik untuk barangan lain dalam troli:
-        </p>
+        <p className="text-3xl mb-2">{copy.emoji}</p>
+        <h2 className="font-display text-xl font-bold mb-2">{copy.title}</h2>
+        <p className="text-sm text-brand-dark/70 mb-4">{copy.body}</p>
         <div className="space-y-2 mb-5 text-left">
           <div className="flex items-center justify-between bg-brand-cream/60 rounded-sm px-4 py-2">
             <span className="text-sm font-semibold">T-shirt</span>
@@ -41,7 +64,7 @@ export default function JaketPromoPopup({ onClose }: { onClose: () => void }) {
           onClick={onClose}
           className="block bg-brand-gold text-brand-dark font-semibold text-sm py-3 rounded-sm mb-2"
         >
-          TAMBAH BARANGAN LAIN
+          {copy.cta}
         </Link>
         <button
           type="button"

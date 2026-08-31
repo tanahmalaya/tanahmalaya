@@ -23,8 +23,8 @@ function formatRM(sen: number) {
 }
 
 export default function ProductGridClient({ products }: { products: Product[] }) {
-  const { addToCart } = useCart();
-  const [showPromo, setShowPromo] = useState(false);
+  const { cart, addToCart } = useCart();
+  const [promoVariant, setPromoVariant] = useState<"congrats" | "invite" | null>(null);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
@@ -59,6 +59,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
               ) : (
                 <button
                   onClick={() => {
+                    const hasJaketSebelumIni = cart.some((i) => isJaket(i.name));
                     addToCart({
                       id: p.id,
                       productId: p.id,
@@ -67,7 +68,8 @@ export default function ProductGridClient({ products }: { products: Product[] })
                       price: p.hargaSen / 100,
                       quantity: 1,
                     });
-                    if (isJaket(p.nama)) setShowPromo(true);
+                    if (isJaket(p.nama)) setPromoVariant("congrats");
+                    else if (!hasJaketSebelumIni) setPromoVariant("invite");
                   }}
                   disabled={!tersedia}
                   className="mt-auto bg-brand-gold text-brand-dark text-xs font-semibold py-2 rounded-sm disabled:opacity-40"
@@ -84,7 +86,9 @@ export default function ProductGridClient({ products }: { products: Product[] })
           Belum ada produk. Tambah dari dashboard admin.
         </p>
       )}
-      {showPromo && <JaketPromoPopup onClose={() => setShowPromo(false)} />}
+      {promoVariant && (
+        <JaketPromoPopup variant={promoVariant} onClose={() => setPromoVariant(null)} />
+      )}
     </div>
   );
 }
