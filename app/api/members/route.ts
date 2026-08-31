@@ -43,18 +43,28 @@ export async function POST(req: NextRequest) {
 
   const yuranSen = await getYuranKeahlianSen();
 
-  const intent = await createBayarcashPaymentIntent({
-    portalKey: BAYARCASH_PORTAL_KEAHLIAN,
-    orderId: pending.id,
-    amountSen: yuranSen,
-    payerName: pending.fullName,
-    payerEmail: pending.email,
-    payerPhone: pending.phone,
-    description: `Yuran Keahlian PLT - ${pending.fullName}`,
-    returnPath: `/keahlian/semak?fullName=${encodeURIComponent(pending.fullName)}&icNumber=${encodeURIComponent(pending.icNumber)}`,
-  });
+  try {
+    const intent = await createBayarcashPaymentIntent({
+      portalKey: BAYARCASH_PORTAL_KEAHLIAN,
+      orderId: pending.id,
+      amountSen: yuranSen,
+      payerName: pending.fullName,
+      payerEmail: pending.email,
+      payerPhone: pending.phone,
+      description: `Yuran Keahlian PLT - ${pending.fullName}`,
+      returnPath: `/keahlian/semak?fullName=${encodeURIComponent(pending.fullName)}&icNumber=${encodeURIComponent(pending.icNumber)}`,
+    });
 
-  return NextResponse.json({ url: intent.url });
+    return NextResponse.json({ url: intent.url });
+  } catch (e) {
+    // Gagal jana pautan bayaran - padam rekod sementara supaya tak jadi
+    // sampah dalam DB (Member sebenar cuma dicipta lepas bayaran berjaya).
+    await prisma.pendingRegistration.delete({ where: { id: pending.id } });
+    return NextResponse.json(
+      { error: "Gagal mendapatkan pautan pembayaran. Sila cuba lagi." },
+      { status: 502 }
+    );
+  }
 }
 
 // Untuk dashboard admin - senarai ahli

@@ -53,16 +53,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: `/program-kelas/berjaya?free=1` });
   }
 
-  const intent = await createBayarcashPaymentIntent({
-    portalKey: BAYARCASH_PORTAL_PROGRAM,
-    orderId: registration.id,
-    amountSen: kelas.yuranSen,
-    payerName: data.namaPeserta,
-    payerEmail: data.emel,
-    payerPhone: data.telefon,
-    description: `Pendaftaran ${kelas.namaKelas} - PLT`,
-    returnPath: "/program-kelas/berjaya",
-  });
+  try {
+    const intent = await createBayarcashPaymentIntent({
+      portalKey: BAYARCASH_PORTAL_PROGRAM,
+      orderId: registration.id,
+      amountSen: kelas.yuranSen,
+      payerName: data.namaPeserta,
+      payerEmail: data.emel,
+      payerPhone: data.telefon,
+      description: `Pendaftaran ${kelas.namaKelas} - PLT`,
+      returnPath: "/program-kelas/berjaya",
+    });
 
-  return NextResponse.json({ url: intent.url });
+    return NextResponse.json({ url: intent.url });
+  } catch (e) {
+    // Gagal jana pautan bayaran - tandakan pendaftaran GAGAL supaya tak
+    // tersangkut senyap sebagai MENUNGGU.
+    await prisma.classRegistration.update({
+      where: { id: registration.id },
+      data: { status: "GAGAL" },
+    });
+    return NextResponse.json(
+      { error: "Gagal mendapatkan pautan pembayaran. Sila cuba lagi." },
+      { status: 502 }
+    );
+  }
 }

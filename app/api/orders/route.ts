@@ -145,16 +145,30 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const intent = await createBayarcashPaymentIntent({
-    portalKey: BAYARCASH_PORTAL_MERCHANDISE,
-    orderId: order.id,
-    amountSen: jumlahSen,
-    payerName: data.namaPembeli,
-    payerEmail: data.emel,
-    payerPhone: data.telefon,
-    description: `Pembelian ${descParts.join(", ")} - PLT`.slice(0, 250),
-    returnPath: "/merchandise/berjaya",
-  });
+  try {
+    const intent = await createBayarcashPaymentIntent({
+      portalKey: BAYARCASH_PORTAL_MERCHANDISE,
+      orderId: order.id,
+      amountSen: jumlahSen,
+      payerName: data.namaPembeli,
+      payerEmail: data.emel,
+      payerPhone: data.telefon,
+      description: `Pembelian ${descParts.join(", ")} - PLT`.slice(0, 250),
+      returnPath: "/merchandise/berjaya",
+    });
 
-  return NextResponse.json({ url: intent.url });
+    return NextResponse.json({ url: intent.url });
+  } catch (e) {
+    // Gagal jana pautan bayaran BayarCash - tandakan order GAGAL supaya tak
+    // tersangkut senyap sebagai MENUNGGU (yang nampak macam pelanggan masih
+    // boleh bayar, sedangkan pelanggan tak pernah sampai ke page bayaran pun).
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: "GAGAL", fulfillmentError: `Gagal jana pautan bayaran: ${e instanceof Error ? e.message : String(e)}` },
+    });
+    return NextResponse.json(
+      { error: "Gagal mendapatkan pautan pembayaran. Sila cuba lagi." },
+      { status: 502 }
+    );
+  }
 }
