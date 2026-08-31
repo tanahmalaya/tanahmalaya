@@ -31,15 +31,14 @@ export default async function ActivityGrid() {
             return (
               <div
                 key={a.id}
-                className="bg-white rounded-md shadow-sm overflow-hidden shrink-0 snap-start w-[260px] sm:w-[300px]"
+                className="relative bg-white rounded-md shadow-sm overflow-hidden shrink-0 snap-start w-[260px] sm:w-[300px]"
               >
                 <ActivityImages gambarList={gambarList} tajuk={a.tajuk} />
-                <div className="p-4">
-                  <p className="text-xs text-brand-dark/50 mb-1">
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10">
+                  <p className="font-semibold text-sm text-white mb-0.5">{a.tajuk}</p>
+                  <p className="text-xs text-white/80">
                     {a.tarikh.toLocaleDateString("ms-MY")}
                   </p>
-                  <p className="font-semibold text-sm mb-1">{a.tajuk}</p>
-                  <p className="text-xs text-brand-dark/70">{a.keterangan}</p>
                 </div>
               </div>
             );
