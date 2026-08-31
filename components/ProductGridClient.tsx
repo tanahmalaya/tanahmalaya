@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import { PRODUCT_STATUS_LABEL, isAvailableForOrder, totalStok } from "@/lib/productSize";
+import { isJaket } from "@/lib/promo";
+import JaketPromoPopup from "@/components/JaketPromoPopup";
 
 type Product = {
   id: string;
@@ -21,6 +24,7 @@ function formatRM(sen: number) {
 
 export default function ProductGridClient({ products }: { products: Product[] }) {
   const { addToCart } = useCart();
+  const [showPromo, setShowPromo] = useState(false);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
@@ -54,7 +58,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
                 </Link>
               ) : (
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     addToCart({
                       id: p.id,
                       productId: p.id,
@@ -62,8 +66,9 @@ export default function ProductGridClient({ products }: { products: Product[] })
                       name: p.nama,
                       price: p.hargaSen / 100,
                       quantity: 1,
-                    })
-                  }
+                    });
+                    if (isJaket(p.nama)) setShowPromo(true);
+                  }}
                   disabled={!tersedia}
                   className="mt-auto bg-brand-gold text-brand-dark text-xs font-semibold py-2 rounded-sm disabled:opacity-40"
                 >
@@ -79,6 +84,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
           Belum ada produk. Tambah dari dashboard admin.
         </p>
       )}
+      {showPromo && <JaketPromoPopup onClose={() => setShowPromo(false)} />}
     </div>
   );
 }

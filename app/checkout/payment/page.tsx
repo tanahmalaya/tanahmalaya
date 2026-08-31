@@ -85,10 +85,28 @@ export default function CheckoutPaymentPage() {
           <p className="font-semibold">Barangan Pesanan:</p>
           {quote.items.map((item, idx) => (
             <div key={idx} className="flex justify-between">
-              <span>{item.namaProduk} x{item.kuantiti}</span>
-              <span>{formatRM(item.hargaBarangSen)}</span>
+              <span>
+                {item.namaProduk} x{item.kuantiti}
+                {item.diskaunPercent > 0 && (
+                  <span className="text-brand-gold font-semibold"> (-{item.diskaunPercent}%)</span>
+                )}
+              </span>
+              {item.diskaunPercent > 0 ? (
+                <span>
+                  <span className="text-brand-dark/40 line-through mr-1.5">{formatRM(item.hargaAsalSen)}</span>
+                  {formatRM(item.hargaBarangSen)}
+                </span>
+              ) : (
+                <span>{formatRM(item.hargaBarangSen)}</span>
+              )}
             </div>
           ))}
+          {quote.diskaunSen > 0 && (
+            <div className="flex justify-between text-brand-gold font-semibold pt-2 border-t">
+              <span>🎉 Jimat (Promo Jaket)</span>
+              <span>-{formatRM(quote.diskaunSen)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-brand-dark/70 pt-2 border-t">
             <span>Penghantaran{quote.courierName ? ` (${quote.courierName})` : ""}</span>
             <span>{formatRM(quote.shippingSen)}</span>

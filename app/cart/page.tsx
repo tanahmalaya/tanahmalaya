@@ -5,12 +5,23 @@ import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import CheckoutSteps from "@/components/CheckoutSteps";
 import BackButton from "@/components/BackButton";
+import { isJaket, diskaunPercentUntuk, hargaSelepasDiskaunRM } from "@/lib/promo";
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart } = useCart();
   const router = useRouter();
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const hasJaket = cart.some((item) => isJaket(item.name));
+  const cartWithPromo = cart.map((item) => {
+    const percent = diskaunPercentUntuk(item.name, hasJaket);
+    const hargaSelepasDiskaun = hargaSelepasDiskaunRM(item.price, percent);
+    return { ...item, percent, hargaSelepasDiskaun };
+  });
+  const subtotal = cartWithPromo.reduce((sum, item) => sum + item.hargaSelepasDiskaun * item.quantity, 0);
+  const jimat = cartWithPromo.reduce(
+    (sum, item) => sum + (item.price - item.hargaSelepasDiskaun) * item.quantity,
+    0
+  );
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
@@ -30,15 +41,29 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="bg-white p-5 rounded-md shadow-sm space-y-4">
+          {hasJaket && (
+            <div className="bg-brand-gold/15 border border-brand-gold/40 rounded-sm px-4 py-3 text-sm text-brand-dark">
+              🎉 <strong>Promo Jaket aktif!</strong> Diskaun dah dikira automatik dalam troli anda.
+            </div>
+          )}
           <div className="space-y-3">
-            {cart.map((item) => (
+            {cartWithPromo.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center justify-between gap-3 border-b border-brand-cream pb-3 last:border-0 last:pb-0"
               >
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-brand-dark">{item.name}</p>
-                  <p className="text-xs text-brand-dark/60">RM{item.price.toFixed(2)} / unit</p>
+                  {item.percent > 0 ? (
+                    <p className="text-xs">
+                      <span className="text-brand-dark/40 line-through mr-1.5">RM{item.price.toFixed(2)}</span>
+                      <span className="text-brand-gold font-semibold">
+                        RM{item.hargaSelepasDiskaun.toFixed(2)} / unit (-{item.percent}%)
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-brand-dark/60">RM{item.price.toFixed(2)} / unit</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
@@ -61,7 +86,7 @@ export default function CartPage() {
                   </button>
                 </div>
                 <span className="w-20 text-right text-sm font-semibold">
-                  RM{(item.price * item.quantity).toFixed(2)}
+                  RM{(item.hargaSelepasDiskaun * item.quantity).toFixed(2)}
                 </span>
                 <button
                   type="button"
@@ -75,6 +100,12 @@ export default function CartPage() {
             ))}
           </div>
 
+          {jimat > 0 && (
+            <div className="flex justify-between items-center text-sm text-brand-gold font-semibold">
+              <span>Jimat (Promo Jaket)</span>
+              <span>-RM{jimat.toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between items-center pt-3 border-t border-brand-cream">
             <span className="font-semibold">Subtotal</span>
             <span className="font-bold text-lg text-brand-gold">RM{subtotal.toFixed(2)}</span>

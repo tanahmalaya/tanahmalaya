@@ -4,7 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateShipping, AlamatTidakSahError } from "@/lib/pricing";
 import { SIZE_LABEL } from "@/lib/productSize";
+import { isJaket, diskaunPercentUntuk, hargaSelepasDiskaunSen } from "@/lib/promo";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
+
+type ProductDenganSaiz = Prisma.ProductGetPayload<{ include: { sizes: true } }>;
 
 const itemSchema = z.object({
   productId: z.string().min(1),
@@ -22,10 +26,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const data = schema.parse(body);
 
-  let subtotalSen = 0;
-  let shippingSen = 0;
-  let courierName: string | null = null;
-  const items: { id: string; namaProduk: string; kuantiti: number; hargaBarangSen: number }[] = [];
+  const validated: { product: ProductDenganSaiz; namaProduk: string; kuantiti: number }[] = [];
 
   for (const it of data.items) {
     const product = await prisma.product.findUnique({ where: { id: it.productId }, include: { sizes: true } });
@@ -50,12 +51,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Stok tidak mencukupi untuk ${product.nama}` }, { status: 400 });
     }
 
-    const hargaBarangSen = product.hargaSen * it.kuantiti;
+    validated.push({ product, namaProduk, kuantiti: it.kuantiti });
+  }
+
+  // Promo jaket: kalau troli ada jaket, barangan lain (bukan jaket) dapat
+  // diskaun automatik - 10% t-shirt, 5% barangan lain.
+  const hasJaket = validated.some((v) => isJaket(v.product.nama));
+
+  let subtotalSen = 0;
+  let shippingSen = 0;
+  let courierName: string | null = null;
+  const items: {
+    id: string;
+    namaProduk: string;
+    kuantiti: number;
+    hargaBarangSen: number;
+    hargaAsalSen: number;
+    diskaunPercent: number;
+  }[] = [];
+
+  for (const v of validated) {
+    const { product, namaProduk, kuantiti } = v;
+    const diskaunPercent = diskaunPercentUntuk(product.nama, hasJaket);
+    const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, diskaunPercent);
+    const hargaBarangSen = hargaUnitSen * kuantiti;
+    const hargaAsalSen = product.hargaSen * kuantiti;
     subtotalSen += hargaBarangSen;
 
     let shipping;
     try {
-      shipping = await calculateShipping(product, it.kuantiti, data.poskod, data.negeri);
+      shipping = await calculateShipping(product, kuantiti, data.poskod, data.negeri);
     } catch (e) {
       if (e instanceof AlamatTidakSahError) {
         return NextResponse.json({ error: e.message }, { status: 400 });
@@ -68,14 +93,19 @@ export async function POST(req: NextRequest) {
     items.push({
       id: product.id,
       namaProduk,
-      kuantiti: it.kuantiti,
+      kuantiti,
       hargaBarangSen,
+      hargaAsalSen,
+      diskaunPercent,
     });
   }
+
+  const diskaunSen = items.reduce((sum, it) => sum + (it.hargaAsalSen - it.hargaBarangSen), 0);
 
   return NextResponse.json({
     items,
     subtotalSen,
+    diskaunSen,
     shippingSen,
     jumlahSen: subtotalSen + shippingSen,
     courierName,

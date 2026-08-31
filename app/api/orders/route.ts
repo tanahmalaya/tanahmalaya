@@ -5,7 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
 import { calculateShipping, AlamatTidakSahError } from "@/lib/pricing";
 import { SIZE_LABEL } from "@/lib/productSize";
+import { isJaket, diskaunPercentUntuk, hargaSelepasDiskaunSen } from "@/lib/promo";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
+
+type ProductDenganSaiz = Prisma.ProductGetPayload<{ include: { sizes: true } }>;
 
 const infoSchema = z.object({
   namaPembeli: z.string().min(2),
@@ -59,18 +63,12 @@ export async function POST(req: NextRequest) {
     cartItems = [{ productId: String(productId), quantity: Number(kuantiti || 1), saiz: saiz ? String(saiz) : null }];
   }
 
-  let subtotalSen = 0;
-  let shippingSen = 0;
-  let courierName: string | null = null;
-  let serviceId: string | null = null;
-  const orderItemsData: {
-    productId: string;
+  const validated: {
+    product: ProductDenganSaiz;
     productSizeId: string | null;
-    saiz: "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null;
-    kuantiti: number;
-    hargaSen: number;
+    saizLabel: string | null;
+    quantity: number;
   }[] = [];
-  const descParts: string[] = [];
 
   for (const ci of cartItems) {
     const product = await prisma.product.findUnique({ where: { id: ci.productId }, include: { sizes: true } });
@@ -100,11 +98,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Stok tidak mencukupi untuk ${product.nama}` }, { status: 400 });
     }
 
-    subtotalSen += product.hargaSen * ci.quantity;
+    validated.push({ product, productSizeId, saizLabel, quantity: ci.quantity });
+  }
+
+  // Promo jaket: kalau troli ada jaket, barangan lain (bukan jaket) dapat
+  // diskaun automatik - 10% t-shirt, 5% barangan lain. Kena konsisten dengan
+  // /api/orders/quote supaya jumlah yang customer nampak sama dengan yang dicaj.
+  const hasJaket = validated.some((v) => isJaket(v.product.nama));
+
+  let subtotalSen = 0;
+  let shippingSen = 0;
+  let courierName: string | null = null;
+  let serviceId: string | null = null;
+  const orderItemsData: {
+    productId: string;
+    productSizeId: string | null;
+    saiz: "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null;
+    kuantiti: number;
+    hargaSen: number;
+  }[] = [];
+  const descParts: string[] = [];
+
+  for (const v of validated) {
+    const { product, productSizeId, saizLabel, quantity } = v;
+    const diskaunPercent = diskaunPercentUntuk(product.nama, hasJaket);
+    const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, diskaunPercent);
+    subtotalSen += hargaUnitSen * quantity;
 
     let shipping;
     try {
-      shipping = await calculateShipping(product, ci.quantity, data.poskod, data.negeri);
+      shipping = await calculateShipping(product, quantity, data.poskod, data.negeri);
     } catch (e) {
       if (e instanceof AlamatTidakSahError) {
         return NextResponse.json({ error: e.message }, { status: 400 });
@@ -119,10 +142,10 @@ export async function POST(req: NextRequest) {
       productId: product.id,
       productSizeId,
       saiz: saizLabel as "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null,
-      kuantiti: ci.quantity,
-      hargaSen: product.hargaSen,
+      kuantiti: quantity,
+      hargaSen: hargaUnitSen,
     });
-    descParts.push(`${product.nama}${saizLabel ? ` (${SIZE_LABEL[saizLabel]})` : ""} x${ci.quantity}`);
+    descParts.push(`${product.nama}${saizLabel ? ` (${SIZE_LABEL[saizLabel]})` : ""} x${quantity}`);
   }
 
   const jumlahSen = subtotalSen + shippingSen;

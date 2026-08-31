@@ -22,11 +22,14 @@ export type CheckoutQuoteItem = {
   namaProduk: string;
   kuantiti: number;
   hargaBarangSen: number;
+  hargaAsalSen: number;
+  diskaunPercent: number;
 };
 
 export type CheckoutQuote = {
   items: CheckoutQuoteItem[];
   subtotalSen: number;
+  diskaunSen: number;
   shippingSen: number;
   jumlahSen: number;
   courierName: string | null;

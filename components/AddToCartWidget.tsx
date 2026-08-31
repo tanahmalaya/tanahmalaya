@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
 import { isSizeAvailable } from "@/lib/productSize";
+import { isJaket } from "@/lib/promo";
+import JaketPromoPopup from "@/components/JaketPromoPopup";
 
 type SizeInfo = { saiz: string; label: string; stok: number };
 
@@ -30,6 +32,7 @@ export default function AddToCartWidget({
   const [qty, setQty] = useState(1);
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
+  const [showPromo, setShowPromo] = useState(false);
 
   const selectedSizeInfo = sizes.find((s) => s.saiz === selectedSize) || null;
   const maxQty = isPreorder
@@ -48,6 +51,7 @@ export default function AddToCartWidget({
     const label = selectedSizeInfo ? `${nama} (${selectedSizeInfo.label})` : nama;
     addToCart({ id: cartId, productId, saiz: selectedSize, name: label, price, quantity: qty });
     setAdded(true);
+    if (isJaket(nama)) setShowPromo(true);
   }
 
   return (
@@ -114,6 +118,8 @@ export default function AddToCartWidget({
           </Link>
         </div>
       )}
+
+      {showPromo && <JaketPromoPopup onClose={() => setShowPromo(false)} />}
     </div>
   );
 }
