@@ -7,6 +7,7 @@ import MembershipCTA from "@/components/MembershipCTA";
 import ProductGrid from "@/components/ProductGrid";
 import ActivityGrid from "@/components/ActivityGrid";
 import AdCarousel from "@/components/AdCarousel";
+import MerdekaBanner from "@/components/MerdekaBanner";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
@@ -19,6 +20,10 @@ export default async function HomePage() {
     <>
       <Hero />
       <FeatureCards />
+
+      <div className="mt-20 lg:mt-28">
+        <MerdekaBanner />
+      </div>
 
       <div className="max-w-8xl mx-auto px-6 lg:px-10 pt-20 lg:pt-28 grid lg:grid-cols-3 gap-10 lg:gap-14 items-start">
         <div className="lg:col-span-2">
