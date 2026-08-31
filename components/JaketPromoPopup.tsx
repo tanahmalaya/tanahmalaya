@@ -22,9 +22,9 @@ export default function JaketPromoPopup({ onClose }: { onClose: () => void }) {
           &times;
         </button>
         <p className="text-3xl mb-2">🎉</p>
-        <h2 className="font-display text-xl font-bold mb-2">Promo Jaket!</h2>
+        <h2 className="font-display text-xl font-bold mb-2">Tahniah!</h2>
         <p className="text-sm text-brand-dark/70 mb-4">
-          Jaket dah masuk troli anda. Diskaun automatik dah dikira dalam troli:
+          Dengan pembelian jaket anda, anda layak mendapat diskaun automatik untuk barangan lain dalam troli:
         </p>
         <div className="space-y-2 mb-5 text-left">
           <div className="flex items-center justify-between bg-brand-cream/60 rounded-sm px-4 py-2">
