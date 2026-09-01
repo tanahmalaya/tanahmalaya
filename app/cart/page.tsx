@@ -2,14 +2,38 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 import CheckoutSteps from "@/components/CheckoutSteps";
 import BackButton from "@/components/BackButton";
+import CrossSellGrid from "@/components/CrossSellGrid";
 import { diskaunPercentUntukKedudukan, hargaSelepasDiskaunRM } from "@/lib/promo";
+
+type Product = {
+  id: string;
+  nama: string;
+  hargaSen: number;
+  gambarDepan: string | null;
+  stok: number;
+  status: string;
+  sizes: { saiz: string; stok: number }[];
+};
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart } = useCart();
   const router = useRouter();
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then(setAllProducts)
+      .catch(() => {});
+  }, []);
+
+  // Barang yang belum ada dalam troli - ni yang layak jadi "barang
+  // seterusnya" dan dapat diskaun 10% automatik bila ditambah.
+  const barangLain = allProducts.filter((p) => !cart.some((c) => c.productId === p.id));
 
   const cartWithPromo = cart.map((item, index) => {
     const percent = diskaunPercentUntukKedudukan(index);
@@ -120,6 +144,8 @@ export default function CartPage() {
           </button>
         </div>
       )}
+
+      {cart.length > 0 && <CrossSellGrid products={barangLain} />}
     </div>
   );
 }
