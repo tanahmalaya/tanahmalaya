@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { SIZE_LABEL } from "@/lib/productSize";
 
 const MAX_BULK = 30;
 
@@ -79,9 +80,35 @@ export async function POST(req: NextRequest) {
   const rows = orders.map((order, idx) => {
     const totalBeratKg =
       order.items.reduce((sum, item) => sum + (item.product.beratGram ?? 500) * item.kuantiti, 0) / 1000;
-    const namaBarang = order.items.map((i) => i.product.nama).join("; ");
-    const hargaBarang = order.items.map((i) => (i.hargaSen / 100).toFixed(2)).join("; ");
-    const kuantiti = order.items.map((i) => i.kuantiti).join("; ");
+
+    // order.items boleh ada BEBERAPA baris untuk produk+saiz yang SAMA sebab
+    // diskaun 10% unit kedua dipecahkan jadi baris berasingan (harga asal vs
+    // harga diskaun) - kena cantumkan balik ikut produk+saiz supaya senarai
+    // barang pada CSV/label tak sebut barang yang sama dua kali. Harga per
+    // item dikira purata (jumlah nilai / jumlah kuantiti) supaya jumlah nilai
+    // barang untuk kastam/insurans kekal tepat.
+    const barangMap = new Map<string, { nama: string; saiz: string | null; kuantiti: number; jumlahSen: number }>();
+    for (const item of order.items) {
+      const kunci = `${item.productId}|${item.saiz ?? ""}`;
+      const sedia = barangMap.get(kunci);
+      if (sedia) {
+        sedia.kuantiti += item.kuantiti;
+        sedia.jumlahSen += item.hargaSen * item.kuantiti;
+      } else {
+        barangMap.set(kunci, {
+          nama: item.product.nama,
+          saiz: item.saiz,
+          kuantiti: item.kuantiti,
+          jumlahSen: item.hargaSen * item.kuantiti,
+        });
+      }
+    }
+    const barang = Array.from(barangMap.values());
+    const namaBarang = barang
+      .map((b) => `${b.nama}${b.saiz ? ` (Saiz ${SIZE_LABEL[b.saiz as keyof typeof SIZE_LABEL]})` : ""}`)
+      .join("; ");
+    const hargaBarang = barang.map((b) => (b.jumlahSen / b.kuantiti / 100).toFixed(2)).join("; ");
+    const kuantiti = barang.map((b) => b.kuantiti).join("; ");
 
     return [
       idx + 1,

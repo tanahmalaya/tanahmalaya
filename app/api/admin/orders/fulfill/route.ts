@@ -79,8 +79,24 @@ export async function POST(req: NextRequest) {
       // ada pilihan saiz) supaya staff packing tak silap ambil saiz. Lengan
       // panjang/pendek tak perlu ditambah berasingan sebab dah dibezakan sebagai
       // produk berasingan (nama produk dah ada "(Lengan Panjang)" bila berkaitan).
-      const kandungan = order.items
-        .map((item) => `${item.product.nama}${item.saiz ? ` (Saiz ${SIZE_LABEL[item.saiz]})` : ""} x${item.kuantiti}`)
+      //
+      // order.items boleh ada BEBERAPA baris untuk produk+saiz yang SAMA sebab
+      // diskaun 10% unit kedua dipecahkan jadi baris berasingan (harga asal vs
+      // harga diskaun) - kena cantumkan balik ikut produk+saiz supaya remark
+      // tak sebut barang yang sama dua kali (cth "Kasut x1, Kasut x1" bila
+      // sepatutnya "Kasut x2").
+      const kandunganMap = new Map<string, { nama: string; saiz: string | null; kuantiti: number }>();
+      for (const item of order.items) {
+        const kunci = `${item.productId}|${item.saiz ?? ""}`;
+        const sedia = kandunganMap.get(kunci);
+        if (sedia) {
+          sedia.kuantiti += item.kuantiti;
+        } else {
+          kandunganMap.set(kunci, { nama: item.product.nama, saiz: item.saiz, kuantiti: item.kuantiti });
+        }
+      }
+      const kandungan = Array.from(kandunganMap.values())
+        .map((it) => `${it.nama}${it.saiz ? ` (Saiz ${SIZE_LABEL[it.saiz]})` : ""} x${it.kuantiti}`)
         .join(", ");
       const nilaiRM = order.jumlahSen / 100;
 
