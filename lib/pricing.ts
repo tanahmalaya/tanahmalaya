@@ -1,4 +1,4 @@
-import { checkEasyParcelRate } from "@/lib/easyparcel";
+import { checkEasyParcelRate, DEFAULT_PREFERRED_COURIER } from "@/lib/easyparcel";
 import { validatePostcodeNegeri } from "@/lib/postcode";
 
 // Dilempar bila poskod/negeri tak sah, atau tiada kurier boleh hantar ke
@@ -20,13 +20,18 @@ export async function calculateShipping(
   if (product.shippingMode === "FLAT") {
     return {
       shippingSen: product.shippingFlatSen ?? 0,
-      courierName: null,
+      courierName: DEFAULT_PREFERRED_COURIER,
       serviceId: process.env.EASYPARCEL_DEFAULT_SERVICE_ID || null,
     };
   }
 
   const beratKg = ((product.beratGram ?? 500) * kuantiti) / 1000;
-  const rate = await checkEasyParcelRate({ destPostcode: poskod, destState: negeri, weightKg: beratKg });
+  const rate = await checkEasyParcelRate({
+    destPostcode: poskod,
+    destState: negeri,
+    weightKg: beratKg,
+    preferCourierName: DEFAULT_PREFERRED_COURIER,
+  });
 
   if (!rate) {
     throw new AlamatTidakSahError(

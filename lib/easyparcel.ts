@@ -9,6 +9,11 @@ const EASYPARCEL_BASE_URL =
 
 const EASYPARCEL_API_KEY = process.env.EASYPARCEL_API_KEY!;
 
+// Kurier pilihan utama secara default untuk semua order (checkout akan cuba
+// SPX dulu - kalau tak tersedia untuk destinasi tertentu, checkEasyParcelRate
+// akan fallback kepada kadar termurah yang tersedia secara automatik).
+export const DEFAULT_PREFERRED_COURIER = "SPX Xpress (Malaysia) Sdn Bhd";
+
 // Maklumat penghantar (PLT) - diisi dalam .env
 const SENDER = {
   name: process.env.EASYPARCEL_SENDER_NAME || "Pertubuhan Literasi Tanah",
