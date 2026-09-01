@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateShipping, AlamatTidakSahError } from "@/lib/pricing";
 import { SIZE_LABEL } from "@/lib/productSize";
-import { diskaunPercentUntukKedudukan, hargaSelepasDiskaunSen } from "@/lib/promo";
+import { PROMO_MULTI_ITEM_PERCENT, pecahanUnitBaris, hargaSelepasDiskaunSen } from "@/lib/promo";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -67,13 +67,24 @@ export async function POST(req: NextRequest) {
     diskaunPercent: number;
   }[] = [];
 
-  for (const [index, v] of validated.entries()) {
+  let unitCount = 0;
+  for (const v of validated) {
     const { product, namaProduk, kuantiti } = v;
-    const diskaunPercent = diskaunPercentUntukKedudukan(index);
-    const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, diskaunPercent);
-    const hargaBarangSen = hargaUnitSen * kuantiti;
-    const hargaAsalSen = product.hargaSen * kuantiti;
-    subtotalSen += hargaBarangSen;
+    const { kuantitiAsal, kuantitiDiskaun } = pecahanUnitBaris(kuantiti, unitCount);
+    unitCount += kuantiti;
+
+    if (kuantitiAsal > 0) {
+      const hargaSen = product.hargaSen * kuantitiAsal;
+      subtotalSen += hargaSen;
+      items.push({ id: product.id, namaProduk, kuantiti: kuantitiAsal, hargaBarangSen: hargaSen, hargaAsalSen: hargaSen, diskaunPercent: 0 });
+    }
+    if (kuantitiDiskaun > 0) {
+      const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, PROMO_MULTI_ITEM_PERCENT);
+      const hargaBarangSen = hargaUnitSen * kuantitiDiskaun;
+      const hargaAsalSen = product.hargaSen * kuantitiDiskaun;
+      subtotalSen += hargaBarangSen;
+      items.push({ id: product.id, namaProduk, kuantiti: kuantitiDiskaun, hargaBarangSen, hargaAsalSen, diskaunPercent: PROMO_MULTI_ITEM_PERCENT });
+    }
 
     let shipping;
     try {
@@ -87,15 +98,6 @@ export async function POST(req: NextRequest) {
     shippingSen += shipping.shippingSen;
     if (shipping.courierName) courierName = shipping.courierName;
     if (shipping.manualCourier) manualCourier = true;
-
-    items.push({
-      id: product.id,
-      namaProduk,
-      kuantiti,
-      hargaBarangSen,
-      hargaAsalSen,
-      diskaunPercent,
-    });
   }
 
   const diskaunSen = items.reduce((sum, it) => sum + (it.hargaAsalSen - it.hargaBarangSen), 0);

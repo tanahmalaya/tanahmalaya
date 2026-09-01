@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_MERCHANDISE } from "@/lib/bayarcash";
 import { calculateShipping, AlamatTidakSahError } from "@/lib/pricing";
 import { SIZE_LABEL } from "@/lib/productSize";
-import { diskaunPercentUntukKedudukan, hargaSelepasDiskaunSen } from "@/lib/promo";
+import { PROMO_MULTI_ITEM_PERCENT, pecahanUnitBaris, hargaSelepasDiskaunSen } from "@/lib/promo";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -115,11 +115,33 @@ export async function POST(req: NextRequest) {
   }[] = [];
   const descParts: string[] = [];
 
-  for (const [index, v] of validated.entries()) {
+  let unitCount = 0;
+  for (const v of validated) {
     const { product, productSizeId, saizLabel, quantity } = v;
-    const diskaunPercent = diskaunPercentUntukKedudukan(index);
-    const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, diskaunPercent);
-    subtotalSen += hargaUnitSen * quantity;
+    const { kuantitiAsal, kuantitiDiskaun } = pecahanUnitBaris(quantity, unitCount);
+    unitCount += quantity;
+
+    if (kuantitiAsal > 0) {
+      subtotalSen += product.hargaSen * kuantitiAsal;
+      orderItemsData.push({
+        productId: product.id,
+        productSizeId,
+        saiz: saizLabel as "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null,
+        kuantiti: kuantitiAsal,
+        hargaSen: product.hargaSen,
+      });
+    }
+    if (kuantitiDiskaun > 0) {
+      const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, PROMO_MULTI_ITEM_PERCENT);
+      subtotalSen += hargaUnitSen * kuantitiDiskaun;
+      orderItemsData.push({
+        productId: product.id,
+        productSizeId,
+        saiz: saizLabel as "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null,
+        kuantiti: kuantitiDiskaun,
+        hargaSen: hargaUnitSen,
+      });
+    }
 
     let shipping;
     try {
@@ -135,13 +157,6 @@ export async function POST(req: NextRequest) {
     if (shipping.serviceId) serviceId = shipping.serviceId;
     if (shipping.manualCourier) manualCourier = true;
 
-    orderItemsData.push({
-      productId: product.id,
-      productSizeId,
-      saiz: saizLabel as "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | null,
-      kuantiti: quantity,
-      hargaSen: hargaUnitSen,
-    });
     descParts.push(`${product.nama}${saizLabel ? ` (${SIZE_LABEL[saizLabel]})` : ""} x${quantity}`);
   }
 

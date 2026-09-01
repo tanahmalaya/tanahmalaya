@@ -4,9 +4,20 @@
 
 export const PROMO_MULTI_ITEM_PERCENT = 10;
 
-/** Peratus diskaun untuk item pada kedudukan `index` dalam troli (0 = item pertama). */
-export function diskaunPercentUntukKedudukan(index: number): number {
-  return index === 0 ? 0 : PROMO_MULTI_ITEM_PERCENT;
+/**
+ * Kira pecahan kuantiti "harga asal" vs "diskaun" untuk SATU baris troli,
+ * ambil kira jumlah unit dalam baris-baris SEBELUM baris ni (`unitSebelumBaris`).
+ * Cuma UNIT PERTAMA dalam SELURUH troli (across semua baris, ikut urutan
+ * ditambah) kekal harga asal - unit kedua dan seterusnya dapat diskaun
+ * automatik, termasuk unit tambahan produk yang SAMA (cth: beli 2 tukul,
+ * tukul kedua pun dapat diskaun).
+ */
+export function pecahanUnitBaris(
+  kuantiti: number,
+  unitSebelumBaris: number
+): { kuantitiAsal: number; kuantitiDiskaun: number } {
+  const kuantitiAsal = unitSebelumBaris === 0 ? Math.min(1, kuantiti) : 0;
+  return { kuantitiAsal, kuantitiDiskaun: kuantiti - kuantitiAsal };
 }
 
 /** Kira harga (dalam sen) selepas diskaun peratus, bulatkan ke sen terdekat. */

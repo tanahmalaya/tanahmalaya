@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import CheckoutSteps from "@/components/CheckoutSteps";
 import BackButton from "@/components/BackButton";
 import CrossSellGrid from "@/components/CrossSellGrid";
-import { diskaunPercentUntukKedudukan, hargaSelepasDiskaunRM } from "@/lib/promo";
+import { PROMO_MULTI_ITEM_PERCENT, pecahanUnitBaris, hargaSelepasDiskaunRM } from "@/lib/promo";
 
 type Product = {
   id: string;
@@ -35,16 +35,21 @@ export default function CartPage() {
   // seterusnya" dan dapat diskaun 10% automatik bila ditambah.
   const barangLain = allProducts.filter((p) => !cart.some((c) => c.productId === p.id));
 
-  const cartWithPromo = cart.map((item, index) => {
-    const percent = diskaunPercentUntukKedudukan(index);
-    const hargaSelepasDiskaun = hargaSelepasDiskaunRM(item.price, percent);
-    return { ...item, percent, hargaSelepasDiskaun };
+  // Unit PERTAMA sahaja dalam SELURUH troli (ikut urutan ditambah) kekal
+  // harga asal - unit kedua dan seterusnya (termasuk unit tambahan produk
+  // yang SAMA, cth beli 2 tukul) dapat diskaun automatik.
+  let unitCounter = 0;
+  const cartWithPromo = cart.map((item) => {
+    const { kuantitiAsal, kuantitiDiskaun } = pecahanUnitBaris(item.quantity, unitCounter);
+    unitCounter += item.quantity;
+    const hargaDiskaunRM = hargaSelepasDiskaunRM(item.price, PROMO_MULTI_ITEM_PERCENT);
+    const lineTotal = kuantitiAsal * item.price + kuantitiDiskaun * hargaDiskaunRM;
+    const lineJimat = kuantitiDiskaun * (item.price - hargaDiskaunRM);
+    return { ...item, kuantitiAsal, kuantitiDiskaun, hargaDiskaunRM, lineTotal, lineJimat };
   });
-  const subtotal = cartWithPromo.reduce((sum, item) => sum + item.hargaSelepasDiskaun * item.quantity, 0);
-  const jimat = cartWithPromo.reduce(
-    (sum, item) => sum + (item.price - item.hargaSelepasDiskaun) * item.quantity,
-    0
-  );
+  const totalUnit = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = cartWithPromo.reduce((sum, item) => sum + item.lineTotal, 0);
+  const jimat = cartWithPromo.reduce((sum, item) => sum + item.lineJimat, 0);
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
@@ -64,7 +69,7 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="bg-white p-5 rounded-md shadow-sm space-y-4">
-          {cart.length > 1 && (
+          {totalUnit > 1 && (
             <div className="bg-brand-gold/15 border border-brand-gold/40 rounded-sm px-4 py-3 text-sm text-brand-dark">
               🎉 <strong>Diskaun aktif!</strong> Barang kedua dan seterusnya dapat 10% diskaun automatik.
             </div>
@@ -77,15 +82,22 @@ export default function CartPage() {
               >
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-brand-dark">{item.name}</p>
-                  {item.percent > 0 ? (
+                  {item.kuantitiDiskaun === 0 ? (
+                    <p className="text-xs text-brand-dark/60">RM{item.price.toFixed(2)} / unit</p>
+                  ) : item.kuantitiAsal === 0 ? (
                     <p className="text-xs">
                       <span className="text-brand-dark/40 line-through mr-1.5">RM{item.price.toFixed(2)}</span>
                       <span className="text-brand-gold font-semibold">
-                        RM{item.hargaSelepasDiskaun.toFixed(2)} / unit (-{item.percent}%)
+                        RM{item.hargaDiskaunRM.toFixed(2)} / unit (-{PROMO_MULTI_ITEM_PERCENT}%)
                       </span>
                     </p>
                   ) : (
-                    <p className="text-xs text-brand-dark/60">RM{item.price.toFixed(2)} / unit</p>
+                    <p className="text-xs text-brand-dark/60">
+                      {item.kuantitiAsal} unit RM{item.price.toFixed(2)} +{" "}
+                      <span className="text-brand-gold font-semibold">
+                        {item.kuantitiDiskaun} unit RM{item.hargaDiskaunRM.toFixed(2)} (-{PROMO_MULTI_ITEM_PERCENT}%)
+                      </span>
+                    </p>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -109,7 +121,7 @@ export default function CartPage() {
                   </button>
                 </div>
                 <span className="w-20 text-right text-sm font-semibold">
-                  RM{(item.hargaSelepasDiskaun * item.quantity).toFixed(2)}
+                  RM{item.lineTotal.toFixed(2)}
                 </span>
                 <button
                   type="button"
