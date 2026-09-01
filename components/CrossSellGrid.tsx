@@ -41,6 +41,11 @@ export default function CrossSellGrid({ products }: { products: Product[] }) {
           const tersedia = isAvailableForOrder(p);
           const hasSizes = p.sizes.length > 0;
           const hargaDiskaunSen = hargaSelepasDiskaunSen(p.hargaSen, PROMO_MULTI_ITEM_PERCENT);
+          // Produk yang dah ada dalam troli TETAP dipaparkan - beli unit
+          // kedua/ketiga bagi produk yang SAMA pun layak diskaun automatik.
+          const kuantitiDalamTroli = cart
+            .filter((c) => c.productId === p.id)
+            .reduce((sum, c) => sum + c.quantity, 0);
           return (
             <div key={p.id} className="bg-white rounded-md shadow-sm overflow-hidden flex flex-col">
               <Link href={`/merchandise/${p.id}`} className="relative aspect-square bg-brand-cream">
@@ -53,10 +58,13 @@ export default function CrossSellGrid({ products }: { products: Product[] }) {
                 <Link href={`/merchandise/${p.id}`} className="text-sm font-semibold mb-1 line-clamp-2">
                   {p.nama}
                 </Link>
-                <p className="text-xs mb-3">
+                <p className="text-xs mb-1">
                   <span className="text-brand-dark/40 line-through mr-1.5">{formatRM(p.hargaSen)}</span>
                   <span className="text-brand-gold font-bold">{formatRM(hargaDiskaunSen)}</span>
                 </p>
+                {kuantitiDalamTroli > 0 && (
+                  <p className="text-[11px] text-brand-dark/50 mb-2">Dalam troli: {kuantitiDalamTroli}</p>
+                )}
                 {hasSizes ? (
                   <Link
                     href={`/merchandise/${p.id}`}
@@ -64,7 +72,7 @@ export default function CrossSellGrid({ products }: { products: Product[] }) {
                       tersedia ? "" : "opacity-40 pointer-events-none"
                     }`}
                   >
-                    {tersedia ? "PILIH SAIZ" : "SOLD OUT"}
+                    {!tersedia ? "SOLD OUT" : kuantitiDalamTroli > 0 ? "TAMBAH LAGI" : "PILIH SAIZ"}
                   </Link>
                 ) : (
                   <button
@@ -84,7 +92,7 @@ export default function CrossSellGrid({ products }: { products: Product[] }) {
                     disabled={!tersedia}
                     className="mt-auto bg-brand-gold text-brand-dark text-xs font-semibold py-2 rounded-sm disabled:opacity-40"
                   >
-                    {tersedia ? "ADD TO CART" : "SOLD OUT"}
+                    {!tersedia ? "SOLD OUT" : kuantitiDalamTroli > 0 ? "TAMBAH LAGI" : "ADD TO CART"}
                   </button>
                 )}
               </div>

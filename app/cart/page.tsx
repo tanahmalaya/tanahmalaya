@@ -31,9 +31,9 @@ export default function CartPage() {
       .catch(() => {});
   }, []);
 
-  // Barang yang belum ada dalam troli - ni yang layak jadi "barang
-  // seterusnya" dan dapat diskaun 10% automatik bila ditambah.
-  const barangLain = allProducts.filter((p) => !cart.some((c) => c.productId === p.id));
+  // Papar SEMUA produk aktif (termasuk yang dah ada dalam troli) - beli
+  // unit kedua/ketiga bagi produk yang SAMA pun layak diskaun automatik.
+  const barangLain = allProducts;
 
   // Unit PERTAMA sahaja dalam SELURUH troli (ikut urutan ditambah) kekal
   // harga asal - unit kedua dan seterusnya (termasuk unit tambahan produk

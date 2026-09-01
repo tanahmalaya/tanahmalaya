@@ -54,9 +54,16 @@ export default function PromoPopup({
       .catch(() => setProducts([]));
   }, []);
 
-  // Barang yang belum ada dalam troli - ni yang jadi "barang seterusnya" dan
-  // dapat diskaun automatik bila ditambah.
-  const barangLain = (products ?? []).filter((p) => !cart.some((c) => c.productId === p.id)).slice(0, MAX_SHOWN);
+  function kuantitiDalamTroli(productId: string) {
+    return cart.filter((c) => c.productId === productId).reduce((sum, c) => sum + c.quantity, 0);
+  }
+
+  // Papar SEMUA produk (termasuk yang dah ada dalam troli - beli unit
+  // kedua/ketiga produk yang SAMA pun layak diskaun). Utamakan produk yang
+  // dah ada dalam troli dulu (paling relevan untuk "beli lagi").
+  const barangLain = [...(products ?? [])]
+    .sort((a, b) => (kuantitiDalamTroli(b.id) > 0 ? 1 : 0) - (kuantitiDalamTroli(a.id) > 0 ? 1 : 0))
+    .slice(0, MAX_SHOWN);
 
   return (
     <div
@@ -87,6 +94,7 @@ export default function PromoPopup({
               const tersedia = isAvailableForOrder(p);
               const hasSizes = p.sizes.length > 0;
               const hargaDiskaunSen = hargaSelepasDiskaunSen(p.hargaSen, PROMO_MULTI_ITEM_PERCENT);
+              const kuantitiSedia = kuantitiDalamTroli(p.id);
               return (
                 <div
                   key={p.id}
@@ -103,6 +111,9 @@ export default function PromoPopup({
                       <span className="text-brand-dark/40 line-through mr-1">{formatRM(p.hargaSen)}</span>
                       <span className="text-brand-gold font-bold">{formatRM(hargaDiskaunSen)}</span>
                     </p>
+                    {kuantitiSedia > 0 && (
+                      <p className="text-[10px] text-brand-dark/50">Dalam troli: {kuantitiSedia}</p>
+                    )}
                   </div>
                   {hasSizes ? (
                     <Link
@@ -112,7 +123,7 @@ export default function PromoPopup({
                         tersedia ? "" : "opacity-40 pointer-events-none"
                       }`}
                     >
-                      PILIH SAIZ
+                      {!tersedia ? "SOLD OUT" : kuantitiSedia > 0 ? "TAMBAH LAGI" : "PILIH SAIZ"}
                     </Link>
                   ) : (
                     <button
@@ -131,7 +142,7 @@ export default function PromoPopup({
                       }}
                       className="flex-shrink-0 bg-brand-gold text-brand-dark text-[11px] font-semibold px-3 py-1.5 rounded-sm disabled:opacity-40"
                     >
-                      TAMBAH
+                      {!tersedia ? "SOLD OUT" : kuantitiSedia > 0 ? "TAMBAH LAGI" : "TAMBAH"}
                     </button>
                   )}
                 </div>
