@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
   let subtotalSen = 0;
   let shippingSen = 0;
   let courierName: string | null = null;
+  let manualCourier = false;
   const items: {
     id: string;
     namaProduk: string;
@@ -89,6 +90,7 @@ export async function POST(req: NextRequest) {
     }
     shippingSen += shipping.shippingSen;
     if (shipping.courierName) courierName = shipping.courierName;
+    if (shipping.manualCourier) manualCourier = true;
 
     items.push({
       id: product.id,
@@ -109,5 +111,6 @@ export async function POST(req: NextRequest) {
     shippingSen,
     jumlahSen: subtotalSen + shippingSen,
     courierName,
+    manualCourier,
   });
 }

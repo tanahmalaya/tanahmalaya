@@ -34,6 +34,15 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
+    if (order.manualCourier) {
+      results.push({
+        id: orderId,
+        success: false,
+        error: "Order ni perlu staff pilih kurier & sahkan caj penghantaran secara manual dulu (tab \"Manual Courier\") sebelum boleh diproses.",
+      });
+      continue;
+    }
+
     try {
       // Order ni DAH ADA order_number EasyParcel daripada percubaan
       // sebelum ni (submit berjaya tapi tracking belum siap masa tu) -

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Bucket =
+  | "MANUAL_COURIER"
   | "PENDING_PAYMENT"
   | "NEW_READY_STOCK"
   | "NEW_PREORDER"
@@ -23,6 +24,7 @@ export type OrderRow = {
   negeri: string;
   items: { nama: string; kuantiti: number }[];
   jumlahSen: number;
+  shippingSen: number;
   trackingNumber: string | null;
   awbUrl: string | null;
   courierName: string | null;
@@ -37,6 +39,7 @@ const MAX_BULK = 30;
 
 const TAB_DEF: { key: Bucket | "ALL"; label: string }[] = [
   { key: "ALL", label: "All" },
+  { key: "MANUAL_COURIER", label: "Manual Courier" },
   { key: "PENDING_PAYMENT", label: "Pending Payment" },
   { key: "NEW_READY_STOCK", label: "New Orders - Ready Stock" },
   { key: "NEW_PREORDER", label: "New Orders - Pre-order" },
@@ -48,6 +51,7 @@ const TAB_DEF: { key: Bucket | "ALL"; label: string }[] = [
 ];
 
 const STATUS_BADGE: Record<Bucket, { label: string; className: string }> = {
+  MANUAL_COURIER: { label: "Manual Courier", className: "bg-orange-100 text-orange-700" },
   PENDING_PAYMENT: { label: "Pending Payment", className: "bg-gray-100 text-gray-600" },
   NEW_READY_STOCK: { label: "New (Ready Stock)", className: "bg-[#c6e1c6] text-[#5b841b]" },
   NEW_PREORDER: { label: "New (Pre-order)", className: "bg-[#f0dab3] text-[#8a5a1f]" },
@@ -162,6 +166,146 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
         </div>
       )}
     </>
+  );
+}
+
+type Rate = { rateId: string; serviceId: string; courierName: string; priceSen: number };
+
+/**
+ * Untuk order "Manual Courier" (SPX & J&T dua-dua tak tersedia untuk
+ * destinasi masa checkout) - staff semak kurier lain yang EasyParcel ada
+ * untuk destinasi order ni, pilih satu, sahkan/betulkan caj, lepas tu order
+ * boleh diproses macam biasa dalam tab "New Orders".
+ */
+function ManualCourierPicker({ order }: { order: { id: string; jumlahSen: number; shippingSen: number } }) {
+  const [rates, setRates] = useState<Rate[] | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [courierName, setCourierName] = useState("");
+  const [shippingRM, setShippingRM] = useState((order.shippingSen / 100).toFixed(2));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function checkRates() {
+    setChecking(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/orders/check-rates?orderId=${order.id}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Gagal semak kadar kurier.");
+        return;
+      }
+      setRates(data.rates || []);
+    } catch (e) {
+      setError("Ralat rangkaian. Sila cuba lagi.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function pick(r: Rate) {
+    setCourierName(r.courierName);
+    setShippingRM((r.priceSen / 100).toFixed(2));
+  }
+
+  async function save() {
+    if (!courierName.trim()) {
+      setError("Sila pilih atau isi nama kurier.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const shippingSen = Math.round(parseFloat(shippingRM) * 100);
+      const res = await fetch("/api/admin/orders/set-courier", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id, courierName, shippingSen }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Gagal simpan kurier.");
+        return;
+      }
+      router.refresh();
+    } catch (e) {
+      setError("Ralat rangkaian. Sila cuba lagi.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const shippingSenBaru = Math.round((parseFloat(shippingRM) || 0) * 100);
+  const bezaSen = shippingSenBaru - order.shippingSen;
+
+  return (
+    <div className="space-y-2 max-w-[16rem]">
+      <button
+        type="button"
+        onClick={checkRates}
+        disabled={checking}
+        className="text-[11px] underline text-brand-gold disabled:opacity-50"
+      >
+        {checking ? "Menyemak..." : "Semak Kurier Tersedia"}
+      </button>
+
+      {rates && (
+        <div className="border border-brand-dark/10 rounded-sm divide-y divide-brand-dark/5 max-h-40 overflow-y-auto">
+          {rates.length === 0 && <p className="p-2 text-[11px] text-brand-dark/40">Tiada kurier dipulangkan.</p>}
+          {rates.map((r) => (
+            <button
+              key={r.serviceId}
+              type="button"
+              onClick={() => pick(r)}
+              className={`w-full text-left p-2 text-[11px] hover:bg-brand-cream/40 ${
+                courierName === r.courierName ? "bg-brand-cream/60 font-semibold" : ""
+              }`}
+            >
+              {r.courierName} — {formatRM(r.priceSen)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <input
+        type="text"
+        value={courierName}
+        onChange={(e) => setCourierName(e.target.value)}
+        placeholder="Nama kurier"
+        className="w-full border border-brand-dark/20 rounded-sm px-2 py-1 text-[11px]"
+      />
+      <div className="flex items-center gap-1">
+        <span className="text-[11px] text-brand-dark/50">RM</span>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          value={shippingRM}
+          onChange={(e) => setShippingRM(e.target.value)}
+          className="w-20 border border-brand-dark/20 rounded-sm px-2 py-1 text-[11px]"
+        />
+      </div>
+      {bezaSen !== 0 && (
+        <p className="text-[11px] text-brand-dark/50">
+          Customer dah bayar RM {(order.shippingSen / 100).toFixed(2)} untuk shipping — beza{" "}
+          <span className={bezaSen > 0 ? "text-red-600" : "text-green-700"}>
+            {bezaSen > 0 ? "+" : ""}
+            {formatRM(bezaSen)}
+          </span>{" "}
+          ({bezaSen > 0 ? "kutip tambahan" : "refund lebihan"} secara berasingan kalau perlu).
+        </p>
+      )}
+      {error && <p className="text-red-600 text-[11px]">{error}</p>}
+      <button
+        type="button"
+        onClick={save}
+        disabled={saving}
+        className="bg-brand-gold text-brand-dark font-semibold text-[11px] rounded-sm px-3 py-1.5 disabled:opacity-50"
+      >
+        {saving ? "Menyimpan..." : "Simpan & Guna Kurier Ni"}
+      </button>
+    </div>
   );
 }
 
@@ -412,6 +556,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                     {o.items.map((it) => `${it.nama} x${it.kuantiti}`).join(", ")}
                   </td>
                   <td className="p-4 max-w-[12rem]">
+                    {o.bucket === "MANUAL_COURIER" && <ManualCourierPicker order={o} />}
                     {o.bucket === "PROCESSING_FAILED" && o.fulfillmentError && (
                       <p className="text-red-600 text-[11px]">{o.fulfillmentError}</p>
                     )}

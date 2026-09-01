@@ -9,10 +9,12 @@ const EASYPARCEL_BASE_URL =
 
 const EASYPARCEL_API_KEY = process.env.EASYPARCEL_API_KEY!;
 
-// Kurier pilihan utama secara default untuk semua order (checkout akan cuba
-// SPX dulu - kalau tak tersedia untuk destinasi tertentu, checkEasyParcelRate
-// akan fallback kepada kadar termurah yang tersedia secara automatik).
+// Kurier pilihan utama & kedua secara default untuk semua order - checkout
+// akan cuba SPX dulu, kalau tak tersedia untuk destinasi tertentu cuba J&T.
+// Guna checkEasyParcelRate({ strict: true }) untuk elak fallback senyap kepada
+// kurier lain (lihat lib/pricing.ts calculateShipping).
 export const DEFAULT_PREFERRED_COURIER = "SPX Xpress (Malaysia) Sdn Bhd";
+export const SECONDARY_PREFERRED_COURIER = "J&T Express (Malaysia) Sdn. Bhd.";
 
 // Maklumat penghantar (PLT) - diisi dalam .env
 const SENDER = {
@@ -30,8 +32,12 @@ type RateCheckParams = {
   weightKg: number;
   // Kalau diisi, cuba cari kurier yang SAMA dulu (supaya konsisten dengan
   // apa yang customer nampak/bayar masa checkout) - kalau tak jumpa,
-  // fallback kepada kadar termurah yang tersedia.
+  // fallback kepada kadar termurah yang tersedia (kecuali `strict: true`).
   preferCourierName?: string | null;
+  // Kalau true DAN preferCourierName tak dijumpai dalam kadar yang tersedia,
+  // pulangkan null terus (JANGAN fallback ke kadar termurah). Guna ni untuk
+  // senarai kurier keutamaan berperingkat (cth: cuba SPX -> cuba J&T -> manual).
+  strict?: boolean;
 };
 
 type RateResult = {
@@ -41,20 +47,16 @@ type RateResult = {
   priceSen: number;
 };
 
-/**
- * Semak kadar penghantaran (rate checking) sebelum tempah - digunakan bila
- * produk mode "BERAT" (bukan kadar tetap).
- */
-export async function checkEasyParcelRate(params: RateCheckParams): Promise<RateResult | null> {
+async function fetchEasyParcelRates(destPostcode: string, destState: string, weightKg: number): Promise<any[]> {
   const form = new URLSearchParams();
   form.set("api", EASYPARCEL_API_KEY);
   form.set("bulk[0][pick_code]", SENDER.postcode);
   form.set("bulk[0][pick_state]", SENDER.state);
   form.set("bulk[0][pick_country]", "MY");
-  form.set("bulk[0][send_code]", params.destPostcode);
-  form.set("bulk[0][send_state]", params.destState);
+  form.set("bulk[0][send_code]", destPostcode);
+  form.set("bulk[0][send_state]", destState);
   form.set("bulk[0][send_country]", "MY");
-  form.set("bulk[0][weight]", String(params.weightKg));
+  form.set("bulk[0][weight]", String(weightKg));
 
   const res = await fetch(`${EASYPARCEL_BASE_URL}?ac=EPRateCheckingBulk`, {
     method: "POST",
@@ -62,14 +64,23 @@ export async function checkEasyParcelRate(params: RateCheckParams): Promise<Rate
   });
 
   const data = await res.json();
-  const rates = data?.result?.[0]?.rates;
-  if (!rates || rates.length === 0) return null;
+  return data?.result?.[0]?.rates ?? [];
+}
+
+/**
+ * Semak kadar penghantaran (rate checking) sebelum tempah - digunakan bila
+ * produk mode "BERAT" (bukan kadar tetap).
+ */
+export async function checkEasyParcelRate(params: RateCheckParams): Promise<RateResult | null> {
+  const rates = await fetchEasyParcelRates(params.destPostcode, params.destState, params.weightKg);
+  if (rates.length === 0) return null;
 
   let chosen = params.preferCourierName
     ? rates.find((r: any) => r.courier_name === params.preferCourierName)
     : undefined;
 
   if (!chosen) {
+    if (params.strict) return null;
     // Ambil kadar TERMURAH yang tersedia
     chosen = rates.reduce((a: any, b: any) => (parseFloat(a.price) < parseFloat(b.price) ? a : b));
   }
@@ -80,6 +91,27 @@ export async function checkEasyParcelRate(params: RateCheckParams): Promise<Rate
     courierName: chosen.courier_name,
     priceSen: Math.round(parseFloat(chosen.price) * 100),
   };
+}
+
+/**
+ * Senaraikan SEMUA kadar/kurier tersedia untuk destinasi tertentu (susun
+ * termurah dulu) - digunakan oleh admin untuk pilih kurier secara manual bila
+ * SPX & J&T dua-dua tak tersedia (order ditanda `manualCourier`).
+ */
+export async function listEasyParcelRates(params: {
+  destPostcode: string;
+  destState: string;
+  weightKg: number;
+}): Promise<RateResult[]> {
+  const rates = await fetchEasyParcelRates(params.destPostcode, params.destState, params.weightKg);
+  return rates
+    .map((r: any) => ({
+      rateId: r.rate_id,
+      serviceId: r.service_id,
+      courierName: r.courier_name,
+      priceSen: Math.round(parseFloat(r.price) * 100),
+    }))
+    .sort((a, b) => a.priceSen - b.priceSen);
 }
 
 type SubmitOrderParams = {

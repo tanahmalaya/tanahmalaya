@@ -10,10 +10,15 @@ export default async function AdminOrdersPage() {
   // Query berasingan ikut kategori (bukan satu fetch besar semua order) -
   // lebih pantas dan elak dashboard "banjir" dek order status MENUNGGU lama
   // (troli ditinggalkan) yang tak relevan lagi untuk processing.
-  const [newOrdersRaw, processingFailedRaw, inProcessRaw, shippedRaw, pendingPaymentRaw, paymentFailedRaw, refundedRaw] =
+  const [manualCourierRaw, newOrdersRaw, processingFailedRaw, inProcessRaw, shippedRaw, pendingPaymentRaw, paymentFailedRaw, refundedRaw] =
     await Promise.all([
       prisma.order.findMany({
-        where: { status: "BERJAYA", trackingNumber: null, fulfillmentError: null },
+        where: { status: "BERJAYA", manualCourier: true, trackingNumber: null },
+        orderBy: { seq: "asc" },
+        include: ORDER_INCLUDE,
+      }),
+      prisma.order.findMany({
+        where: { status: "BERJAYA", manualCourier: false, trackingNumber: null, fulfillmentError: null },
         orderBy: { seq: "asc" },
         include: ORDER_INCLUDE,
       }),
@@ -66,6 +71,7 @@ export default async function AdminOrdersPage() {
       kuantiti: it.kuantiti,
     })),
     jumlahSen: o.jumlahSen,
+    shippingSen: o.shippingSen,
     trackingNumber: o.trackingNumber,
     awbUrl: o.awbUrl,
     courierName: o.courierName,
@@ -83,6 +89,7 @@ export default async function AdminOrdersPage() {
   const newOrdersReady = newOrdersRaw.filter((o) => !o.items.some((it) => it.product.status === "PREORDER"));
 
   const allOrders: OrderRow[] = [
+    ...manualCourierRaw.map((o) => toRow(o, "MANUAL_COURIER")),
     ...pendingPaymentRaw.map((o) => toRow(o, "PENDING_PAYMENT")),
     ...newOrdersReady.map((o) => toRow(o, "NEW_READY_STOCK")),
     ...newOrdersPreorder.map((o) => toRow(o, "NEW_PREORDER")),

@@ -110,6 +110,7 @@ export async function POST(req: NextRequest) {
   let shippingSen = 0;
   let courierName: string | null = null;
   let serviceId: string | null = null;
+  let manualCourier = false;
   const orderItemsData: {
     productId: string;
     productSizeId: string | null;
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
     shippingSen += shipping.shippingSen;
     if (shipping.courierName) courierName = shipping.courierName;
     if (shipping.serviceId) serviceId = shipping.serviceId;
+    if (shipping.manualCourier) manualCourier = true;
 
     orderItemsData.push({
       productId: product.id,
@@ -163,6 +165,7 @@ export async function POST(req: NextRequest) {
       shippingSen,
       courierName,
       serviceId,
+      manualCourier,
       status: "MENUNGGU",
       items: { create: orderItemsData },
     },

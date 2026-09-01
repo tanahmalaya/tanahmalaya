@@ -194,6 +194,9 @@ model Order {
   negeri      String   @default("")
   jumlahSen   Int
   shippingSen Int      @default(0)
+  // Tiada kadar SPX/J&T automatik untuk destinasi ni masa checkout - shippingSen
+  // guna caj flat sementara, staff kena pilih kurier sebenar & sahkan caj manual.
+  manualCourier Boolean @default(false)
   status      OrderStatus @default(MENUNGGU)
   bayarcashRef String?
   // EasyParcel
