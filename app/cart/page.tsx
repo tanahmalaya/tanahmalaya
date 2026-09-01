@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import CheckoutSteps from "@/components/CheckoutSteps";
 import BackButton from "@/components/BackButton";
-import { isJaket, diskaunPercentUntuk, hargaSelepasDiskaunRM } from "@/lib/promo";
+import { diskaunPercentUntukKedudukan, hargaSelepasDiskaunRM } from "@/lib/promo";
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart } = useCart();
   const router = useRouter();
 
-  const hasJaket = cart.some((item) => isJaket(item.name));
-  const cartWithPromo = cart.map((item) => {
-    const percent = diskaunPercentUntuk(item.name, hasJaket);
+  const cartWithPromo = cart.map((item, index) => {
+    const percent = diskaunPercentUntukKedudukan(index);
     const hargaSelepasDiskaun = hargaSelepasDiskaunRM(item.price, percent);
     return { ...item, percent, hargaSelepasDiskaun };
   });
@@ -41,9 +40,9 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="bg-white p-5 rounded-md shadow-sm space-y-4">
-          {hasJaket && (
+          {cart.length > 1 && (
             <div className="bg-brand-gold/15 border border-brand-gold/40 rounded-sm px-4 py-3 text-sm text-brand-dark">
-              🎉 <strong>Promo Jaket aktif!</strong> Diskaun dah dikira automatik dalam troli anda.
+              🎉 <strong>Diskaun aktif!</strong> Barang kedua dan seterusnya dapat 10% diskaun automatik.
             </div>
           )}
           <div className="space-y-3">
@@ -102,7 +101,7 @@ export default function CartPage() {
 
           {jimat > 0 && (
             <div className="flex justify-between items-center text-sm text-brand-gold font-semibold">
-              <span>Jimat (Promo Jaket)</span>
+              <span>Jimat (Diskaun Barang Kedua+)</span>
               <span>-RM{jimat.toFixed(2)}</span>
             </div>
           )}

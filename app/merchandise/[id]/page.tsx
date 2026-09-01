@@ -6,6 +6,7 @@ import Image from "next/image";
 import AddToCartWidget from "@/components/AddToCartWidget";
 import BackButton from "@/components/BackButton";
 import ProductGallery from "@/components/ProductGallery";
+import CrossSellGrid from "@/components/CrossSellGrid";
 import { PRODUCT_STATUS_LABEL, SIZE_LABEL, isAvailableForOrder, totalStok } from "@/lib/productSize";
 
 function formatHarga(sen: number) {
@@ -18,6 +19,12 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     include: { sizes: true },
   });
   if (!product || !product.aktif) return notFound();
+
+  const barangLain = await prisma.product.findMany({
+    where: { aktif: true, id: { not: product.id } },
+    orderBy: { createdAt: "desc" },
+    include: { sizes: true },
+  });
 
   const gallery = [product.gambarDepan, product.gambarBelakang, product.gambarSisi].filter(
     (url): url is string => Boolean(url)
@@ -79,6 +86,8 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           )}
         </div>
       </div>
+
+      <CrossSellGrid products={barangLain} />
     </section>
   );
 }

@@ -1,28 +1,12 @@
-// Promo "Beli Jaket": bila troli ada sekurang-kurangnya 1 jaket, barangan lain
-// dalam troli tu automatik dapat diskaun - 10% untuk T-shirt, 5% untuk
-// barangan lain. Jaket sendiri tak dapat diskaun (item pencetus promo).
-//
-// Kategori produk dikenal pasti daripada NAMA produk (tiada medan kategori
-// berasingan) - pastikan nama produk jaket ada perkataan "jaket"/"jacket",
-// dan nama t-shirt ada perkataan "t-shirt"/"tshirt".
+// Promo "Beli Lagi, Jimat Lagi": item PERTAMA dalam troli (ikut urutan
+// ditambah) kekal harga asal; setiap produk SETERUSNYA (kedua, ketiga, ...)
+// automatik dapat diskaun 10% - tak kira jenis/kategori produk.
 
-export const PROMO_ROUND_NECK_PERCENT = 10;
-export const PROMO_LAIN_PERCENT = 5;
+export const PROMO_MULTI_ITEM_PERCENT = 10;
 
-export function isJaket(nama: string): boolean {
-  const n = nama.toLowerCase();
-  return n.includes("jaket") || n.includes("jacket");
-}
-
-export function isTshirt(nama: string): boolean {
-  const n = nama.toLowerCase();
-  return n.includes("t-shirt") || n.includes("tshirt") || n.includes("t shirt");
-}
-
-/** Peratus diskaun promo jaket untuk satu produk, diberi troli ada jaket atau tidak. */
-export function diskaunPercentUntuk(nama: string, hasJaketDalamTroli: boolean): number {
-  if (!hasJaketDalamTroli || isJaket(nama)) return 0;
-  return isTshirt(nama) ? PROMO_ROUND_NECK_PERCENT : PROMO_LAIN_PERCENT;
+/** Peratus diskaun untuk item pada kedudukan `index` dalam troli (0 = item pertama). */
+export function diskaunPercentUntukKedudukan(index: number): number {
+  return index === 0 ? 0 : PROMO_MULTI_ITEM_PERCENT;
 }
 
 /** Kira harga (dalam sen) selepas diskaun peratus, bulatkan ke sen terdekat. */

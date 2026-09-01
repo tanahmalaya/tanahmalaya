@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateShipping, AlamatTidakSahError } from "@/lib/pricing";
 import { SIZE_LABEL } from "@/lib/productSize";
-import { isJaket, diskaunPercentUntuk, hargaSelepasDiskaunSen } from "@/lib/promo";
+import { diskaunPercentUntukKedudukan, hargaSelepasDiskaunSen } from "@/lib/promo";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -54,10 +54,6 @@ export async function POST(req: NextRequest) {
     validated.push({ product, namaProduk, kuantiti: it.kuantiti });
   }
 
-  // Promo jaket: kalau troli ada jaket, barangan lain (bukan jaket) dapat
-  // diskaun automatik - 10% t-shirt, 5% barangan lain.
-  const hasJaket = validated.some((v) => isJaket(v.product.nama));
-
   let subtotalSen = 0;
   let shippingSen = 0;
   let courierName: string | null = null;
@@ -71,9 +67,9 @@ export async function POST(req: NextRequest) {
     diskaunPercent: number;
   }[] = [];
 
-  for (const v of validated) {
+  for (const [index, v] of validated.entries()) {
     const { product, namaProduk, kuantiti } = v;
-    const diskaunPercent = diskaunPercentUntuk(product.nama, hasJaket);
+    const diskaunPercent = diskaunPercentUntukKedudukan(index);
     const hargaUnitSen = hargaSelepasDiskaunSen(product.hargaSen, diskaunPercent);
     const hargaBarangSen = hargaUnitSen * kuantiti;
     const hargaAsalSen = product.hargaSen * kuantiti;

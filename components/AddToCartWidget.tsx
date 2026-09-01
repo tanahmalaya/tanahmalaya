@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
 import { isSizeAvailable } from "@/lib/productSize";
-import { isJaket } from "@/lib/promo";
-import JaketPromoPopup from "@/components/JaketPromoPopup";
+import PromoPopup from "@/components/PromoPopup";
 
 type SizeInfo = { saiz: string; label: string; stok: number };
 
@@ -49,11 +48,14 @@ export default function AddToCartWidget({
     setError("");
     const cartId = selectedSize ? `${productId}:${selectedSize}` : productId;
     const label = selectedSizeInfo ? `${nama} (${selectedSizeInfo.label})` : nama;
-    const hasJaketSebelumIni = cart.some((i) => isJaket(i.name));
+    // Troli kosong sebelum ni = barang ni jadi item PERTAMA (harga asal, tiada
+    // popup). Troli dah ada barang = item ni jadi kedua/ketiga/dst, jadi
+    // layak diskaun automatik - raikan dengan popup "congrats".
+    const trolikosongSebelumIni = cart.length === 0;
     addToCart({ id: cartId, productId, saiz: selectedSize, name: label, price, quantity: qty });
     setAdded(true);
-    if (isJaket(nama)) setPromoVariant("congrats");
-    else if (!hasJaketSebelumIni) setPromoVariant("invite");
+    if (trolikosongSebelumIni) setPromoVariant("invite");
+    else setPromoVariant("congrats");
   }
 
   return (
@@ -122,7 +124,7 @@ export default function AddToCartWidget({
       )}
 
       {promoVariant && (
-        <JaketPromoPopup variant={promoVariant} onClose={() => setPromoVariant(null)} />
+        <PromoPopup variant={promoVariant} onClose={() => setPromoVariant(null)} />
       )}
     </div>
   );

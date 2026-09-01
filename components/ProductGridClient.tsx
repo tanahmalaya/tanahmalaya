@@ -5,8 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import { PRODUCT_STATUS_LABEL, isAvailableForOrder, totalStok } from "@/lib/productSize";
-import { isJaket } from "@/lib/promo";
-import JaketPromoPopup from "@/components/JaketPromoPopup";
+import PromoPopup from "@/components/PromoPopup";
 
 type Product = {
   id: string;
@@ -59,7 +58,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
               ) : (
                 <button
                   onClick={() => {
-                    const hasJaketSebelumIni = cart.some((i) => isJaket(i.name));
+                    const trolikosongSebelumIni = cart.length === 0;
                     addToCart({
                       id: p.id,
                       productId: p.id,
@@ -68,8 +67,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
                       price: p.hargaSen / 100,
                       quantity: 1,
                     });
-                    if (isJaket(p.nama)) setPromoVariant("congrats");
-                    else if (!hasJaketSebelumIni) setPromoVariant("invite");
+                    setPromoVariant(trolikosongSebelumIni ? "invite" : "congrats");
                   }}
                   disabled={!tersedia}
                   className="mt-auto bg-brand-gold text-brand-dark text-xs font-semibold py-2 rounded-sm disabled:opacity-40"
@@ -87,7 +85,7 @@ export default function ProductGridClient({ products }: { products: Product[] })
         </p>
       )}
       {promoVariant && (
-        <JaketPromoPopup variant={promoVariant} onClose={() => setPromoVariant(null)} />
+        <PromoPopup variant={promoVariant} onClose={() => setPromoVariant(null)} />
       )}
     </div>
   );
