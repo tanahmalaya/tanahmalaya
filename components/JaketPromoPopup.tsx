@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { PROMO_ROUND_NECK_PERCENT, PROMO_LAIN_PERCENT } from "@/lib/promo";
+import { PROMO_ROUND_NECK_PERCENT, PROMO_LAIN_PERCENT, isJaket } from "@/lib/promo";
 
 type Variant = "congrats" | "invite";
 
@@ -16,7 +17,7 @@ const COPY: Record<Variant, { emoji: string; title: string; body: string; cta: s
     emoji: "💡",
     title: "Jimat Lagi!",
     body: "Tambah jaket ke troli dan dapat diskaun automatik untuk barangan dalam troli anda:",
-    cta: "LIHAT PRODUK LAIN",
+    cta: "TAMBAH JAKET",
   },
 };
 
@@ -28,6 +29,20 @@ export default function JaketPromoPopup({
   variant?: Variant;
 }) {
   const copy = COPY[variant];
+  // Untuk "invite" - CTA kena bawa terus ke produk jaket (bukan senarai produk
+  // umum) supaya pelanggan boleh terus tambah jaket dan layak diskaun.
+  const [ctaHref, setCtaHref] = useState("/merchandise");
+
+  useEffect(() => {
+    if (variant !== "invite") return;
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((products: { id: string; nama: string }[]) => {
+        const jaket = products.find((p) => isJaket(p.nama));
+        if (jaket) setCtaHref(`/merchandise/${jaket.id}`);
+      })
+      .catch(() => {});
+  }, [variant]);
 
   return (
     <div
@@ -60,7 +75,7 @@ export default function JaketPromoPopup({
           </div>
         </div>
         <Link
-          href="/merchandise"
+          href={variant === "invite" ? ctaHref : "/merchandise"}
           onClick={onClose}
           className="block bg-brand-gold text-brand-dark font-semibold text-sm py-3 rounded-sm mb-2"
         >
