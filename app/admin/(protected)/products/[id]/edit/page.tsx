@@ -16,7 +16,6 @@ export default async function EditProductPage({ params }: { params: { id: string
   if (!product) return notFound();
 
   const hargaRM = (product.hargaSen / 100).toFixed(2);
-  const shippingFlatRM = product.shippingFlatSen != null ? (product.shippingFlatSen / 100).toFixed(2) : "";
   const sizeStok = Object.fromEntries(product.sizes.map((s) => [s.saiz, s.stok]));
 
   return (
@@ -122,29 +121,16 @@ export default async function EditProductPage({ params }: { params: { id: string
           <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
             <p className="text-sm font-semibold mb-3">Penghantaran</p>
           </div>
-          <div>
-            <label className="block text-xs font-semibold mb-1">Kaedah Kadar Penghantaran</label>
-            <select name="shippingMode" defaultValue={product.shippingMode} className="w-full border border-brand-dark/20 rounded-sm p-3">
-              <option value="FLAT">Kadar Tetap (contoh: baju, minyak wangi)</option>
-              <option value="BERAT">Ikut Berat (kira automatik EasyParcel)</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold mb-1">Kadar Tetap (RM) - isi jika pilih 'Kadar Tetap'</label>
-            <input
-              name="shippingFlatRM"
-              type="number"
-              step="0.01"
-              defaultValue={shippingFlatRM}
-              placeholder="cth: 8.00"
-              className="w-full border border-brand-dark/20 rounded-sm p-3"
-            />
-          </div>
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold mb-1">Berat Produk (gram) - isi jika pilih 'Ikut Berat'</label>
+            <label className="block text-xs font-semibold mb-1">Berat Produk (gram)</label>
+            <p className="text-xs text-brand-dark/50 mb-2">
+              Caj penghantaran dikira automatik ikut berat &amp; poskod pelanggan (EasyParcel).
+            </p>
             <input
               name="beratGram"
               type="number"
+              min={1}
+              required
               defaultValue={product.beratGram ?? ""}
               placeholder="cth: 500"
               className="w-full border border-brand-dark/20 rounded-sm p-3"

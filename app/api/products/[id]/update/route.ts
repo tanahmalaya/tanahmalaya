@@ -13,8 +13,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const form = await req.formData();
   const hargaRM = parseFloat(String(form.get("harga")));
   const status = String(form.get("status") || "READY_STOCK") as "READY_STOCK" | "PREORDER";
-  const shippingMode = String(form.get("shippingMode") || "FLAT") as "FLAT" | "BERAT";
-  const shippingFlatRM = form.get("shippingFlatRM");
   const beratGram = form.get("beratGram");
   const stokInput = form.get("stok");
   const aktif = String(form.get("aktif") || "true") === "true";
@@ -34,9 +32,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         gambarBelakang: String(form.get("gambarBelakang") || "") || null,
         gambarSisi: String(form.get("gambarSisi") || "") || null,
         sizingChartUrl: String(form.get("sizingChartUrl") || "") || null,
-        shippingMode,
-        shippingFlatSen: shippingFlatRM ? Math.round(parseFloat(String(shippingFlatRM)) * 100) : null,
-        beratGram: beratGram ? parseInt(String(beratGram), 10) : null,
+        shippingMode: "BERAT",
+        shippingFlatSen: null,
+        beratGram: parseInt(String(beratGram), 10),
       },
     });
 

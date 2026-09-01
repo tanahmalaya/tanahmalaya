@@ -82,20 +82,19 @@ export default async function AdminProductsPage({
           <div className="sm:col-span-2 border-t border-brand-cream pt-4 mt-2">
             <p className="text-sm font-semibold mb-3">Penghantaran</p>
           </div>
-          <div>
-            <label className="block text-xs font-semibold mb-1">Kaedah Kadar Penghantaran</label>
-            <select name="shippingMode" className="w-full border border-brand-dark/20 rounded-sm p-3">
-              <option value="FLAT">Kadar Tetap (contoh: baju, minyak wangi)</option>
-              <option value="BERAT">Ikut Berat (kira automatik EasyParcel)</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold mb-1">Kadar Tetap (RM) - isi jika pilih 'Kadar Tetap'</label>
-            <input name="shippingFlatRM" type="number" step="0.01" placeholder="cth: 8.00" className="w-full border border-brand-dark/20 rounded-sm p-3" />
-          </div>
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold mb-1">Berat Produk (gram) - isi jika pilih 'Ikut Berat'</label>
-            <input name="beratGram" type="number" placeholder="cth: 500" className="w-full border border-brand-dark/20 rounded-sm p-3" />
+            <label className="block text-xs font-semibold mb-1">Berat Produk (gram)</label>
+            <p className="text-xs text-brand-dark/50 mb-2">
+              Caj penghantaran dikira automatik ikut berat &amp; poskod pelanggan (EasyParcel).
+            </p>
+            <input
+              name="beratGram"
+              type="number"
+              min={1}
+              required
+              placeholder="cth: 500"
+              className="w-full border border-brand-dark/20 rounded-sm p-3"
+            />
           </div>
 
           <button type="submit" className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-4 py-3 sm:col-span-2">
