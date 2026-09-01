@@ -50,22 +50,33 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <p className="font-semibold mb-3 text-brand-gold text-center md:text-left">
+        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col items-center text-center">
+          <p className="font-semibold mb-4 text-brand-gold tracking-wide">
             AKAUN BANK PERTUBUHAN
           </p>
-          <div className="bg-white/5 border border-white/10 rounded-md p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-10 text-sm">
-            <div>
-              <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Bank</p>
-              <p className="font-semibold">Maybank</p>
+          <div className="bg-white/5 border border-white/10 rounded-md p-6 w-full max-w-md flex flex-col items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#FFC72C] shrink-0">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#2A1D14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 10.5 12 4l9 6.5" />
+                  <path d="M5 10.5V19h14v-8.5" />
+                  <path d="M9 19v-5h6v5" />
+                </svg>
+              </span>
+              <p className="text-lg font-bold">Maybank</p>
             </div>
-            <div>
-              <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Nama Akaun</p>
-              <p className="font-semibold">Literasi Tanah</p>
-            </div>
-            <div>
-              <p className="text-white/50 text-xs uppercase tracking-wide mb-1">No. Akaun</p>
-              <p className="font-semibold tracking-wide">562647362534</p>
+
+            <div className="w-full border-t border-white/10" />
+
+            <div className="grid grid-cols-2 gap-4 w-full text-sm">
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Nama Akaun</p>
+                <p className="font-semibold">Pertubuhan Literasi Tanah</p>
+              </div>
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-wide mb-1">No. Akaun</p>
+                <p className="font-semibold tracking-wide">562647362534</p>
+              </div>
             </div>
           </div>
         </div>
