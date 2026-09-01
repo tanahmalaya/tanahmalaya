@@ -10,6 +10,7 @@ import {
   checkEasyParcelOrderStatus,
   fetchEasyParcelAwbLink,
 } from "@/lib/easyparcel";
+import { SIZE_LABEL } from "@/lib/productSize";
 
 const MAX_BULK = 30;
 
@@ -74,7 +75,13 @@ export async function POST(req: NextRequest) {
 
       const totalBeratKg =
         order.items.reduce((sum, item) => sum + (item.product.beratGram ?? 500) * item.kuantiti, 0) / 1000;
-      const kandungan = order.items.map((item) => `${item.product.nama} x${item.kuantiti}`).join(", ");
+      // Remark/kandungan AWB kena sebut saiz (untuk produk macam jaket/t-shirt yang
+      // ada pilihan saiz) supaya staff packing tak silap ambil saiz. Lengan
+      // panjang/pendek tak perlu ditambah berasingan sebab dah dibezakan sebagai
+      // produk berasingan (nama produk dah ada "(Lengan Panjang)" bila berkaitan).
+      const kandungan = order.items
+        .map((item) => `${item.product.nama}${item.saiz ? ` (Saiz ${SIZE_LABEL[item.saiz]})` : ""} x${item.kuantiti}`)
+        .join(", ");
       const nilaiRM = order.jumlahSen / 100;
 
       // service_id yang disimpan masa checkout (atau default statik untuk
