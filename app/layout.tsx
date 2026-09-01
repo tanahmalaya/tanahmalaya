@@ -6,11 +6,62 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/app/context/CartContext";
 import { CheckoutProvider } from "@/app/context/CheckoutContext";
 
+const SITE_NAME = "Pertubuhan Literasi Tanah";
+const SITE_DESCRIPTION =
+  "Pertubuhan Literasi Tanah (PLT) komited untuk mendidik masyarakat Malaysia tentang hak milik, undang-undang tanah dan pengurusan harta secara sah dan berilmu. Sertai kelas, seminar dan program kembara ilmu kami.";
+
 export const metadata: Metadata = {
-  title: "Pertubuhan Literasi Tanah | tanahmalaya.org",
-  description:
-    "Pertubuhan Literasi Tanah komited untuk mendidik masyarakat tentang hak milik, undang-undang tanah dan p",
+  title: {
+    default: `${SITE_NAME} | tanahmalaya.org`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
   metadataBase: new URL("https://tanahmalaya.org"),
+  keywords: [
+    "literasi tanah",
+    "hak milik tanah",
+    "undang-undang tanah Malaysia",
+    "geran hakmilik",
+    "pusaka tanah",
+    "hibah",
+    "pecah sempadan tanah",
+    "kelas tanah",
+    "Pertubuhan Literasi Tanah",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "ms_MY",
+    url: "https://tanahmalaya.org",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | tanahmalaya.org`,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/logo.png", width: 1600, height: 1600, alt: SITE_NAME }],
+  },
+  twitter: {
+    card: "summary",
+    title: `${SITE_NAME} | tanahmalaya.org`,
+    description: SITE_DESCRIPTION,
+    images: ["/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NGO",
+  name: SITE_NAME,
+  alternateName: "PLT",
+  url: "https://tanahmalaya.org",
+  logo: "https://tanahmalaya.org/logo.png",
+  description: SITE_DESCRIPTION,
+  email: "info@tanahmalaya.org",
+  sameAs: ["https://web.facebook.com/profile.php?id=61592322463148"],
 };
 
 export default function RootLayout({
@@ -21,6 +72,10 @@ export default function RootLayout({
   return (
     <html lang="ms">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         {/* 2. Wrap semua kandungan di dalam CartProvider */}
         <CartProvider>
           <CheckoutProvider>

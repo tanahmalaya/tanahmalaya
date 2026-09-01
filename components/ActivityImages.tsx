@@ -22,7 +22,13 @@ export default function ActivityImages({ gambarList, tajuk }: { gambarList: stri
             className="relative aspect-square rounded-sm overflow-hidden cursor-pointer bg-white/50"
             onClick={() => setZoomIndex(i)}
           >
-            <Image src={url} alt={`${tajuk} - gambar ${i + 1}`} fill className="object-cover" />
+            <Image
+              src={url}
+              alt={`${tajuk} - gambar ${i + 1}`}
+              fill
+              sizes="(min-width: 640px) 300px, 260px"
+              className="object-cover"
+            />
           </div>
         ))}
       </div>

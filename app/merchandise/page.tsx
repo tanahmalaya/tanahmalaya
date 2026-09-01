@@ -1,7 +1,14 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import ProductGrid from "@/components/ProductGrid";
 import BackButton from "@/components/BackButton";
+
+export const metadata = {
+  title: "Merchandise",
+  description:
+    "Sokong Pertubuhan Literasi Tanah dengan membeli merchandise rasmi kami — pakaian dan aksesori bertema literasi tanah.",
+  alternates: { canonical: "/merchandise" },
+};
 
 export default function MerchandisePage() {
   return (

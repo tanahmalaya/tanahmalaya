@@ -29,11 +29,11 @@ export default function Hero() {
         </div>
 
         <div className="relative h-72 md:h-96 rounded-lg overflow-hidden">
-          {/* Gantikan src di bawah dengan gambar geran hakmilik sebenar */}
           <Image
-            src="/hero-geran.png"
+            src="/hero-geran.jpg"
             alt="Geran Hakmilik"
             fill
+            sizes="(min-width: 768px) 50vw, 100vw"
             className="object-cover"
             priority
           />

@@ -15,6 +15,7 @@ export default function MerdekaBanner() {
               src="/bendera-malaysia.png"
               alt="Bendera Malaysia"
               fill
+              sizes="(min-width: 768px) 208px, 160px"
               className="object-contain"
               priority
             />

@@ -2,6 +2,11 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
+export const metadata = {
+  title: "Pendaftaran Berjaya",
+  robots: { index: false, follow: false },
+};
+
 export default function ProgramBerjayaPage() {
   return (
     <section className="max-w-xl mx-auto px-6 py-24 text-center">

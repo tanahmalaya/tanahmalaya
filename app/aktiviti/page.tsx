@@ -1,7 +1,14 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import ActivityGrid from "@/components/ActivityGrid";
 import BackButton from "@/components/BackButton";
+
+export const metadata = {
+  title: "Aktiviti",
+  description:
+    "Ikuti program, seminar dan kembara ilmu terkini anjuran Pertubuhan Literasi Tanah.",
+  alternates: { canonical: "/aktiviti" },
+};
 
 export default function AktivitiPage() {
   return (

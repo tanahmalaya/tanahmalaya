@@ -1,5 +1,12 @@
 import BackButton from "@/components/BackButton";
 
+export const metadata = {
+  title: "Tentang Kami",
+  description:
+    "Kenali Pertubuhan Literasi Tanah (PPM-001-10-17042026) — misi kami mendidik masyarakat Malaysia tentang hak milik, undang-undang tanah, pusaka, hibah dan pecah sempadan.",
+  alternates: { canonical: "/tentang-kami" },
+};
+
 export default function TentangKamiPage() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16">

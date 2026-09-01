@@ -1,5 +1,12 @@
 import BackButton from "@/components/BackButton";
 
+export const metadata = {
+  title: "Hubungi Kami",
+  description:
+    "Hubungi Pertubuhan Literasi Tanah melalui e-mel info@tanahmalaya.org untuk sebarang pertanyaan mengenai keahlian, kelas atau aktiviti kami.",
+  alternates: { canonical: "/hubungi-kami" },
+};
+
 export default function HubungiKamiPage() {
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">

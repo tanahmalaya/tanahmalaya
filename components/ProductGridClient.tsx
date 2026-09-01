@@ -35,7 +35,13 @@ export default function ProductGridClient({ products }: { products: Product[] })
           <div key={p.id} className="bg-white rounded-md shadow-sm overflow-hidden flex flex-col">
             <Link href={`/merchandise/${p.id}`} className="relative aspect-square bg-brand-cream">
               {p.gambarDepan && (
-                <Image src={p.gambarDepan} alt={p.nama} fill className="object-cover" />
+                <Image
+                  src={p.gambarDepan}
+                  alt={p.nama}
+                  fill
+                  sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+                  className="object-cover"
+                />
               )}
               <span className="absolute top-2 left-2 bg-white/90 text-brand-dark text-[10px] font-semibold px-2 py-1 rounded-sm">
                 {PRODUCT_STATUS_LABEL[p.status] || p.status}

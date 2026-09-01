@@ -49,6 +49,28 @@ export default function Footer() {
         </div>
       </div>
 
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <p className="font-semibold mb-3 text-brand-gold text-center md:text-left">
+            AKAUN BANK PERTUBUHAN
+          </p>
+          <div className="bg-white/5 border border-white/10 rounded-md p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-10 text-sm">
+            <div>
+              <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Bank</p>
+              <p className="font-semibold">Maybank</p>
+            </div>
+            <div>
+              <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Nama Akaun</p>
+              <p className="font-semibold">Literasi Tanah</p>
+            </div>
+            <div>
+              <p className="text-white/50 text-xs uppercase tracking-wide mb-1">No. Akaun</p>
+              <p className="font-semibold tracking-wide">562647362534</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="border-t border-white/10 py-4 text-center text-xs text-white/60">
         &copy; {new Date().getFullYear()} Pertubuhan Literasi Tanah. Hak Cipta Terpelihara. No. Pendaftaran: PPM-001-10-17042026
       </div>

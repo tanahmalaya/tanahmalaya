@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -13,6 +13,17 @@ const jenisLabel: Record<string, string> = {
 
 function formatRM(sen: number) {
   return sen === 0 ? "PERCUMA" : `RM${(sen / 100).toFixed(2)}`;
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const kelas = await prisma.landClass.findUnique({ where: { id: params.id } });
+  if (!kelas) return { title: "Kelas Tidak Dijumpai" };
+
+  return {
+    title: kelas.namaKelas,
+    description: `${kelas.namaKelas} — ${kelas.topik}. Lokasi: ${kelas.lokasi}. Anjuran Pertubuhan Literasi Tanah.`,
+    alternates: { canonical: `/kelas-tanah/${kelas.id}` },
+  };
 }
 
 export default async function ProgramDetailPage({ params }: { params: { id: string } }) {

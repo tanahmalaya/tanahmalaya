@@ -1,7 +1,14 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import ClassTable from "@/components/ClassTable";
 import BackButton from "@/components/BackButton";
+
+export const metadata = {
+  title: "Program & Kelas",
+  description:
+    "Senarai penuh program dan kelas tanah akan datang anjuran Pertubuhan Literasi Tanah — belajar tentang geran hakmilik, pusaka, hibah dan pecah sempadan.",
+  alternates: { canonical: "/kelas-tanah" },
+};
 
 export default function KelasTanahPage() {
   return (
