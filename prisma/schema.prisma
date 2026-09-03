@@ -58,6 +58,17 @@ model Member {
   joinedAt      DateTime @default(now())
   paymentRef    String?  // rujukan transaksi BayarCash
   addedManually Boolean  @default(false) // true jika admin import ahli sedia ada
+
+  // Refund yuran - untuk ahli yang DITOLAK (status TIDAK_AKTIF) selepas bayar.
+  // Ahli isi borang refund di /keahlian/semak, admin proses transfer manual
+  // (bukan automatik BayarCash) lepas tu tandakan refundedAt.
+  refundRequested     Boolean   @default(false)
+  refundBankName      String?
+  refundAccountNo     String?
+  refundAccountHolder String?
+  refundRequestedAt   DateTime?
+  refundedAt          DateTime?
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

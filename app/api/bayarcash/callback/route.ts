@@ -34,9 +34,10 @@ export async function POST(req: NextRequest) {
             email: pending.email,
             type: pending.memberType,
             akuanSelangor: pending.akuanSelangor,
-            // Ahli PLT wajib disahkan admin (bermastautin/berdaftar mengundi Selangor)
-            // sebelum AKTIF. Ahli Bersekutu terus AKTIF, tiada semakan diperlukan.
-            status: pending.memberType === "PLT" ? "MENUNGGU_SEMAKAN" : "AKTIF",
+            // Kedua-dua jenis ahli wajib disahkan admin dulu sebelum AKTIF:
+            // Ahli PLT - bermastautin/berdaftar mengundi Selangor.
+            // Ahli Bersekutu - kelayakan agama (terbuka untuk umat Islam sahaja).
+            status: "MENUNGGU_SEMAKAN",
             paymentRef: payload.transaction_id ?? null,
           },
         });

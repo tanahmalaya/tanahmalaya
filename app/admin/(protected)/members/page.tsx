@@ -13,13 +13,21 @@ const STATUS_LABEL: Record<string, string> = {
   AKTIF: "Aktif",
   TIDAK_AKTIF: "Tidak Aktif",
   MENUNGGU_BAYARAN: "Menunggu Bayaran",
-  MENUNGGU_SEMAKAN: "Menunggu Semakan (Selangor)",
+  MENUNGGU_SEMAKAN: "Menunggu Semakan",
+};
+
+// Sebab semakan berbeza ikut jenis ahli - PLT kena sahkan mastautin/pengundi
+// Selangor (portal SPR), Bersekutu kena sahkan kelayakan agama (Islam sahaja).
+const SEMAKAN_REASON: Record<string, string> = {
+  PLT: "bermastautin/berdaftar mengundi Selangor - sila semak manual di portal SPR",
+  BERSEKUTU: "kelayakan agama (keahlian bersekutu terbuka untuk umat Islam sahaja)",
 };
 
 export default async function AdminMembersPage() {
   requireAdminOnly();
   const members = await prisma.member.findMany({ orderBy: { createdAt: "desc" } });
   const pendingSemakan = members.filter((m) => m.status === "MENUNGGU_SEMAKAN");
+  const pendingRefund = members.filter((m) => m.refundRequested && !m.refundedAt);
 
   return (
     <div>
@@ -28,18 +36,23 @@ export default async function AdminMembersPage() {
       {pendingSemakan.length > 0 && (
         <div className="bg-amber-50 border border-amber-300 rounded-md p-6 mb-8">
           <h2 className="font-semibold mb-1 text-amber-900">
-            {pendingSemakan.length} Ahli PLT Menunggu Semakan Selangor
+            {pendingSemakan.length} Ahli Menunggu Semakan
           </h2>
           <p className="text-xs text-amber-800/80 mb-4">
-            Ahli ni dah bayar yuran tapi kena disahkan dulu (bermastautin/berdaftar mengundi
-            Selangor) - sila semak manual di portal SPR guna nama &amp; No KP di bawah sebelum sahkan.
+            Ahli ni dah bayar yuran tapi kena disahkan dulu sebelum keahlian diaktifkan.
           </p>
           <div className="space-y-2">
             {pendingSemakan.map((m) => (
               <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 bg-white rounded-sm p-3 text-sm">
                 <div>
                   <span className="font-medium">{m.fullName}</span>{" "}
-                  <span className="text-brand-dark/50">({m.icNumber})</span>
+                  <span className="text-brand-dark/50">({m.icNumber})</span>{" "}
+                  <span className="inline-block bg-brand-cream text-brand-dark/70 text-[10px] font-semibold rounded-sm px-1.5 py-0.5 align-middle">
+                    {TYPE_LABEL[m.type] || m.type}
+                  </span>
+                  <p className="text-brand-dark/50 text-xs mt-0.5">
+                    Semak: {SEMAKAN_REASON[m.type] || "-"}
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <form action={`/api/admin/members/${m.id}/verify`} method="POST">
@@ -53,6 +66,36 @@ export default async function AdminMembersPage() {
                     </button>
                   </form>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pendingRefund.length > 0 && (
+        <div className="bg-blue-50 border border-blue-300 rounded-md p-6 mb-8">
+          <h2 className="font-semibold mb-1 text-blue-900">
+            {pendingRefund.length} Permohonan Refund Menunggu Diproses
+          </h2>
+          <p className="text-xs text-blue-800/80 mb-4">
+            Ahli ni telah ditolak dan memohon pemulangan yuran. Proses transfer bank secara manual,
+            lepas tu klik &ldquo;TANDAKAN REFUND SELESAI&rdquo;.
+          </p>
+          <div className="space-y-2">
+            {pendingRefund.map((m) => (
+              <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 bg-white rounded-sm p-3 text-sm">
+                <div>
+                  <span className="font-medium">{m.fullName}</span>{" "}
+                  <span className="text-brand-dark/50">({m.memberNo})</span>
+                  <p className="text-brand-dark/60 text-xs mt-0.5">
+                    {m.refundBankName} &middot; {m.refundAccountNo} &middot; {m.refundAccountHolder}
+                  </p>
+                </div>
+                <form action={`/api/admin/members/${m.id}/mark-refunded`} method="POST">
+                  <button type="submit" className="bg-blue-600 text-white text-xs font-semibold rounded-sm px-3 py-2">
+                    TANDAKAN REFUND SELESAI
+                  </button>
+                </form>
               </div>
             ))}
           </div>

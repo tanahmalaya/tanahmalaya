@@ -40,5 +40,7 @@ export async function POST(req: NextRequest) {
     type: member.type,
     status: member.status,
     joinedAt: member.joinedAt,
+    refundRequested: member.refundRequested,
+    refundedAt: member.refundedAt,
   });
 }

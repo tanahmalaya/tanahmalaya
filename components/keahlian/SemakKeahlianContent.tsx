@@ -7,6 +7,7 @@ import Link from "next/link";
 import { IconUserCircle, IconShieldCheck, IconIdCard, IconSearch } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
 import WhatsappGroupCard from "@/components/keahlian/WhatsappGroupCard";
+import RefundRequestForm from "@/components/keahlian/RefundRequestForm";
 import BackButton from "@/components/BackButton";
 
 type MemberType = "PLT" | "BERSEKUTU";
@@ -15,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
   AKTIF: "Aktif",
   TIDAK_AKTIF: "Tidak Aktif",
   MENUNGGU_BAYARAN: "Menunggu Bayaran",
-  MENUNGGU_SEMAKAN: "Menunggu Semakan (Selangor)",
+  MENUNGGU_SEMAKAN: "Menunggu Semakan",
 };
 
 const TYPE_LABEL: Record<MemberType, string> = {
@@ -30,6 +31,8 @@ type MemberResult = {
   type: MemberType;
   status: string;
   joinedAt: string;
+  refundRequested: boolean;
+  refundedAt: string | null;
 };
 
 type Props = {
@@ -231,6 +234,11 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
                 <span className="text-white/70 font-semibold">Status</span>
                 <span className="font-semibold">{STATUS_LABEL[result.status] || result.status}</span>
               </div>
+              {result.status === "TIDAK_AKTIF" && (
+                <p className="text-white/50 text-xs">
+                  Pendaftaran ini tidak dapat diteruskan. Sila lihat borang mohon refund di bawah.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => setResult(null)}
@@ -246,6 +254,16 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
             rekod ahli AKTIF sebenar bagi jenis keahlian yang betul, elak QR
             group didedahkan kepada sesiapa saja yang buka laman ni. */}
         {result && !wrongType && result.status === "AKTIF" && <WhatsappGroupCard variant={expectedType} />}
+
+        {/* Pendaftaran ditolak - buka borang mohon refund yuran yang dah dibayar. */}
+        {result && !wrongType && result.status === "TIDAK_AKTIF" && (
+          <RefundRequestForm
+            fullName={result.fullName}
+            icNumber={icNumber}
+            alreadyRequested={result.refundRequested}
+            refunded={!!result.refundedAt}
+          />
+        )}
 
         <OrgInfoCard />
       </div>

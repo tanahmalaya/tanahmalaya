@@ -198,6 +198,20 @@ export default function KeahlianPage() {
           </div>
         )}
 
+        {/* Syarat keahlian Ahli Bersekutu */}
+        {memberType === "BERSEKUTU" && (
+          <div className="bg-brand-gold/[0.06] border border-brand-gold/30 rounded-md p-5">
+            <p className="text-brand-gold font-bold text-sm mb-2">Syarat Menjadi Ahli Bersekutu</p>
+            <ul className="text-white/70 text-sm space-y-1.5 list-disc list-inside">
+              <li>Terbuka untuk umat Islam sahaja.</li>
+            </ul>
+            <p className="text-white/40 text-xs mt-3">
+              Pendaftaran akan disahkan secara manual oleh pihak PLT selepas bayaran &ndash; status
+              keahlian akan berstatus &ldquo;Menunggu Semakan&rdquo; sehingga disahkan.
+            </p>
+          </div>
+        )}
+
         {/* Step 1 - form */}
         <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
           <div className="flex items-center gap-2 text-brand-gold font-bold mb-1">
