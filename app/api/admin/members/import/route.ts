@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
   }
 
   const form = await req.formData();
+  const memberType = form.get("memberType") === "BERSEKUTU" ? "BERSEKUTU" : "PLT";
   await prisma.member.create({
     data: {
       memberNo: String(form.get("memberNo")),
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
       icNumber: String(form.get("icNumber")),
       phone: String(form.get("phone")),
       email: String(form.get("email")),
+      type: memberType,
       status: "AKTIF",
       addedManually: true,
     },

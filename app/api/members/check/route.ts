@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     memberNo: member.memberNo,
     noAhliLama: member.noAhliLama,
     fullName: member.fullName,
+    type: member.type,
     status: member.status,
     joinedAt: member.joinedAt,
   });

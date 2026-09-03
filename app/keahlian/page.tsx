@@ -6,31 +6,74 @@ import Link from "next/link";
 import { IconUserCircle, IconShieldCheck, IconIdCard } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
 import BackButton from "@/components/BackButton";
+import { isValidMalaysianIC, getAgeFromIC, MIN_AGE_AHLI_PLT } from "@/lib/ic";
+
+type MemberType = "PLT" | "BERSEKUTU";
 
 function formatRM(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
 }
 
+const TYPE_INFO: Record<MemberType, { title: string; tagline: string; wajib: boolean }> = {
+  PLT: {
+    title: "Ahli PLT",
+    tagline: "Ahli penuh Pertubuhan Literasi Tanah. Yuran tahunan wajib dibayar.",
+    wajib: true,
+  },
+  BERSEKUTU: {
+    title: "Ahli Bersekutu",
+    tagline: "Sokong PLT sebagai ahli bersekutu dengan yuran minimum.",
+    wajib: false,
+  },
+};
+
 export default function KeahlianPage() {
+  const [memberType, setMemberType] = useState<MemberType>("PLT");
   const [fullName, setFullName] = useState("");
   const [icNumber, setIcNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [akuanSelangor, setAkuanSelangor] = useState(false);
 
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [loading, setLoading] = useState(false);
   const [yuranSen, setYuranSen] = useState<number | null>(null);
   const [error, setError] = useState("");
 
+  function resetFormState(nextType: MemberType) {
+    setMemberType(nextType);
+    setStep("form");
+    setError("");
+    setYuranSen(null);
+    setAkuanSelangor(false);
+  }
+
   async function handleReview(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    const icCheck = isValidMalaysianIC(icNumber);
+    if (!icCheck.valid) {
+      setError(icCheck.reason || "No. Kad Pengenalan tidak sah.");
+      return;
+    }
+
+    if (memberType === "PLT") {
+      if (getAgeFromIC(icNumber) < MIN_AGE_AHLI_PLT) {
+        setError(`Ahli PLT mesti berumur ${MIN_AGE_AHLI_PLT} tahun ke atas.`);
+        return;
+      }
+      if (!akuanSelangor) {
+        setError("Sila tandakan akujanji berdaftar mengundi di Selangor untuk mendaftar sebagai Ahli PLT.");
+        return;
+      }
+    }
+
+    setLoading(true);
     try {
       const res = await fetch("/api/settings/yuran");
       const data = await res.json();
-      setYuranSen(data.yuranSen);
+      setYuranSen(memberType === "PLT" ? data.pltSen : data.bersekutuSen);
       setStep("confirm");
     } catch (err) {
       setError("Gagal memuatkan maklumat yuran. Sila cuba lagi.");
@@ -48,6 +91,8 @@ export default function KeahlianPage() {
     fd.set("icNumber", icNumber);
     fd.set("phone", phone);
     fd.set("email", email);
+    fd.set("memberType", memberType);
+    fd.set("akuanSelangor", String(akuanSelangor));
 
     try {
       const res = await fetch("/api/members", {
@@ -105,11 +150,59 @@ export default function KeahlianPage() {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 pb-16 space-y-6">
+        {/* Pilih jenis keahlian */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          {(Object.keys(TYPE_INFO) as MemberType[]).map((t) => {
+            const info = TYPE_INFO[t];
+            const active = memberType === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => resetFormState(t)}
+                className={`text-left rounded-md p-5 border transition ${
+                  active
+                    ? "bg-brand-gold/10 border-brand-gold"
+                    : "bg-white/[0.04] border-white/10 hover:border-white/25"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`font-display font-bold text-lg ${active ? "text-brand-gold" : "text-white"}`}>
+                    {info.title}
+                  </span>
+                  {info.wajib && (
+                    <span className="text-[10px] uppercase tracking-wide bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded-sm font-semibold">
+                      Wajib
+                    </span>
+                  )}
+                </div>
+                <p className="text-white/60 text-xs">{info.tagline}</p>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Syarat keahlian Ahli PLT */}
+        {memberType === "PLT" && (
+          <div className="bg-brand-gold/[0.06] border border-brand-gold/30 rounded-md p-5">
+            <p className="text-brand-gold font-bold text-sm mb-2">Syarat Menjadi Ahli PLT</p>
+            <ul className="text-white/70 text-sm space-y-1.5 list-disc list-inside">
+              <li>Berumur {MIN_AGE_AHLI_PLT} tahun ke atas.</li>
+              <li>Berdaftar sebagai pengundi di Selangor.</li>
+            </ul>
+            <p className="text-white/40 text-xs mt-3">
+              Umur disemak automatik daripada No. Kad Pengenalan. Pendaftaran pengundi Selangor
+              akan disahkan secara manual oleh pihak PLT selepas bayaran &ndash; status keahlian
+              akan berstatus &ldquo;Menunggu Semakan&rdquo; sehingga disahkan.
+            </p>
+          </div>
+        )}
+
         {/* Step 1 - form */}
         <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
           <div className="flex items-center gap-2 text-brand-gold font-bold mb-1">
             <IconUserCircle />
-            <span>1. MASUKKAN MAKLUMAT</span>
+            <span>1. MASUKKAN MAKLUMAT &ndash; {TYPE_INFO[memberType].title}</span>
           </div>
           <p className="text-white/60 text-sm mb-5">
             Yuran keahlian akan diproses melalui BayarCash selepas maklumat disahkan.
@@ -159,6 +252,22 @@ export default function KeahlianPage() {
               />
             </div>
 
+            {memberType === "PLT" && (
+              <label className="flex items-start gap-3 bg-black/20 border border-white/15 rounded-sm p-3 text-xs text-white/70 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={akuanSelangor}
+                  onChange={(e) => setAkuanSelangor(e.target.checked)}
+                  className="mt-0.5 shrink-0"
+                />
+                <span>
+                  Saya mengesahkan bahawa saya <strong className="text-white">bermastautin di Selangor</strong> dan/atau{" "}
+                  <strong className="text-white">berdaftar sebagai pengundi di Selangor</strong>. Saya faham status
+                  keahlian PLT saya akan berstatus &ldquo;Menunggu Semakan&rdquo; sehingga disahkan oleh pihak PLT.
+                </span>
+              </label>
+            )}
+
             {error && step === "form" && <p className="text-red-400 text-sm">{error}</p>}
 
             <button
@@ -173,7 +282,7 @@ export default function KeahlianPage() {
 
           <p className="text-xs text-white/50 mt-4">
             Sudah mendaftar?{" "}
-            <Link href="/keahlian/semak" className="text-brand-gold underline">
+            <Link href={memberType === "PLT" ? "/keahlian/semak-plt" : "/keahlian/semak"} className="text-brand-gold underline">
               Semak nombor ahli anda di sini
             </Link>
             .
@@ -199,6 +308,7 @@ export default function KeahlianPage() {
           ) : (
             <div className="space-y-4">
               <div className="text-sm space-y-1.5 border-b border-white/10 pb-4">
+                <p className="text-white/60"><span className="text-white/40">Jenis Keahlian:</span> {TYPE_INFO[memberType].title}</p>
                 <p className="text-white/60"><span className="text-white/40">Nama Penuh:</span> {fullName}</p>
                 <p className="text-white/60"><span className="text-white/40">No Kad Pengenalan:</span> {icNumber}</p>
                 <p className="text-white/60"><span className="text-white/40">No Telefon:</span> {phone}</p>

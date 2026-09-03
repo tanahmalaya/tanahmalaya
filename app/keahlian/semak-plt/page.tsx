@@ -3,10 +3,10 @@
 import { Suspense } from "react";
 import SemakKeahlianContent from "@/components/keahlian/SemakKeahlianContent";
 
-export default function SemakKeahlianBersekutuPage() {
+export default function SemakKeahlianPltPage() {
   return (
     <Suspense fallback={null}>
-      <SemakKeahlianContent expectedType="BERSEKUTU" otherTypeHref="/keahlian/semak-plt" />
+      <SemakKeahlianContent expectedType="PLT" otherTypeHref="/keahlian/semak" />
     </Suspense>
   );
 }

@@ -27,12 +27,16 @@ export async function POST(req: NextRequest) {
       if (!existing) {
         await prisma.member.create({
           data: {
-            memberNo: await nextMemberNo(),
+            memberNo: await nextMemberNo(pending.memberType),
             fullName: pending.fullName,
             icNumber: pending.icNumber,
             phone: pending.phone,
             email: pending.email,
-            status: "AKTIF",
+            type: pending.memberType,
+            akuanSelangor: pending.akuanSelangor,
+            // Ahli PLT wajib disahkan admin (bermastautin/berdaftar mengundi Selangor)
+            // sebelum AKTIF. Ahli Bersekutu terus AKTIF, tiada semakan diperlukan.
+            status: pending.memberType === "PLT" ? "MENUNGGU_SEMAKAN" : "AKTIF",
             paymentRef: payload.transaction_id ?? null,
           },
         });

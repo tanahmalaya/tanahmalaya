@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createBayarcashPaymentIntent, BAYARCASH_PORTAL_KEAHLIAN } from "@/lib/bayarcash";
-import { getYuranKeahlianSen } from "@/lib/settings";
+import { getYuranSen } from "@/lib/settings";
+import { isValidMalaysianIC, getAgeFromIC, MIN_AGE_AHLI_PLT } from "@/lib/ic";
 import { z } from "zod";
 
 const schema = z.object({
@@ -11,6 +12,8 @@ const schema = z.object({
   icNumber: z.string().regex(/^\d{12}$/, "No KP mesti 12 digit tanpa tanda -"),
   phone: z.string().min(9),
   email: z.string().email(),
+  memberType: z.enum(["PLT", "BERSEKUTU"]),
+  akuanSelangor: z.coerce.boolean().optional().default(false),
 });
 
 export async function POST(req: NextRequest) {
@@ -20,7 +23,29 @@ export async function POST(req: NextRequest) {
     icNumber: form.get("icNumber"),
     phone: form.get("phone"),
     email: form.get("email"),
+    memberType: form.get("memberType"),
+    akuanSelangor: form.get("akuanSelangor"),
   });
+
+  const icCheck = isValidMalaysianIC(data.icNumber);
+  if (!icCheck.valid) {
+    return NextResponse.json({ error: icCheck.reason }, { status: 400 });
+  }
+
+  if (data.memberType === "PLT") {
+    if (getAgeFromIC(data.icNumber) < MIN_AGE_AHLI_PLT) {
+      return NextResponse.json(
+        { error: `Ahli PLT mesti berumur ${MIN_AGE_AHLI_PLT} tahun ke atas.` },
+        { status: 400 }
+      );
+    }
+    if (!data.akuanSelangor) {
+      return NextResponse.json(
+        { error: "Ahli PLT wajib mengesahkan akujanji berdaftar mengundi di Selangor." },
+        { status: 400 }
+      );
+    }
+  }
 
   // Semak dulu No. KP ni belum jadi AHLI sedia ada
   const existing = await prisma.member.findUnique({ where: { icNumber: data.icNumber } });
@@ -38,10 +63,13 @@ export async function POST(req: NextRequest) {
       icNumber: data.icNumber,
       phone: data.phone,
       email: data.email,
+      memberType: data.memberType,
+      akuanSelangor: data.akuanSelangor,
     },
   });
 
-  const yuranSen = await getYuranKeahlianSen();
+  const yuranSen = await getYuranSen(data.memberType);
+  const jenisLabel = data.memberType === "PLT" ? "Ahli PLT" : "Ahli Bersekutu";
 
   try {
     const intent = await createBayarcashPaymentIntent({
@@ -51,8 +79,8 @@ export async function POST(req: NextRequest) {
       payerName: pending.fullName,
       payerEmail: pending.email,
       payerPhone: pending.phone,
-      description: `Yuran Keahlian PLT - ${pending.fullName}`,
-      returnPath: `/keahlian/semak?fullName=${encodeURIComponent(pending.fullName)}&icNumber=${encodeURIComponent(pending.icNumber)}`,
+      description: `Yuran ${jenisLabel} PLT - ${pending.fullName}`,
+      returnPath: `${data.memberType === "PLT" ? "/keahlian/semak-plt" : "/keahlian/semak"}?fullName=${encodeURIComponent(pending.fullName)}&icNumber=${encodeURIComponent(pending.icNumber)}`,
     });
 
     return NextResponse.json({ url: intent.url });

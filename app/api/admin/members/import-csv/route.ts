@@ -109,12 +109,14 @@ export async function POST(req: NextRequest) {
   let createdCount = 0;
   if (toCreate.length > 0) {
     const result = await prisma.member.createMany({
+      // No ahli siri "TM-" = Ahli PLT (ahli penuh), selain itu (siri "PLT-") = Ahli Bersekutu
       data: toCreate.map((m) => ({
         memberNo: m.memberNo,
         fullName: m.fullName,
         icNumber: m.icNumber,
         phone: m.phone,
         email: m.email,
+        type: /^TM/i.test(m.memberNo) ? "PLT" : "BERSEKUTU",
         status: "AKTIF",
         addedManually: true,
       })),

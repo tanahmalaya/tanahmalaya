@@ -1,12 +1,16 @@
 export const dynamic = "force-dynamic";
 
 import { requireAdminOnly } from "@/lib/auth";
-import { getYuranKeahlianSen } from "@/lib/settings";
+import { getYuranSen } from "@/lib/settings";
 
 export default async function AdminSettingsPage() {
   requireAdminOnly();
-  const yuranSen = await getYuranKeahlianSen();
-  const yuranRM = (yuranSen / 100).toFixed(2);
+  const [yuranPltSen, yuranBersekutuSen] = await Promise.all([
+    getYuranSen("PLT"),
+    getYuranSen("BERSEKUTU"),
+  ]);
+  const yuranPltRM = (yuranPltSen / 100).toFixed(2);
+  const yuranBersekutuRM = (yuranBersekutuSen / 100).toFixed(2);
 
   return (
     <div>
@@ -16,13 +20,25 @@ export default async function AdminSettingsPage() {
         <h2 className="font-semibold mb-4">Yuran Keahlian</h2>
         <form action="/api/settings" method="POST" className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1">Jumlah Yuran (RM)</label>
+            <label className="block text-sm font-semibold mb-1">Yuran Ahli PLT (RM/tahun)</label>
             <input
               type="number"
-              name="yuranKeahlian"
+              name="yuranPlt"
               step="0.01"
               min="0"
-              defaultValue={yuranRM}
+              defaultValue={yuranPltRM}
+              required
+              className="w-full border border-brand-dark/20 rounded-sm p-3"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold mb-1">Yuran Ahli Bersekutu (RM)</label>
+            <input
+              type="number"
+              name="yuranBersekutu"
+              step="0.01"
+              min="0"
+              defaultValue={yuranBersekutuRM}
               required
               className="w-full border border-brand-dark/20 rounded-sm p-3"
             />
