@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAdminSession } from "@/lib/auth";
+import AdminMobileNav from "@/components/admin/AdminMobileNav";
 
 const adminNavItems = [
   { href: "/admin", label: "Ringkasan" },
@@ -22,7 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = session.role === "STAFF" ? staffNavItems : adminNavItems;
 
   return (
-    <div className="min-h-screen flex bg-brand-cream">
+    <div className="min-h-screen md:flex bg-brand-cream">
       <aside className="w-64 bg-brand-dark text-white p-6 hidden md:block">
         <p className="font-display font-bold text-lg mb-8">
           PLT Admin {session.role === "STAFF" && <span className="text-brand-gold text-xs block">(Staff)</span>}
@@ -40,7 +41,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
         </form>
       </aside>
-      <div className="flex-1 p-8">{children}</div>
+
+      <AdminMobileNav navItems={navItems} roleLabel={session.role === "STAFF" ? "Staff" : undefined} />
+
+      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden">{children}</div>
     </div>
   );
 }
