@@ -87,7 +87,10 @@ export async function POST(req: NextRequest) {
     // barang pada CSV/label tak sebut barang yang sama dua kali. Harga per
     // item dikira purata (jumlah nilai / jumlah kuantiti) supaya jumlah nilai
     // barang untuk kastam/insurans kekal tepat.
-    const barangMap = new Map<string, { nama: string; saiz: string | null; kuantiti: number; jumlahSen: number }>();
+    const barangMap = new Map<
+      string,
+      { nama: string; kodRingkas: string | null; saiz: string | null; kuantiti: number; jumlahSen: number }
+    >();
     for (const item of order.items) {
       const kunci = `${item.productId}|${item.saiz ?? ""}`;
       const sedia = barangMap.get(kunci);
@@ -97,6 +100,7 @@ export async function POST(req: NextRequest) {
       } else {
         barangMap.set(kunci, {
           nama: item.product.nama,
+          kodRingkas: item.product.kodRingkas,
           saiz: item.saiz,
           kuantiti: item.kuantiti,
           jumlahSen: item.hargaSen * item.kuantiti,
@@ -104,8 +108,10 @@ export async function POST(req: NextRequest) {
       }
     }
     const barang = Array.from(barangMap.values());
+    // Guna kodRingkas (bukan nama penuh) supaya senarai barang tak
+    // bertindih/overflow pada label bila order ada banyak barang sekali.
     const namaBarang = barang
-      .map((b) => `${b.nama}${b.saiz ? ` (Saiz ${SIZE_LABEL[b.saiz as keyof typeof SIZE_LABEL]})` : ""}`)
+      .map((b) => `${b.kodRingkas?.trim() || b.nama}${b.saiz ? `-${SIZE_LABEL[b.saiz as keyof typeof SIZE_LABEL]}` : ""}`)
       .join("; ");
     const hargaBarang = barang.map((b) => (b.jumlahSen / b.kuantiti / 100).toFixed(2)).join("; ");
     const kuantiti = barang.map((b) => b.kuantiti).join("; ");

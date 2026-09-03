@@ -20,6 +20,23 @@ export const PRODUCT_STATUS_LABEL: Record<string, string> = {
   PREORDER: "Pre-order",
 };
 
+/**
+ * Bina teks kandungan/remark ringkas untuk label AWB (cth "TSS-L x1, HM x2").
+ * Guna kodRingkas produk (kalau ada) supaya remark tak bertindih/overflow bila
+ * order ada banyak barang - fallback ke nama penuh produk kalau kod belum diisi.
+ */
+export function formatKandunganRingkas(
+  items: { nama: string; kodRingkas?: string | null; saiz: string | null; kuantiti: number }[]
+): string {
+  return items
+    .map((it) => {
+      const label = it.kodRingkas?.trim() || it.nama;
+      const saizSuffix = it.saiz ? `-${SIZE_LABEL[it.saiz]}` : "";
+      return `${label}${saizSuffix} x${it.kuantiti}`;
+    })
+    .join(", ");
+}
+
 /** Jumlah stok produk - kalau ada saiz, jumlahkan stok setiap saiz; kalau tidak, guna field stok produk terus. */
 export function totalStok(product: { stok: number; sizes?: { stok: number }[] }) {
   if (product.sizes && product.sizes.length > 0) {

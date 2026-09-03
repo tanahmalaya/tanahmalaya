@@ -10,7 +10,7 @@ import {
   checkEasyParcelOrderStatus,
   fetchEasyParcelAwbLink,
 } from "@/lib/easyparcel";
-import { SIZE_LABEL } from "@/lib/productSize";
+import { formatKandunganRingkas } from "@/lib/productSize";
 
 const MAX_BULK = 30;
 
@@ -80,24 +80,33 @@ export async function POST(req: NextRequest) {
       // panjang/pendek tak perlu ditambah berasingan sebab dah dibezakan sebagai
       // produk berasingan (nama produk dah ada "(Lengan Panjang)" bila berkaitan).
       //
+      // Guna kodRingkas (bukan nama penuh) supaya remark tak bertindih/overflow
+      // pada label bila order ada banyak barang sekali.
+      //
       // order.items boleh ada BEBERAPA baris untuk produk+saiz yang SAMA sebab
       // diskaun 10% unit kedua dipecahkan jadi baris berasingan (harga asal vs
       // harga diskaun) - kena cantumkan balik ikut produk+saiz supaya remark
       // tak sebut barang yang sama dua kali (cth "Kasut x1, Kasut x1" bila
       // sepatutnya "Kasut x2").
-      const kandunganMap = new Map<string, { nama: string; saiz: string | null; kuantiti: number }>();
+      const kandunganMap = new Map<
+        string,
+        { nama: string; kodRingkas: string | null; saiz: string | null; kuantiti: number }
+      >();
       for (const item of order.items) {
         const kunci = `${item.productId}|${item.saiz ?? ""}`;
         const sedia = kandunganMap.get(kunci);
         if (sedia) {
           sedia.kuantiti += item.kuantiti;
         } else {
-          kandunganMap.set(kunci, { nama: item.product.nama, saiz: item.saiz, kuantiti: item.kuantiti });
+          kandunganMap.set(kunci, {
+            nama: item.product.nama,
+            kodRingkas: item.product.kodRingkas,
+            saiz: item.saiz,
+            kuantiti: item.kuantiti,
+          });
         }
       }
-      const kandungan = Array.from(kandunganMap.values())
-        .map((it) => `${it.nama}${it.saiz ? ` (Saiz ${SIZE_LABEL[it.saiz]})` : ""} x${it.kuantiti}`)
-        .join(", ");
+      const kandungan = formatKandunganRingkas(Array.from(kandunganMap.values()));
       const nilaiRM = order.jumlahSen / 100;
 
       // service_id yang disimpan masa checkout (atau default statik untuk

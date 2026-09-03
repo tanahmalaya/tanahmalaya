@@ -23,6 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       where: { id: params.id },
       data: {
         nama: String(form.get("nama")),
+        kodRingkas: String(form.get("kodRingkas") || "").trim().toUpperCase() || null,
         penerangan: String(form.get("penerangan") || "") || null,
         hargaSen: Math.round(hargaRM * 100),
         status,

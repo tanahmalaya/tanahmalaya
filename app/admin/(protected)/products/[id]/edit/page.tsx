@@ -34,6 +34,18 @@ export default async function EditProductPage({ params }: { params: { id: string
             required
             className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2"
           />
+          <div className="sm:col-span-2">
+            <input
+              name="kodRingkas"
+              defaultValue={product.kodRingkas ?? ""}
+              placeholder="Kod Ringkas untuk label AWB (cth: TSS, HM, JCK)"
+              maxLength={10}
+              className="w-full border border-brand-dark/20 rounded-sm p-3"
+            />
+            <p className="text-xs text-brand-dark/50 mt-1">
+              Dipaparkan pada remark label penghantaran (elak teks bertindih bila order ada banyak barang). Kosongkan untuk guna nama penuh.
+            </p>
+          </div>
           <textarea
             name="penerangan"
             defaultValue={product.penerangan ?? ""}

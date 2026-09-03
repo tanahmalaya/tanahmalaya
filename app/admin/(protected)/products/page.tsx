@@ -31,6 +31,12 @@ export default async function AdminProductsPage({
         <h2 className="font-semibold mb-4">Tambah Produk</h2>
         <form action="/api/products" method="POST" className="grid sm:grid-cols-2 gap-4">
           <input name="nama" placeholder="Nama Produk" required className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
+          <div className="sm:col-span-2">
+            <input name="kodRingkas" placeholder="Kod Ringkas untuk label AWB (cth: TSS, HM, JCK)" maxLength={10} className="w-full border border-brand-dark/20 rounded-sm p-3" />
+            <p className="text-xs text-brand-dark/50 mt-1">
+              Dipaparkan pada remark label penghantaran (elak teks bertindih bila order ada banyak barang). Kosongkan untuk guna nama penuh.
+            </p>
+          </div>
           <textarea name="penerangan" placeholder="Penerangan produk (pilihan) - bahan, dll" className="border border-brand-dark/20 rounded-sm p-3 sm:col-span-2" />
           <input name="harga" type="number" step="0.01" placeholder="Harga (RM)" required className="border border-brand-dark/20 rounded-sm p-3" />
           <div>
@@ -109,6 +115,7 @@ export default async function AdminProductsPage({
             <tr>
               <th className="p-4">Gambar</th>
               <th className="p-4">Nama</th>
+              <th className="p-4">Kod Ringkas</th>
               <th className="p-4">Harga</th>
               <th className="p-4">Status</th>
               <th className="p-4">Saiz</th>
@@ -127,6 +134,7 @@ export default async function AdminProductsPage({
                   )}
                 </td>
                 <td className="p-4">{p.nama}</td>
+                <td className="p-4">{p.kodRingkas || "-"}</td>
                 <td className="p-4">RM{(p.hargaSen / 100).toFixed(2)}</td>
                 <td className="p-4">{PRODUCT_STATUS_LABEL[p.status]}</td>
                 <td className="p-4">

@@ -153,6 +153,7 @@ model Setting {
 model Product {
   id             String   @id @default(cuid())
   nama           String
+  kodRingkas     String?  // singkatan pendek (cth "TSS", "HM", "JCK") untuk remark/AWB label - elak teks bertindih bila banyak barang dalam satu order
   penerangan     String?
   hargaSen       Int      // simpan dalam sen supaya elak isu titik perpuluhan
   gambarDepan    String?  // gambar Utama - dipaparkan dalam senarai produk

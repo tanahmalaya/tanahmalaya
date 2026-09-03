@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
   await prisma.product.create({
     data: {
       nama: String(form.get("nama")),
+      kodRingkas: String(form.get("kodRingkas") || "").trim().toUpperCase() || null,
       penerangan: String(form.get("penerangan") || "") || null,
       hargaSen: Math.round(hargaRM * 100),
       status,
