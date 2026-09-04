@@ -213,7 +213,12 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
           ) : (
             <div className="space-y-4">
               {result.status === "AKTIF" && (
-                <MembershipCard type={result.type} fullName={result.fullName} memberNo={result.memberNo} />
+                <MembershipCard
+                  type={result.type}
+                  fullName={result.fullName}
+                  memberNo={result.memberNo}
+                  joinedAt={result.joinedAt}
+                />
               )}
               <div className="text-sm space-y-1.5 border-b border-white/10 pb-4">
                 <p className="text-white/60"><span className="text-white/40">Nama:</span> {result.fullName}</p>
