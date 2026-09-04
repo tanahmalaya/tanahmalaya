@@ -23,32 +23,44 @@ const SEMAKAN_REASON: Record<string, string> = {
   BERSEKUTU: "kelayakan agama (keahlian bersekutu terbuka untuk umat Islam sahaja)",
 };
 
+const TABS = [
+  { value: "SEMUA", label: "Semua Ahli" },
+  { value: "PLT", label: "Ahli PLT" },
+  { value: "BERSEKUTU", label: "Ahli Bersekutu" },
+] as const;
+
 export default async function AdminMembersPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: { q?: string; tab?: string };
 }) {
   requireAdminOnly();
   const q = (searchParams.q || "").trim();
+  const tab = TABS.some((t) => t.value === searchParams.tab) ? searchParams.tab! : "SEMUA";
 
   // Senarai penuh diguna untuk banner "menunggu semakan/refund" supaya item
-  // tindakan tu sentiasa dipaparkan walaupun admin sedang buat carian.
+  // tindakan tu sentiasa dipaparkan walaupun admin sedang buat carian/tab.
   const allMembers = await prisma.member.findMany({ orderBy: { createdAt: "desc" } });
   const pendingSemakan = allMembers.filter((m) => m.status === "MENUNGGU_SEMAKAN");
   const pendingRefund = allMembers.filter((m) => m.refundRequested && !m.refundedAt);
 
-  // Jadual utama pula ikut carian (nama/no ahli/no KP/e-mel) kalau ada.
-  const members = q
-    ? allMembers.filter((m) => {
-        const needle = q.toLowerCase();
-        return (
-          m.fullName.toLowerCase().includes(needle) ||
-          m.memberNo.toLowerCase().includes(needle) ||
-          m.icNumber.toLowerCase().includes(needle) ||
-          m.email.toLowerCase().includes(needle)
-        );
-      })
-    : allMembers;
+  // Jadual utama pula ikut tab (PLT/Bersekutu) dan carian (nama/no ahli/no KP/e-mel) kalau ada.
+  const members = allMembers
+    .filter((m) => tab === "SEMUA" || m.type === tab)
+    .filter((m) => {
+      if (!q) return true;
+      const needle = q.toLowerCase();
+      return (
+        m.fullName.toLowerCase().includes(needle) ||
+        m.memberNo.toLowerCase().includes(needle) ||
+        m.icNumber.toLowerCase().includes(needle) ||
+        m.email.toLowerCase().includes(needle)
+      );
+    });
+
+  const countByTab = Object.fromEntries(
+    TABS.map((t) => [t.value, t.value === "SEMUA" ? allMembers.length : allMembers.filter((m) => m.type === t.value).length])
+  );
 
   return (
     <div>
@@ -143,8 +155,26 @@ export default async function AdminMembersPage({
         </form>
       </div>
 
+      <div className="flex gap-1 border-b border-brand-dark/10 mb-4">
+        {TABS.map((t) => (
+          <a
+            key={t.value}
+            href={`/admin/members?tab=${t.value}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+            className={
+              "px-4 py-2 text-sm font-semibold rounded-t-sm -mb-px border-b-2 " +
+              (tab === t.value
+                ? "border-brand-gold text-brand-dark"
+                : "border-transparent text-brand-dark/50 hover:text-brand-dark")
+            }
+          >
+            {t.label} ({countByTab[t.value]})
+          </a>
+        ))}
+      </div>
+
       <div className="bg-white rounded-md shadow-sm p-6 mb-4">
         <form action="/admin/members" method="GET" className="flex flex-wrap gap-3">
+          {tab !== "SEMUA" && <input type="hidden" name="tab" value={tab} />}
           <input
             type="text"
             name="q"
@@ -157,7 +187,7 @@ export default async function AdminMembersPage({
           </button>
           {q && (
             <a
-              href="/admin/members"
+              href={tab !== "SEMUA" ? `/admin/members?tab=${tab}` : "/admin/members"}
               className="border border-brand-dark/20 text-brand-dark font-semibold rounded-sm px-6 py-3 flex items-center"
             >
               KOSONGKAN
