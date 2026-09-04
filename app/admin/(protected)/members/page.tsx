@@ -134,24 +134,6 @@ export default async function AdminMembersPage({
         </div>
       )}
 
-      <div className="bg-white rounded-md shadow-sm p-6 mb-8">
-        <h2 className="font-semibold mb-4">Tambah Ahli Sedia Ada (Import Manual)</h2>
-        <form action="/api/admin/members/import" method="POST" className="grid sm:grid-cols-2 gap-4">
-          <input name="memberNo" placeholder="No Ahli (cth: TM-050 / PLT-050)" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <select name="memberType" required defaultValue="PLT" className="border border-brand-dark/20 rounded-sm p-3">
-            <option value="PLT">Ahli PLT (siri TM-)</option>
-            <option value="BERSEKUTU">Ahli Bersekutu (siri PLT-)</option>
-          </select>
-          <input name="fullName" placeholder="Nama Penuh" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <input name="icNumber" placeholder="No KP (12 digit)" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <input name="phone" placeholder="No Telefon" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <input name="email" type="email" placeholder="E-mel" required className="border border-brand-dark/20 rounded-sm p-3" />
-          <button type="submit" className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-4 py-3 sm:col-span-2">
-            TAMBAH AHLI
-          </button>
-        </form>
-      </div>
-
       <div className="flex gap-1 border-b border-brand-dark/10 mb-4">
         {TABS.map((t) => (
           <a
