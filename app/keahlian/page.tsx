@@ -187,13 +187,20 @@ export default function KeahlianPage() {
           <div className="bg-brand-gold/[0.06] border border-brand-gold/30 rounded-md p-5">
             <p className="text-brand-gold font-bold text-sm mb-2">Syarat Menjadi Ahli PLT</p>
             <ul className="text-white/70 text-sm space-y-1.5 list-disc list-inside">
+              <li>Beragama Islam.</li>
               <li>Berumur {MIN_AGE_AHLI_PLT} tahun ke atas.</li>
-              <li>Berdaftar sebagai pengundi di Selangor.</li>
+              <li>Bermastautin di Selangor.</li>
+              <li>Berdaftar sebagai pemilih/pengundi di Selangor.</li>
+            </ul>
+            <p className="text-brand-gold font-bold text-sm mb-2 mt-4">Hak Ahli PLT</p>
+            <ul className="text-white/70 text-sm space-y-1.5 list-disc list-inside">
+              <li>Mempunyai hak untuk mengundi dalam mesyuarat agung.</li>
+              <li>Mempunyai hak untuk bertanding jawatan dalam mesyuarat agung.</li>
             </ul>
             <p className="text-white/40 text-xs mt-3">
-              Umur disemak automatik daripada No. Kad Pengenalan. Pendaftaran pengundi Selangor
-              akan disahkan secara manual oleh pihak PLT selepas bayaran &ndash; status keahlian
-              akan berstatus &ldquo;Menunggu Semakan&rdquo; sehingga disahkan.
+              Umur disemak automatik daripada No. Kad Pengenalan. Kelayakan lain akan disahkan
+              secara manual oleh pihak PLT selepas bayaran &ndash; status keahlian akan berstatus
+              &ldquo;Menunggu Semakan&rdquo; sehingga disahkan.
             </p>
           </div>
         )}
@@ -203,7 +210,14 @@ export default function KeahlianPage() {
           <div className="bg-brand-gold/[0.06] border border-brand-gold/30 rounded-md p-5">
             <p className="text-brand-gold font-bold text-sm mb-2">Syarat Menjadi Ahli Bersekutu</p>
             <ul className="text-white/70 text-sm space-y-1.5 list-disc list-inside">
-              <li>Terbuka untuk umat Islam sahaja.</li>
+              <li>Beragama Islam.</li>
+              <li>Berumur 18 tahun ke atas.</li>
+              <li>Terbuka kepada awam.</li>
+            </ul>
+            <p className="text-brand-gold font-bold text-sm mb-2 mt-4">Hak Ahli Bersekutu</p>
+            <ul className="text-white/70 text-sm space-y-1.5 list-disc list-inside">
+              <li>Boleh menyertai aktiviti pertubuhan.</li>
+              <li>Tiada hak untuk mengundi atau bertanding jawatan dalam mesyuarat agung.</li>
             </ul>
             <p className="text-white/40 text-xs mt-3">
               Pendaftaran akan disahkan secara manual oleh pihak PLT selepas bayaran &ndash; status
