@@ -1,0 +1,2666 @@
+{
+  "1004438": {
+    "name": "Krusen",
+    "state": "Sarawak",
+    "lat": 1.069722,
+    "lng": 110.497778
+  },
+  "1005447": {
+    "name": "Meringgu",
+    "state": "Sarawak",
+    "lat": 1.05,
+    "lng": 110.552778
+  },
+  "1006403": {
+    "name": "Bedup",
+    "state": "Sarawak",
+    "lat": 1.836111,
+    "lng": 110.630556
+  },
+  "1015401": {
+    "name": "Entebar",
+    "state": "Sarawak",
+    "lat": 1.005556,
+    "lng": 111.541667
+  },
+  "1018401": {
+    "name": "Lubok Antu",
+    "state": "Sarawak",
+    "lat": 1.043056,
+    "lng": 111.826389
+  },
+  "1105401": {
+    "name": "Serian",
+    "state": "Sarawak",
+    "lat": 1.159722,
+    "lng": 110.566667
+  },
+  "1108401": {
+    "name": "Sabal Kruin",
+    "state": "Sarawak",
+    "lat": 1.143056,
+    "lng": 110.893056
+  },
+  "1114422": {
+    "name": "Entulang D",
+    "state": "Sarawak",
+    "lat": 1.15,
+    "lng": 111.426389
+  },
+  "1202401": {
+    "name": "Bengoh Gorge",
+    "state": "Sarawak",
+    "lat": 1.243056,
+    "lng": 110.245278
+  },
+  "1206401": {
+    "name": "Gedong",
+    "state": "Sarawak",
+    "lat": 1.244444,
+    "lng": 110.683333
+  },
+  "1301427": {
+    "name": "Buan Bidi",
+    "state": "Sarawak",
+    "lat": 1.398333,
+    "lng": 110.112778
+  },
+  "1302428": {
+    "name": "Git",
+    "state": "Sarawak",
+    "lat": 1.355556,
+    "lng": 110.263889
+  },
+  "1304439": {
+    "name": "Batu Gong",
+    "state": "Sarawak",
+    "lat": 1.346111,
+    "lng": 110.439722
+  },
+  "1310401": {
+    "name": "Mintu",
+    "state": "Sarawak",
+    "lat": 1.311111,
+    "lng": 111.063889
+  },
+  "1316401": {
+    "name": "Enteban",
+    "state": "Sarawak",
+    "lat": 1.322222,
+    "lng": 111.619444
+  },
+  "1316402": {
+    "name": "Enteban 2",
+    "state": "Sarawak",
+    "lat": 1.325,
+    "lng": 111.6375
+  },
+  "1402401": {
+    "name": "Siniawan",
+    "state": "Sarawak",
+    "lat": 1.447222,
+    "lng": 110.215278
+  },
+  "1402419": {
+    "name": "Batu Kitang",
+    "state": "Sarawak",
+    "lat": 1.452778,
+    "lng": 110.279167
+  },
+  "1403402": {
+    "name": "8th Mile",
+    "state": "Sarawak",
+    "lat": 1.46,
+    "lng": 110.325
+  },
+  "1415401": {
+    "name": "Lubau",
+    "state": "Sarawak",
+    "lat": 1.497222,
+    "lng": 111.588889
+  },
+  "1502420": {
+    "name": "Batu Kawa",
+    "state": "Sarawak",
+    "lat": 1.511111,
+    "lng": 110.268056
+  },
+  "1502435": {
+    "name": "Maong Kuala",
+    "state": "Sarawak",
+    "lat": 1.543056,
+    "lng": 110.306944
+  },
+  "1503432": {
+    "name": "Kuching Satok Bridge",
+    "state": "Sarawak",
+    "lat": 1.554167,
+    "lng": 110.320833
+  },
+  "1503434": {
+    "name": "Central Park",
+    "state": "Sarawak",
+    "lat": 1.523611,
+    "lng": 110.336111
+  },
+  "1506401": {
+    "name": "Asa Jaya",
+    "state": "Sarawak",
+    "lat": 1.516389,
+    "lng": 110.605
+  },
+  "1515401": {
+    "name": "Samu",
+    "state": "Sarawak",
+    "lat": 1.555556,
+    "lng": 111.525
+  },
+  "1601401": {
+    "name": "Rayu, Sg.",
+    "state": "Sarawak",
+    "lat": 1.613889,
+    "lng": 110.145833
+  },
+  "1602401": {
+    "name": "Sibu Laut",
+    "state": "Sarawak",
+    "lat": 1.68,
+    "lng": 110.201667
+  },
+  "1603458": {
+    "name": "Rampangi",
+    "state": "Sarawak",
+    "lat": 1.677778,
+    "lng": 110.333333
+  },
+  "1636401": {
+    "name": "Sg.Skudai di Kg.Separa",
+    "state": "Johor",
+    "lat": 1.65,
+    "lng": 103.619444
+  },
+  "1714401": {
+    "name": "Kaki Wong",
+    "state": "Sarawak",
+    "lat": 1.741667,
+    "lng": 111.455
+  },
+  "1714402": {
+    "name": "Wong Bernet",
+    "state": "Sarawak",
+    "lat": 1.747222,
+    "lng": 111.458333
+  },
+  "1730482": {
+    "name": "Senggarang",
+    "state": "Johor",
+    "lat": 1.716667,
+    "lng": 103.063611
+  },
+  "1732401": {
+    "name": "Parit Madirono di Weir",
+    "state": "Johor",
+    "lat": 1.691667,
+    "lng": 103.270833
+  },
+  "1737451": {
+    "name": "Sg. Johor di Rantau Panjang",
+    "state": "Johor",
+    "lat": 1.780556,
+    "lng": 103.745833
+  },
+  "1813401": {
+    "name": "Sebatan",
+    "state": "Sarawak",
+    "lat": 1.804167,
+    "lng": 111.333333
+  },
+  "1826401": {
+    "name": "Mukeh, Ng.",
+    "state": "Sarawak",
+    "lat": 1.847222,
+    "lng": 112.629167
+  },
+  "1829478": {
+    "name": "Batu Pahat",
+    "state": "Johor",
+    "lat": 1.852778,
+    "lng": 102.926389
+  },
+  "1834453": {
+    "name": "Sg. Sayong At Layang-Layang",
+    "state": "Johor",
+    "lat": 1.822222,
+    "lng": 103.472222
+  },
+  "1836401": {
+    "name": "Entawau, Nanga",
+    "state": "Sarawak",
+    "lat": 1.822222,
+    "lng": 113.676389
+  },
+  "1836402": {
+    "name": "Sg. Sayong di Jam. Johor Tenggara",
+    "state": "Johor",
+    "lat": 1.804167,
+    "lng": 103.669444
+  },
+  "1836403": {
+    "name": "Sg. Pengeli di Felda Inas",
+    "state": "Johor",
+    "lat": 1.820833,
+    "lng": 103.620833
+  },
+  "1839462": {
+    "name": "Sg. Mupor At Bt.32, Mersing",
+    "state": "Johor",
+    "lat": 1.801389,
+    "lng": 103.961111
+  },
+  "1915401": {
+    "name": "Ambas",
+    "state": "Sarawak",
+    "lat": 1.975,
+    "lng": 111.5125
+  },
+  "1918401": {
+    "name": "Ayam, Ng.",
+    "state": "Sarawak",
+    "lat": 1.944444,
+    "lng": 111.898611
+  },
+  "1929401": {
+    "name": "Sg. Simpang Kiri di Sri Medan",
+    "state": "Johor",
+    "lat": 1.993056,
+    "lng": 102.966667
+  },
+  "1931423": {
+    "name": "Sg. Semborong di Bt.2 di Air Hitam/Y.Peng",
+    "state": "Johor",
+    "lat": 1.938889,
+    "lng": 103.161111
+  },
+  "1931425": {
+    "name": "Kolam Air di Emp. Sembrong",
+    "state": "Johor",
+    "lat": 1.973611,
+    "lng": 103.179167
+  },
+  "1932408": {
+    "name": "Telok Buing",
+    "state": "Sarawak",
+    "lat": 1.997222,
+    "lng": 113.222222
+  },
+  "2019402": {
+    "name": "Julau Bazaar",
+    "state": "Sarawak",
+    "lat": 2.022222,
+    "lng": 111.631944
+  },
+  "2020401": {
+    "name": "Machan, Ng.",
+    "state": "Sarawak",
+    "lat": 2.018056,
+    "lng": 112.016667
+  },
+  "2021401": {
+    "name": "KaFALSEwit W/W",
+    "state": "Sarawak",
+    "lat": 2.097222,
+    "lng": 112.147222
+  },
+  "2025423": {
+    "name": "Song",
+    "state": "Sarawak",
+    "lat": 2.011667,
+    "lng": 112.5975
+  },
+  "2029402": {
+    "name": "Kapit New Headworks",
+    "state": "Sarawak",
+    "lat": 2.016667,
+    "lng": 112.947222
+  },
+  "2030401": {
+    "name": "Sg. Bekok di Emp Bekok",
+    "state": "Johor",
+    "lat": 2.098611,
+    "lng": 103.063889
+  },
+  "2030402": {
+    "name": "Sg. Bekok di Emp Yong Peng",
+    "state": "Johor",
+    "lat": 2.016667,
+    "lng": 103.056944
+  },
+  "2039461": {
+    "name": "Sg. Sedili Besar At Ulu Sedili",
+    "state": "Johor",
+    "lat": 2.0125,
+    "lng": 103.906944
+  },
+  "2112401": {
+    "name": "Rajang",
+    "state": "Sarawak",
+    "lat": 2.155556,
+    "lng": 111.252778
+  },
+  "2115401": {
+    "name": "Sarikei RPA Wharf",
+    "state": "Sarawak",
+    "lat": 2.134722,
+    "lng": 111.518056
+  },
+  "2116401": {
+    "name": "Bintangor",
+    "state": "Sarawak",
+    "lat": 2.159722,
+    "lng": 111.209722
+  },
+  "2122411": {
+    "name": "Sg. Melaka di Jam. Tan Kim Seng",
+    "state": "Melaka",
+    "lat": 2.19455,
+    "lng": 102.248578
+  },
+  "2130401": {
+    "name": "Sg. Lenik di Ladang Chaah",
+    "state": "Johor",
+    "lat": 2.1875,
+    "lng": 103.004167
+  },
+  "2130405": {
+    "name": "Benin, Nanga",
+    "state": "Sarawak",
+    "lat": 2.165278,
+    "lng": 113.069444
+  },
+  "2130422": {
+    "name": "Sg. Bekok di Bt.77 Jln. Yong Peng/Labis",
+    "state": "Johor",
+    "lat": 2.120833,
+    "lng": 103.041667
+  },
+  "2218401": {
+    "name": "Salim, Sg.",
+    "state": "Sarawak",
+    "lat": 2.2375,
+    "lng": 111.881944
+  },
+  "2222401": {
+    "name": "Lencongan Sg.Malim di Klebang Besar D/S",
+    "state": "Melaka",
+    "lat": 2.232778,
+    "lng": 102.202778
+  },
+  "2222402": {
+    "name": "Lencongan Sg.Malim di Klebang Besar U/S",
+    "state": "Melaka",
+    "lat": 2.232778,
+    "lng": 102.202778
+  },
+  "2222412": {
+    "name": "Sungai Melaka di Durian Tunggal D/S",
+    "state": "Melaka",
+    "lat": 2.299444,
+    "lng": 102.265278
+  },
+  "2222413": {
+    "name": "Sungai Melaka di Durian Tunggal U/S",
+    "state": "Melaka",
+    "lat": 2.299444,
+    "lng": 102.265278
+  },
+  "2224432": {
+    "name": "Sg. Kesang di Chin Chin",
+    "state": "Melaka",
+    "lat": 2.290278,
+    "lng": 102.493056
+  },
+  "2230401": {
+    "name": "Sg. Lenik di Ladang Chaah",
+    "state": "Johor",
+    "lat": 2.1875,
+    "lng": 103.015278
+  },
+  "2234475": {
+    "name": "Sg. Sembrong di Kuala Sg. Tamok",
+    "state": "Johor",
+    "lat": 2.241667,
+    "lng": 103.4
+  },
+  "2235401": {
+    "name": "Sg. Kahang di Bt.26 Jln. Kluang",
+    "state": "Johor",
+    "lat": 2.251389,
+    "lng": 103.5875
+  },
+  "2237471": {
+    "name": "Sg. Lenggor di Bt.42 Kluang/Mersing",
+    "state": "Johor",
+    "lat": 2.258333,
+    "lng": 103.736111
+  },
+  "2315401": {
+    "name": "Semah, Ng.",
+    "state": "Sarawak",
+    "lat": 2.358889,
+    "lng": 111.5125
+  },
+  "2318427": {
+    "name": "Sibu Sg. Merah",
+    "state": "Sarawak",
+    "lat": 2.325,
+    "lng": 111.8375
+  },
+  "2322412": {
+    "name": "Sungai Melaka di Melaka Pindah",
+    "state": "Melaka",
+    "lat": 2.373333,
+    "lng": 102.221111
+  },
+  "2322413": {
+    "name": "Sg. Melaka di Pantai Belimbing",
+    "state": "Melaka",
+    "lat": 2.343056,
+    "lng": 102.252778
+  },
+  "2322414": {
+    "name": "Sg.Durian Tunggal di D.Tunggal",
+    "state": "Melaka",
+    "lat": 2.315278,
+    "lng": 102.284722
+  },
+  "2322415": {
+    "name": "Sg.Durian Tunggal di B.11 Air Resam",
+    "state": "Melaka",
+    "lat": 2.323611,
+    "lng": 102.293056
+  },
+  "2323401": {
+    "name": "Jugah, Rh.",
+    "state": "Sarawak",
+    "lat": 2.386389,
+    "lng": 112.384167
+  },
+  "2326424": {
+    "name": "Kolam Puteri",
+    "state": "Johor",
+    "lat": 2.367222,
+    "lng": 102.604167
+  },
+  "2328401": {
+    "name": "Sg. Muar di Bukit Kepong",
+    "state": "Johor",
+    "lat": 2.047222,
+    "lng": 102.829167
+  },
+  "2412401": {
+    "name": "Paloh Bangau",
+    "state": "Sarawak",
+    "lat": 2.419444,
+    "lng": 111.247222
+  },
+  "2421401": {
+    "name": "Stapang",
+    "state": "Sarawak",
+    "lat": 2.4,
+    "lng": 112.134722
+  },
+  "2513401": {
+    "name": "Mid Bruit",
+    "state": "Sarawak",
+    "lat": 2.519444,
+    "lng": 111.377778
+  },
+  "2514401": {
+    "name": "Daro",
+    "state": "Sarawak",
+    "lat": 2.534722,
+    "lng": 111.433333
+  },
+  "2516401": {
+    "name": "Dausan, Sg.",
+    "state": "Sarawak",
+    "lat": 2.580556,
+    "lng": 110.821944
+  },
+  "2518401": {
+    "name": "Kabang, Tg.",
+    "state": "Sarawak",
+    "lat": 2.860556,
+    "lng": 111.870278
+  },
+  "2519421": {
+    "name": "Sg. Linggi di Sua Betong",
+    "state": "Negeri Sembilan",
+    "lat": 2.681111,
+    "lng": 101.9275
+  },
+  "2520432": {
+    "name": "Sg. Pedas di Kg. Pilin",
+    "state": "Negeri Sembilan",
+    "lat": 2.516667,
+    "lng": 102.058333
+  },
+  "2523401": {
+    "name": "Selangau",
+    "state": "Sarawak",
+    "lat": 2.523611,
+    "lng": 112.320833
+  },
+  "2524403": {
+    "name": "Sg. Gemencheh di Gemencheh",
+    "state": "Negeri Sembilan",
+    "lat": 2.565222,
+    "lng": 102.447111
+  },
+  "2524416": {
+    "name": "Sg. Gemencheh di Gedok",
+    "state": "Negeri Sembilan",
+    "lat": 2.551389,
+    "lng": 102.422222
+  },
+  "2525415": {
+    "name": "Sg. Gemencheh di Jln. Gemas-Rompin",
+    "state": "Negeri Sembilan",
+    "lat": 2.565556,
+    "lng": 102.446667
+  },
+  "2527411": {
+    "name": "Sg. Muar di Buloh Kasap",
+    "state": "Johor",
+    "lat": 2.555556,
+    "lng": 102.763889
+  },
+  "2528414": {
+    "name": "Sg. Segamat di Segamat",
+    "state": "Johor",
+    "lat": 2.506944,
+    "lng": 102.818056
+  },
+  "2529401": {
+    "name": "Sg. Juasseh di Kemalah",
+    "state": "Johor",
+    "lat": 2.5,
+    "lng": 102.948056
+  },
+  "2533474": {
+    "name": "Sg. Endau di Kuala Jemakah",
+    "state": "Johor",
+    "lat": 2.531944,
+    "lng": 103.375
+  },
+  "2534401": {
+    "name": "Sg. Kemalai At Kg. Resam",
+    "state": "Pahang",
+    "lat": 2.5875,
+    "lng": 103.455556
+  },
+  "2615401": {
+    "name": "Matu",
+    "state": "Sarawak",
+    "lat": 2.674444,
+    "lng": 111.534167
+  },
+  "2619401": {
+    "name": "Sg. Linggi At Jam. Jln. Persekutuan",
+    "state": "Negeri Sembilan",
+    "lat": 2.686111,
+    "lng": 101.930556
+  },
+  "2619402": {
+    "name": "Sg. Linggi At Mantau",
+    "state": "Negeri Sembilan",
+    "lat": 2.735556,
+    "lng": 101.955
+  },
+  "2619424": {
+    "name": "Sg. Mantau At Kg. Mantau",
+    "state": "Negeri Sembilan",
+    "lat": 2.691667,
+    "lng": 101.916667
+  },
+  "2625401": {
+    "name": "Lemai, Ng",
+    "state": "Sarawak",
+    "lat": 2.687778,
+    "lng": 112.502222
+  },
+  "2625412": {
+    "name": "Sg. Muar At Bt.57 Jln.Gemas-Rompin",
+    "state": "Negeri Sembilan",
+    "lat": 2.638889,
+    "lng": 102.541667
+  },
+  "2625413": {
+    "name": "Sg. Muar di Jam.Konkrit,Pekan Rompin",
+    "state": "Negeri Sembilan",
+    "lat": 2.706111,
+    "lng": 102.502222
+  },
+  "2626401": {
+    "name": "Sg. Muar di Kg. Awat",
+    "state": "Johor",
+    "lat": 2.631944,
+    "lng": 102.626389
+  },
+  "2630401": {
+    "name": "Sg.Pukin",
+    "state": "Pahang",
+    "lat": 2.602778,
+    "lng": 103.056944
+  },
+  "2634401": {
+    "name": "Sg. Anak Endau At Kg. Mok",
+    "state": "Pahang",
+    "lat": 2.615278,
+    "lng": 103.468056
+  },
+  "2717401": {
+    "name": "Sg. Labu di Kg. Salak Tinggi",
+    "state": "Selangor",
+    "lat": 2.788667,
+    "lng": 101.741972
+  },
+  "2719422": {
+    "name": "Sg. Linggi At Rahang",
+    "state": "Negeri Sembilan",
+    "lat": 2.709722,
+    "lng": 101.954167
+  },
+  "2722413": {
+    "name": "Sg. Muar di Kuala Pilah",
+    "state": "Negeri Sembilan",
+    "lat": 2.748611,
+    "lng": 102.248611
+  },
+  "2722414": {
+    "name": "Sg. Muar di Ampangan Tinggi",
+    "state": "Negeri Sembilan",
+    "lat": 2.748389,
+    "lng": 102.229944
+  },
+  "2723401": {
+    "name": "Sg. Kepis di Jam. Kayu Lama",
+    "state": "Negeri Sembilan",
+    "lat": 2.705556,
+    "lng": 102.355556
+  },
+  "2737401": {
+    "name": "Giam Pasang",
+    "state": "Sarawak",
+    "lat": 2.743056,
+    "lng": 113.791667
+  },
+  "2737413": {
+    "name": "Belaga",
+    "state": "Sarawak",
+    "lat": 2.713889,
+    "lng": 113.780556
+  },
+  "2816441": {
+    "name": "Sg. Langat di Dengkil",
+    "state": "Selangor",
+    "lat": 2.992778,
+    "lng": 101.786944
+  },
+  "2816442": {
+    "name": "Sg. Labu di Kg. Labu (Masjid KLIA)",
+    "state": "Selangor",
+    "lat": 2.804861,
+    "lng": 101.691806
+  },
+  "2816443": {
+    "name": "Sg. Langat di Bukit Changgang",
+    "state": "Selangor",
+    "lat": 2.813472,
+    "lng": 101.641917
+  },
+  "2817401": {
+    "name": "Igan",
+    "state": "Sarawak",
+    "lat": 2.819444,
+    "lng": 111.713889
+  },
+  "2818401": {
+    "name": "Oya",
+    "state": "Sarawak",
+    "lat": 3.025556,
+    "lng": 112.591389
+  },
+  "2825401": {
+    "name": "Bawan, Sg.",
+    "state": "Sarawak",
+    "lat": 2.498611,
+    "lng": 111.703056
+  },
+  "2828401": {
+    "name": "Tatau Town",
+    "state": "Sarawak",
+    "lat": 2.876389,
+    "lng": 112.847222
+  },
+  "2917401": {
+    "name": "Sg. Langat di Kajang",
+    "state": "Selangor",
+    "lat": 2.994444,
+    "lng": 101.786111
+  },
+  "2917442": {
+    "name": "Sg. Langat di Kajang",
+    "state": "Selangor",
+    "lat": 2.993056,
+    "lng": 101.7875
+  },
+  "2918401": {
+    "name": "Sg. Semenyih di Sg. Rinching",
+    "state": "Selangor",
+    "lat": 2.915278,
+    "lng": 101.823611
+  },
+  "2918443": {
+    "name": "Sg. Semenyih At Semenyih",
+    "state": "Selangor",
+    "lat": 2.945833,
+    "lng": 101.848611
+  },
+  "2920401": {
+    "name": "Mukah JKR",
+    "state": "Sarawak",
+    "lat": 2.902778,
+    "lng": 112.086111
+  },
+  "2920432": {
+    "name": "Sg. Triang di Kg. Chenor",
+    "state": "Negeri Sembilan",
+    "lat": 2.948611,
+    "lng": 102.088889
+  },
+  "2923401": {
+    "name": "Sg. Serting di Serting Ulu",
+    "state": "Negeri Sembilan",
+    "lat": 2.902,
+    "lng": 102.313722
+  },
+  "2928401": {
+    "name": "Sg. Keratong di Jam.Bahau Kera tong",
+    "state": "Pahang",
+    "lat": 2.915278,
+    "lng": 102.825
+  },
+  "3013401": {
+    "name": "Sg. Klang di Selat Muara Kelang",
+    "state": "Selangor",
+    "lat": 3.017611,
+    "lng": 101.377778
+  },
+  "3014401": {
+    "name": "Sg. Klang di Bandar Klang",
+    "state": "Selangor",
+    "lat": 3.048056,
+    "lng": 101.444806
+  },
+  "3015431": {
+    "name": "Sg. Klang di Puchong Weir",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.013889,
+    "lng": 101.597222
+  },
+  "3015432": {
+    "name": "Sg. Klang di Taman Sri Muda 1",
+    "state": "Selangor",
+    "lat": 3.037722,
+    "lng": 101.5345
+  },
+  "3015435": {
+    "name": "Sg. Damansara di batu 3",
+    "state": "Selangor",
+    "lat": 3.075611,
+    "lng": 101.553889
+  },
+  "3015436": {
+    "name": "Sg. Klang di Puchong Drop",
+    "state": "Selangor",
+    "lat": 3.019528,
+    "lng": 101.597417
+  },
+  "3015490": {
+    "name": "Sg. Damansara di TTDI Jaya",
+    "state": "Selangor",
+    "lat": 3.096944,
+    "lng": 101.554167
+  },
+  "3016401": {
+    "name": "Sungai Klang di Jamabatan Petaling",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.080917,
+    "lng": 101.665194
+  },
+  "3016402": {
+    "name": "Sg. Penchala di Jalan 222",
+    "state": "Selangor",
+    "lat": 3.096528,
+    "lng": 101.634389
+  },
+  "3016480": {
+    "name": "Sungai Penchala di Kg. Ghandi",
+    "state": "Selangor",
+    "lat": 3.076444,
+    "lng": 101.621389
+  },
+  "3017444": {
+    "name": "Sg. Langat At Kg. Balak Kajang",
+    "state": "Selangor",
+    "lat": 3.015278,
+    "lng": 101.773611
+  },
+  "3017445": {
+    "name": "Sg. Kuyoh di Sri Kembangan",
+    "state": "Selangor",
+    "lat": 3.0145,
+    "lng": 101.718667
+  },
+  "3018401": {
+    "name": "Sg. Semenyih di Kg. Pasir",
+    "state": "Selangor",
+    "lat": 3.013444,
+    "lng": 101.866056
+  },
+  "3022431": {
+    "name": "Sg. Triang di Juntai",
+    "state": "Negeri Sembilan",
+    "lat": 3.075,
+    "lng": 102.218056
+  },
+  "3024443": {
+    "name": "Sg. Serting di Jam.Padang Gudang",
+    "state": "Pahang",
+    "lat": 3.1,
+    "lng": 102.475
+  },
+  "3026401": {
+    "name": "Kuala Balingian",
+    "state": "Sarawak",
+    "lat": 3.025556,
+    "lng": 112.591389
+  },
+  "3029482": {
+    "name": "Sg. Rompin At Lubok Seribut",
+    "state": "Pahang",
+    "lat": 3.055556,
+    "lng": 102.991667
+  },
+  "3030401": {
+    "name": "Sg. Rompin di Jam. Kuantan/Segamat",
+    "state": "Pahang",
+    "lat": 3.055556,
+    "lng": 103.016667
+  },
+  "3111401": {
+    "name": "Sungai Penchala",
+    "state": "Selangor",
+    "lat": 3.169833,
+    "lng": 101.586511
+  },
+  "3111402": {
+    "name": "Jambatan Athinapan TTDI",
+    "state": "Selangor",
+    "lat": 3.145583,
+    "lng": 101.620694
+  },
+  "3111403": {
+    "name": "TV3",
+    "state": "Selangor",
+    "lat": 3.145806,
+    "lng": 101.61975
+  },
+  "3111404": {
+    "name": "Sg. Kayu Ara",
+    "state": "Selangor",
+    "lat": 3.112167,
+    "lng": 101.597
+  },
+  "3111405": {
+    "name": "Taman Mayang",
+    "state": "Selangor",
+    "lat": 3.112722,
+    "lng": 101.598028
+  },
+  "3115402": {
+    "name": "Sg. Buluh di Paya Jaras",
+    "state": "Selangor",
+    "lat": 3.196528,
+    "lng": 101.548778
+  },
+  "3115403": {
+    "name": "Sg. Damansara di Taman Mayang",
+    "state": "Selangor",
+    "lat": 3.112278,
+    "lng": 101.596444
+  },
+  "3115404": {
+    "name": "Sg. Damansara di Kg. Melayu Subang",
+    "state": "Selangor",
+    "lat": 3.150056,
+    "lng": 101.540944
+  },
+  "3116430": {
+    "name": "Sg. klang di Jambatan. Sulaiman",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.138889,
+    "lng": 101.697222
+  },
+  "3116432": {
+    "name": "Sg. Klang di Leboh Pasar, K.Lumpur",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.146667,
+    "lng": 101.695278
+  },
+  "3116433": {
+    "name": "Sg. Gombak di Jln. Tun Razak",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.173611,
+    "lng": 101.697222
+  },
+  "3116434": {
+    "name": "Sg. Batu di Sentul",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.176389,
+    "lng": 101.6875
+  },
+  "3116435": {
+    "name": "Sungai Klang di Jamabatan Tun Perak",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.1505,
+    "lng": 101.698472
+  },
+  "3116436": {
+    "name": "Sungai Klang di Leboh Pasar",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.112583,
+    "lng": 101.696583
+  },
+  "3116439": {
+    "name": "Sungai Gombak di Jalan Parlimen",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.151333,
+    "lng": 101.695306
+  },
+  "3117402": {
+    "name": "Sg. Klang di Lrg. Yap Kwan Seng",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.165278,
+    "lng": 101.719444
+  },
+  "3117403": {
+    "name": "Sg. Bunus di Jln Tun Razak",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.169722,
+    "lng": 101.713333
+  },
+  "3117438": {
+    "name": "Sg. Klang At Kg. Bahru",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.165278,
+    "lng": 101.715278
+  },
+  "3118445": {
+    "name": "Sg. Lui di Kg. Lui",
+    "state": "Selangor",
+    "lat": 3.173611,
+    "lng": 101.872222
+  },
+  "3125441": {
+    "name": "Sg. Bera di Stn. Hutan Kemayan",
+    "state": "Pahang",
+    "lat": 3.197222,
+    "lng": 102.575
+  },
+  "3132401": {
+    "name": "Sebauh",
+    "state": "Sarawak",
+    "lat": 3.108333,
+    "lng": 113.262222
+  },
+  "3137401": {
+    "name": "Tubau",
+    "state": "Sarawak",
+    "lat": 3.159722,
+    "lng": 113.705556
+  },
+  "3152408": {
+    "name": "Lio Matu",
+    "state": "Sarawak",
+    "lat": 3.169444,
+    "lng": 115.222222
+  },
+  "3214401": {
+    "name": "Sg. Buluh di Sri Aman",
+    "state": "Selangor",
+    "lat": 3.246139,
+    "lng": 101.469694
+  },
+  "3216402": {
+    "name": "Sg. Anak Sg. Keroh di Taman Kepong",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.2,
+    "lng": 101.644444
+  },
+  "3216403": {
+    "name": "Sungai Batu di Empangan Batu",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.263889,
+    "lng": 101.681944
+  },
+  "3216439": {
+    "name": "Sg. Batu di Kg. Sg. Tua",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.272222,
+    "lng": 101.686111
+  },
+  "3217401": {
+    "name": "Sg. Gombak di Damsite",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.245833,
+    "lng": 101.715278
+  },
+  "3217403": {
+    "name": "Sungai Gombak di Simpang Tiga",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.245278,
+    "lng": 101.715278
+  },
+  "3217435": {
+    "name": "Sungai Klang di Empangan Genting Klang",
+    "state": "Wilayah Persekutuan",
+    "lat": 3.236111,
+    "lng": 101.752778
+  },
+  "3218401": {
+    "name": "Sg. Langat di TNB Ponsoon",
+    "state": "Selangor",
+    "lat": 3.209639,
+    "lng": 101.875861
+  },
+  "3220401": {
+    "name": "Sg.Perdak di Temelong",
+    "state": "Pahang",
+    "lat": 3.29,
+    "lng": 102.08
+  },
+  "3224433": {
+    "name": "Sg. Triang di Jam. Keretapi",
+    "state": "Pahang",
+    "lat": 3.241667,
+    "lng": 102.4125
+  },
+  "3229401": {
+    "name": "Sg. Jeram At Proposed Dam Site",
+    "state": "Pahang",
+    "lat": 3.052778,
+    "lng": 102.968056
+  },
+  "3230402": {
+    "name": "Bintulu",
+    "state": "Sarawak",
+    "lat": 3.172222,
+    "lng": 113.038889
+  },
+  "3231401": {
+    "name": "Sibiu ATC",
+    "state": "Sarawak",
+    "lat": 3.223611,
+    "lng": 113.155556
+  },
+  "3231493": {
+    "name": "Sg. Serai At Kg. Unchang",
+    "state": "Pahang",
+    "lat": 3.283333,
+    "lng": 103.183333
+  },
+  "3312446": {
+    "name": "Sg. Selangor di Teluk Penyamun",
+    "state": "Selangor",
+    "lat": 3.342528,
+    "lng": 101.269111
+  },
+  "3313445": {
+    "name": "Sg. Selangor di Kuala Badong",
+    "state": "Selangor",
+    "lat": 3.371917,
+    "lng": 101.3705
+  },
+  "3313470": {
+    "name": "Sg. Buluh di Parit Mahang",
+    "state": "Selangor",
+    "lat": 3.306722,
+    "lng": 101.386444
+  },
+  "3315401": {
+    "name": "Sg. Rawang di Taman Tun Teja",
+    "state": "Selangor",
+    "lat": 3.304694,
+    "lng": 101.591944
+  },
+  "3316401": {
+    "name": "Sg. Serendah di Serendah",
+    "state": "Selangor",
+    "lat": 3.368389,
+    "lng": 101.606806
+  },
+  "3318401": {
+    "name": "Sg. Tanglir di Jam. Jln Raya",
+    "state": "Pahang",
+    "lat": 3.358333,
+    "lng": 101.843056
+  },
+  "3318402": {
+    "name": "Sg. Keshar di Jam. Lama",
+    "state": "Pahang",
+    "lat": 3.388889,
+    "lng": 101.883333
+  },
+  "3318403": {
+    "name": "Sg. Benus di Hutan Lipur Lentang",
+    "state": "Pahang",
+    "lat": 3.384722,
+    "lng": 101.8875
+  },
+  "3328401": {
+    "name": "Sg. Mentiga At Proposed Damsite",
+    "state": "Pahang",
+    "lat": 3.304167,
+    "lng": 102.894444
+  },
+  "3329401": {
+    "name": "Sg. Mentiga di Jam. Cini 1",
+    "state": "Pahang",
+    "lat": 3.35,
+    "lng": 102.943056
+  },
+  "3347402": {
+    "name": "Akah, Long",
+    "state": "Sarawak",
+    "lat": 3.304167,
+    "lng": 114.788889
+  },
+  "3414421": {
+    "name": "Sg. Selangor di Rantau Panjang",
+    "state": "Selangor",
+    "lat": 3.402778,
+    "lng": 101.443056
+  },
+  "3416402": {
+    "name": "Sg. Liam di Ulu Yam",
+    "state": "Selangor",
+    "lat": 3.460667,
+    "lng": 101.637333
+  },
+  "3416403": {
+    "name": "Sg. Batang Kali di Batang Kali",
+    "state": "Selangor",
+    "lat": 3.469917,
+    "lng": 101.639806
+  },
+  "3420432": {
+    "name": "Sg.Semantan di Kg Lenkong",
+    "state": "Pahang",
+    "lat": 3.47,
+    "lng": 102.08
+  },
+  "3423421": {
+    "name": "Sg. Semantan di Jam. Keretapi",
+    "state": "Pahang",
+    "lat": 3.4875,
+    "lng": 102.344444
+  },
+  "3424411": {
+    "name": "Sg. Pahang di Temerloh",
+    "state": "Pahang",
+    "lat": 3.444444,
+    "lng": 102.429167
+  },
+  "3431401": {
+    "name": "Sg.Pahang di Serambi (Paloh Inai)",
+    "state": "Pahang",
+    "lat": 3.48,
+    "lng": 103.13
+  },
+  "3434401": {
+    "name": "Sg. Pahang di Pekan",
+    "state": "Pahang",
+    "lat": 3.49,
+    "lng": 103.41
+  },
+  "3444409": {
+    "name": "Pilah S, Long",
+    "state": "Sarawak",
+    "lat": 3.486111,
+    "lng": 114.426389
+  },
+  "3516422": {
+    "name": "Sg. Selangor di Rasa",
+    "state": "Selangor",
+    "lat": 3.506944,
+    "lng": 101.634722
+  },
+  "3516423": {
+    "name": "Sg. Kerling di Kerling",
+    "state": "Selangor",
+    "lat": 3.588361,
+    "lng": 101.606333
+  },
+  "3516424": {
+    "name": "Sg. Selangor di Ampang Pecah",
+    "state": "Selangor",
+    "lat": 3.541417,
+    "lng": 101.662333
+  },
+  "3518401": {
+    "name": "Empangan Repas",
+    "state": "Pahang",
+    "lat": 3.56,
+    "lng": 101.88
+  },
+  "3519426": {
+    "name": "Sg. Bentong di Kuala Marong",
+    "state": "Pahang",
+    "lat": 3.5125,
+    "lng": 101.915278
+  },
+  "3525405": {
+    "name": "Sg. Jengka di Jam. Kg. Awah",
+    "state": "Pahang",
+    "lat": 3.520833,
+    "lng": 102.513889
+  },
+  "3527410": {
+    "name": "Sg. Pahang di Lubok Paku",
+    "state": "Pahang",
+    "lat": 3.5125,
+    "lng": 102.758333
+  },
+  "3541410": {
+    "name": "Jegan, Long",
+    "state": "Sarawak",
+    "lat": 3.586111,
+    "lng": 114.1125
+  },
+  "3615412": {
+    "name": "Sg. Bernam di Tanjung Malim",
+    "state": "Selangor",
+    "lat": 3.685278,
+    "lng": 101.523333
+  },
+  "3626401": {
+    "name": "Sg. Jempol di Ran. Felda Jengka",
+    "state": "Pahang",
+    "lat": 3.65,
+    "lng": 102.669444
+  },
+  "3629403": {
+    "name": "Sg. Lepar di Jam. Gelugor",
+    "state": "Pahang",
+    "lat": 3.697222,
+    "lng": 102.972222
+  },
+  "3744421": {
+    "name": "Lama, Long",
+    "state": "Sarawak",
+    "lat": 3.7625,
+    "lng": 114.401389
+  },
+  "3808401": {
+    "name": "Sg. Bernam Sg. Air Tawar",
+    "state": "Selangor",
+    "lat": 3.856556,
+    "lng": 100.895833
+  },
+  "3813411": {
+    "name": "Sg. Bernam di Jam. Skc",
+    "state": "Selangor",
+    "lat": 3.8075,
+    "lng": 101.369444
+  },
+  "3813414": {
+    "name": "Sg. Trolak di Trolak",
+    "state": "Perak",
+    "lat": 3.891667,
+    "lng": 101.379167
+  },
+  "3814413": {
+    "name": "Sg. Slim At Kg. Slim",
+    "state": "Perak",
+    "lat": 3.85,
+    "lng": 101.479167
+  },
+  "3814415": {
+    "name": "Sg. Bil At Jln. Tg. Malim-Slim",
+    "state": "Perak",
+    "lat": 3.825,
+    "lng": 101.488889
+  },
+  "3814416": {
+    "name": "Sg. Slim At Slim River",
+    "state": "Perak",
+    "lat": 3.826389,
+    "lng": 101.411111
+  },
+  "3831401": {
+    "name": "Sg.Kuantan di Pasir Kemudi",
+    "state": "Pahang",
+    "lat": 3.87,
+    "lng": 103.19
+  },
+  "3842425": {
+    "name": "Teru, Long",
+    "state": "Sarawak",
+    "lat": 3.861111,
+    "lng": 114.240278
+  },
+  "3901401": {
+    "name": "Sungai Bidor di Changkat Jong",
+    "state": "Perak",
+    "lat": 3.99,
+    "lng": 101.1
+  },
+  "3907403": {
+    "name": "Sg.Perak di Kg.Pasang Api, Bagan Datok",
+    "state": "Perak",
+    "lat": 3.988158,
+    "lng": 100.765469
+  },
+  "3911457": {
+    "name": "Sg. Sungkai At Jln. Anson-Kampar",
+    "state": "Perak",
+    "lat": 3.988889,
+    "lng": 101.125
+  },
+  "3913458": {
+    "name": "Sg. Sungkai di Sungkai",
+    "state": "Perak",
+    "lat": 3.9875,
+    "lng": 101.313889
+  },
+  "3925401": {
+    "name": "Sg. Tekam di Lembangan Ujian A",
+    "state": "Pahang",
+    "lat": 3.902778,
+    "lng": 102.540278
+  },
+  "3925402": {
+    "name": "Sg. Tekam di Lembangan Ujian B",
+    "state": "Pahang",
+    "lat": 3.9,
+    "lng": 102.536111
+  },
+  "3925403": {
+    "name": "Sg. Tekam di Lembangan Ujian C",
+    "state": "Pahang",
+    "lat": 3.908333,
+    "lng": 102.531944
+  },
+  "3930401": {
+    "name": "Sg. Kuantan di Bukit Kenau",
+    "state": "Pahang",
+    "lat": 3.931944,
+    "lng": 103.058333
+  },
+  "3946411": {
+    "name": "Terawan, Long",
+    "state": "Sarawak",
+    "lat": 3.993056,
+    "lng": 114.630556
+  },
+  "4011451": {
+    "name": "Sg. Bidor At Batu 9 Jln. Anson",
+    "state": "Perak",
+    "lat": 4,
+    "lng": 101.131944
+  },
+  "4012401": {
+    "name": "Sg. Bidor di Bidor Malayan Tin Bhd.",
+    "state": "Perak",
+    "lat": 4.075,
+    "lng": 101.244444
+  },
+  "4012452": {
+    "name": "Sg. Bidor At Bt. 18 Jln. Anson",
+    "state": "Perak",
+    "lat": 4.029167,
+    "lng": 101.233333
+  },
+  "4012453": {
+    "name": "Sg. Bidor At Bidor Tin Deviation",
+    "state": "Perak",
+    "lat": 4.090278,
+    "lng": 101.258333
+  },
+  "4019462": {
+    "name": "Sg. Lipis di Benta",
+    "state": "Pahang",
+    "lat": 4.018056,
+    "lng": 101.965278
+  },
+  "4023412": {
+    "name": "Sg. Pahang di Sg. Yap",
+    "state": "Pahang",
+    "lat": 4.031944,
+    "lng": 102.325
+  },
+  "4043401": {
+    "name": "Benawa",
+    "state": "Sarawak",
+    "lat": 4.023611,
+    "lng": 114.348611
+  },
+  "4109401": {
+    "name": "Sungai Perak di Kampung Gajah",
+    "state": "Perak",
+    "lat": 4.179608,
+    "lng": 100.929925
+  },
+  "4111455": {
+    "name": "Sg. Batang Padang di Tg. Keramat",
+    "state": "Perak",
+    "lat": 4.134722,
+    "lng": 101.147222
+  },
+  "4112454": {
+    "name": "Sg. Bidor At Bidor",
+    "state": "Perak",
+    "lat": 4.111111,
+    "lng": 101.288889
+  },
+  "4112456": {
+    "name": "Sg. Btg Padang at Tapah",
+    "state": "Perak",
+    "lat": 4.2,
+    "lng": 101.2625
+  },
+  "4112459": {
+    "name": "Sg. Gedong At Bidor",
+    "state": "Perak",
+    "lat": 4.116667,
+    "lng": 101.283333
+  },
+  "4121413": {
+    "name": "Sg. Jelai di Jeram Bungor",
+    "state": "Pahang",
+    "lat": 4.186111,
+    "lng": 102.144444
+  },
+  "4131453": {
+    "name": "Sg. Cherul di Ban Ho",
+    "state": "Terengganu",
+    "lat": 4.133333,
+    "lng": 103.175
+  },
+  "4141401": {
+    "name": "Bakong",
+    "state": "Sarawak",
+    "lat": 4.194444,
+    "lng": 114.127778
+  },
+  "4143406": {
+    "name": "Marudi",
+    "state": "Sarawak",
+    "lat": 4.177778,
+    "lng": 114.322222
+  },
+  "4209493": {
+    "name": "Sungai Perak di Teluk Sena",
+    "state": "Perak",
+    "lat": 4.255556,
+    "lng": 100.9
+  },
+  "4212467": {
+    "name": "Sg. Chenderiang di Bt. 32 Jln. Tapah",
+    "state": "Perak",
+    "lat": 4.231944,
+    "lng": 101.219444
+  },
+  "4218416": {
+    "name": "Sg. Jelai di Kuala Medang",
+    "state": "Pahang",
+    "lat": 4.294444,
+    "lng": 101.811111
+  },
+  "4219414": {
+    "name": "Sg. Jelai At Padang Tungku",
+    "state": "Pahang",
+    "lat": 4.240278,
+    "lng": 101.986111
+  },
+  "4219415": {
+    "name": "Sg. Jelai di Bkt. Betong",
+    "state": "Pahang",
+    "lat": 4.25,
+    "lng": 101.940278
+  },
+  "4223450": {
+    "name": "Sg. Tembeling di Kg. Merting",
+    "state": "Pahang",
+    "lat": 4.238889,
+    "lng": 102.386111
+  },
+  "4232401": {
+    "name": "Sg. Kemaman di Jam. Air Puteh",
+    "state": "Terengganu",
+    "lat": 4.270833,
+    "lng": 103.198611
+  },
+  "4232451": {
+    "name": "Sg. Kemaman di Kuala Tayor",
+    "state": "Terengganu",
+    "lat": 4.265278,
+    "lng": 103.275
+  },
+  "4232452": {
+    "name": "Sg. Kemaman di Rantau Panjang",
+    "state": "Terengganu",
+    "lat": 4.280556,
+    "lng": 103.2625
+  },
+  "4278401": {
+    "name": "Sg. Tawau At Kuhara Road",
+    "state": "Sabah",
+    "lat": 4.273611,
+    "lng": 117.883333
+  },
+  "4278402": {
+    "name": "Sg. Tawau At Kuhara",
+    "state": "Sabah",
+    "lat": 4.271667,
+    "lng": 117.888056
+  },
+  "4310401": {
+    "name": "Sg. Kinta di Weir G di Tg. Tualang",
+    "state": "Perak",
+    "lat": 4.322222,
+    "lng": 101.075
+  },
+  "4311464": {
+    "name": "Sg. Kampar di Kg. Lanjut",
+    "state": "Perak",
+    "lat": 4.336111,
+    "lng": 101.101389
+  },
+  "4320401": {
+    "name": "Sg. Kecau di Kg. Dusun",
+    "state": "Pahang",
+    "lat": 4.320833,
+    "lng": 102.061111
+  },
+  "4324454": {
+    "name": "Sg. Tembeling di Kuala Tahan",
+    "state": "Pahang",
+    "lat": 4.384722,
+    "lng": 102.404167
+  },
+  "4332401": {
+    "name": "Sg. Tebak di Jambatan Tebak",
+    "state": "Terengganu",
+    "lat": 4.377778,
+    "lng": 103.2625
+  },
+  "4409401": {
+    "name": "Sungai Perak di Parit",
+    "state": "Perak",
+    "lat": 4.472172,
+    "lng": 100.9049
+  },
+  "4410461": {
+    "name": "Sg. Kinta di Batu Gajah",
+    "state": "Perak",
+    "lat": 4.468056,
+    "lng": 101.047222
+  },
+  "4410465": {
+    "name": "Sg. Raia di Ldg. Kinta Kellas",
+    "state": "Perak",
+    "lat": 4.475,
+    "lng": 101.0875
+  },
+  "4448420": {
+    "name": "Insungai, Nanga",
+    "state": "Sarawak",
+    "lat": 4.4,
+    "lng": 11.081389
+  },
+  "4449402": {
+    "name": "Saliban, Nanga",
+    "state": "Sarawak",
+    "lat": 4.476389,
+    "lng": 114.923611
+  },
+  "4474401": {
+    "name": "Sg. Kalabakan At Kalabakan",
+    "state": "Sabah",
+    "lat": 4.460556,
+    "lng": 117.39
+  },
+  "4506401": {
+    "name": "Sg. Bruas At Kg. Padang Serai",
+    "state": "Perak",
+    "lat": 4.516667,
+    "lng": 100.693056
+  },
+  "4509442": {
+    "name": "Sg. Perak At Jam. FALSErdin",
+    "state": "Perak",
+    "lat": 4.505556,
+    "lng": 100.925
+  },
+  "4510462": {
+    "name": "Sg. Kinta At Ipoh",
+    "state": "Perak",
+    "lat": 4.591667,
+    "lng": 101.077778
+  },
+  "4510463": {
+    "name": "Sungai Kinta di Kuala Pari",
+    "state": "Perak",
+    "lat": 4.578061,
+    "lng": 101.068903
+  },
+  "4511468": {
+    "name": "Sg. Raia di Keramat Pulai",
+    "state": "Perak",
+    "lat": 4.533333,
+    "lng": 101.138889
+  },
+  "4514401": {
+    "name": "Sg.Ikan",
+    "state": "Pahang",
+    "lat": 4.57,
+    "lng": 101.41
+  },
+  "4529401": {
+    "name": "Sg. Dungun di Rumah Pam Paya Kempian",
+    "state": "Terengganu",
+    "lat": 4.568056,
+    "lng": 102.979167
+  },
+  "4548412": {
+    "name": "Ukong",
+    "state": "Sarawak",
+    "lat": 4.551389,
+    "lng": 114.855556
+  },
+  "4553401": {
+    "name": "Tengoa D, Long",
+    "state": "Sarawak",
+    "lat": 4.590278,
+    "lng": 115.336111
+  },
+  "4581401": {
+    "name": "Sg. Kalumpang At Mostyn Bridge",
+    "state": "Sabah",
+    "lat": 4.587222,
+    "lng": 118.170556
+  },
+  "4581402": {
+    "name": "Sg. Kalumpang At Mostyn Bridge",
+    "state": "Sabah",
+    "lat": 4.644444,
+    "lng": 118.163889
+  },
+  "4610466": {
+    "name": "Sg. Pari di Jln. Silibin, Ipoh",
+    "state": "Perak",
+    "lat": 4.605556,
+    "lng": 101.066667
+  },
+  "4611463": {
+    "name": "Sg. Kinta di Tg. Rambutan",
+    "state": "Perak",
+    "lat": 4.669444,
+    "lng": 101.158333
+  },
+  "4628401": {
+    "name": "Sg. Chalok di Jam. Penarik",
+    "state": "Terengganu",
+    "lat": 4.603333,
+    "lng": 102.818611
+  },
+  "4648413": {
+    "name": "Batu Danau",
+    "state": "Sarawak",
+    "lat": 4.647222,
+    "lng": 114.820833
+  },
+  "4730401": {
+    "name": "Sg. Dungun di Kg. Surau,Kuala Jengai",
+    "state": "Terengganu",
+    "lat": 4.734722,
+    "lng": 103.0875
+  },
+  "4732461": {
+    "name": "Sg. Paka di Kg. Luit",
+    "state": "Terengganu",
+    "lat": 4.741667,
+    "lng": 103.2625
+  },
+  "4749401": {
+    "name": "Limbang",
+    "state": "Sarawak",
+    "lat": 4.745833,
+    "lng": 114.997222
+  },
+  "4764401": {
+    "name": "Sg. Sapulut At Sapulut",
+    "state": "Sabah",
+    "lat": 4.702778,
+    "lng": 116.481944
+  },
+  "4764402": {
+    "name": "Sg. Talankai di Lotong",
+    "state": "Sabah",
+    "lat": 4.718889,
+    "lng": 116.441389
+  },
+  "4764403": {
+    "name": "Sg. Talankai di Sk.Lotong",
+    "state": "Sabah",
+    "lat": 4.718889,
+    "lng": 116.441389
+  },
+  "4809443": {
+    "name": "Sg. Perak di Jambatan Iskandar",
+    "state": "Perak",
+    "lat": 4.819444,
+    "lng": 100.965278
+  },
+  "4810444": {
+    "name": "Sg. Plus At Kg. Pulau Mentimun",
+    "state": "Perak",
+    "lat": 4.895833,
+    "lng": 101.029167
+  },
+  "4831441": {
+    "name": "Sg. Dungun At Cableway Jerangau",
+    "state": "Terengganu",
+    "lat": 4.840278,
+    "lng": 103.198611
+  },
+  "4832441": {
+    "name": "Sg. Dungun di Jam. Jerangau",
+    "state": "Terengganu",
+    "lat": 4.843056,
+    "lng": 103.204167
+  },
+  "4858401": {
+    "name": "Sg. Padas di Kuala Tomani",
+    "state": "Sabah",
+    "lat": 4.718889,
+    "lng": 116.441389
+  },
+  "4907422": {
+    "name": "Sg. Kurau di Bt. 14 Jln. Taiping",
+    "state": "Perak",
+    "lat": 4.977778,
+    "lng": 100.780556
+  },
+  "4909472": {
+    "name": "Empangan Chenderoh",
+    "state": "Perak",
+    "lat": 4.961111,
+    "lng": 100.979167
+  },
+  "4911445": {
+    "name": "Sg. Plus di Kg. Lintang",
+    "state": "Perak",
+    "lat": 4.9375,
+    "lng": 101.102778
+  },
+  "4930401": {
+    "name": "Sg. Berang di Menerong",
+    "state": "Terengganu",
+    "lat": 4.938889,
+    "lng": 103.0625
+  },
+  "4955402": {
+    "name": "Sg. Mengalong At Lubang Buaya",
+    "state": "Sabah",
+    "lat": 4.994444,
+    "lng": 115.577778
+  },
+  "4955403": {
+    "name": "Sg. Mengalong di Sindumin",
+    "state": "Sabah",
+    "lat": 4.994444,
+    "lng": 115.577778
+  },
+  "4959401": {
+    "name": "Sg. Padas di Kemabong",
+    "state": "Sabah",
+    "lat": 4.916667,
+    "lng": 115.920833
+  },
+  "5006401": {
+    "name": "Kolam Air Bukit Merah",
+    "state": "Perak",
+    "lat": 5.018275,
+    "lng": 100.653
+  },
+  "5007421": {
+    "name": "Sg. Kurau di Pondok Tanjung",
+    "state": "Perak",
+    "lat": 5.0125,
+    "lng": 100.731944
+  },
+  "5007423": {
+    "name": "Sg. Ara At Bt. 20 Jln. Taiping",
+    "state": "Perak",
+    "lat": 5.033333,
+    "lng": 100.790278
+  },
+  "5029433": {
+    "name": "Sg. Terengganu di Kg. Dura",
+    "state": "Terengganu",
+    "lat": 5.066667,
+    "lng": 102.943056
+  },
+  "5029434": {
+    "name": "Sg. Terengganu di Jeram Kenyir",
+    "state": "Terengganu",
+    "lat": 5.025,
+    "lng": 102.908333
+  },
+  "5031401": {
+    "name": "Sg. Maran di Jam.Peng. Berangan",
+    "state": "Terengganu",
+    "lat": 5.098056,
+    "lng": 103.147222
+  },
+  "5074401": {
+    "name": "Sg. Kuamut di Ulu Kuamut",
+    "state": "Sabah",
+    "lat": 5.081944,
+    "lng": 117.441667
+  },
+  "5106431": {
+    "name": "Sg. Kerian At Dusun Rimau",
+    "state": "Perak",
+    "lat": 5.194444,
+    "lng": 100.666667
+  },
+  "5106433": {
+    "name": "Sg. Ijok di Titi Ijok",
+    "state": "Perak",
+    "lat": 5.140278,
+    "lng": 100.697222
+  },
+  "5108401": {
+    "name": "Sungai Ijok di Bekalan Ijok",
+    "state": "Perak",
+    "lat": 5.120606,
+    "lng": 100.804142
+  },
+  "5120401": {
+    "name": "Sg. Nenggiri di Jam. Bertam",
+    "state": "Kelantan",
+    "lat": 5.148611,
+    "lng": 102.045833
+  },
+  "5129437": {
+    "name": "Sg. Telemong di Paya Rapat",
+    "state": "Terengganu",
+    "lat": 5.173611,
+    "lng": 102.901389
+  },
+  "5129438": {
+    "name": "Sg. Telemong di Kuala Ping",
+    "state": "Terengganu",
+    "lat": 509.47,
+    "lng": 10
+  },
+  "5130432": {
+    "name": "Sg. Terengganu  di Kg.Tanggol",
+    "state": "Terengganu",
+    "lat": 5.1375,
+    "lng": 103.045833
+  },
+  "5156401": {
+    "name": "Sg. Lakutan At Mesapol Quarry",
+    "state": "Sabah",
+    "lat": 5.125,
+    "lng": 115.630556
+  },
+  "5156402": {
+    "name": "Sg. Lakutan At Tunggul Tinggi Ph",
+    "state": "Sabah",
+    "lat": 5.108333,
+    "lng": 115.609722
+  },
+  "5156403": {
+    "name": "Sg. Lakutan At Mesapol",
+    "state": "Sabah",
+    "lat": 5.125,
+    "lng": 115.630556
+  },
+  "5159401": {
+    "name": "Sg. Padas di TeFALSEm",
+    "state": "Sabah",
+    "lat": 5.116667,
+    "lng": 115.930556
+  },
+  "5163401": {
+    "name": "Sg. Sook At Sook",
+    "state": "Sabah",
+    "lat": 5.143056,
+    "lng": 116.305556
+  },
+  "5181401": {
+    "name": "Sg. Segama di Limkabong",
+    "state": "Sabah",
+    "lat": 5.123611,
+    "lng": 118.130556
+  },
+  "5204422": {
+    "name": "Sg. Jawi di Jam. Jln. Raya",
+    "state": "Pulau Pinang",
+    "lat": 5.202778,
+    "lng": 100.498611
+  },
+  "5204423": {
+    "name": "Sungai Junjung di Simpang Empat",
+    "state": "Pulau Pinang",
+    "lat": 5.293889,
+    "lng": 100.480556
+  },
+  "5206432": {
+    "name": "Sg. Kerian di Selama",
+    "state": "Perak",
+    "lat": 5.229167,
+    "lng": 100.688889
+  },
+  "5222452": {
+    "name": "Sg. Lebir di Kg. Tualang",
+    "state": "Kelantan",
+    "lat": 5.275,
+    "lng": 102.266667
+  },
+  "5229436": {
+    "name": "Sg. Nerus di  Kg. Bukit",
+    "state": "Terengganu",
+    "lat": 5.291667,
+    "lng": 102.922222
+  },
+  "5261401": {
+    "name": "Sg. Pegalan di Ansip",
+    "state": "Sabah",
+    "lat": 5.281944,
+    "lng": 116.113889
+  },
+  "5261402": {
+    "name": "Sg. Sook di Biah",
+    "state": "Sabah",
+    "lat": 5.256944,
+    "lng": 116.140278
+  },
+  "5275401": {
+    "name": "Sg. Kinabatangan di  Pagar",
+    "state": "Sabah",
+    "lat": 5.226389,
+    "lng": 117.502778
+  },
+  "5302404": {
+    "name": "Sungai Dondang di Saluran",
+    "state": "Pulau Pinang",
+    "lat": 5.380833,
+    "lng": 100.2775
+  },
+  "5304401": {
+    "name": "Sungai Juru Empangan juru",
+    "state": "Pulau Pinang",
+    "lat": 5.333333,
+    "lng": 100.447778
+  },
+  "5307401": {
+    "name": "Mahang",
+    "state": "Kedah",
+    "lat": 5.325,
+    "lng": 100.733333
+  },
+  "5320443": {
+    "name": "Sg. Galas di Dabong",
+    "state": "Kelantan",
+    "lat": 5.381944,
+    "lng": 102.015278
+  },
+  "5357403": {
+    "name": "Sg. Padas di Beaufort Jps.",
+    "state": "Sabah",
+    "lat": 5.354167,
+    "lng": 115.723611
+  },
+  "5373401": {
+    "name": "Sg. Milian di Tangkulap",
+    "state": "Sabah",
+    "lat": 5.304167,
+    "lng": 117.318056
+  },
+  "5375401": {
+    "name": "Sg. Kinabatangan di Balat",
+    "state": "Sabah",
+    "lat": 5.309722,
+    "lng": 117.597222
+  },
+  "5403403": {
+    "name": "Sungai Pinang di Jalan P.Ramlee",
+    "state": "Pulau Pinang",
+    "lat": 5.410556,
+    "lng": 100.317222
+  },
+  "5405421": {
+    "name": "Sg. Kulim di Ara Kuda",
+    "state": "Pulau Pinang",
+    "lat": 5.436111,
+    "lng": 100.513889
+  },
+  "5411446": {
+    "name": "Sg. Perak At Kenderong",
+    "state": "Perak",
+    "lat": 5.416667,
+    "lng": 101.154167
+  },
+  "5419401": {
+    "name": "Sg. Pergau di Batu Lembu",
+    "state": "Kelantan",
+    "lat": 5.418056,
+    "lng": 101.945833
+  },
+  "5424401": {
+    "name": "Sungai Besut di Jambatan Keruak",
+    "state": "Terengganu",
+    "lat": 5.483333,
+    "lng": 102.491667
+  },
+  "5426401": {
+    "name": "Sg. Setiu di kampung Besut",
+    "state": "Terengganu",
+    "lat": 5.486944,
+    "lng": 102.686111
+  },
+  "5428401": {
+    "name": "Sg. Chalok di Jam. Chalok",
+    "state": "Terengganu",
+    "lat": 5.441667,
+    "lng": 102.834722
+  },
+  "5457401": {
+    "name": "Sg. Membakut di Membakut",
+    "state": "Sabah",
+    "lat": 5.473611,
+    "lng": 115.798611
+  },
+  "5461401": {
+    "name": "Sg. Baiayo di Bandukan",
+    "state": "Sabah",
+    "lat": 5.4375,
+    "lng": 116.134722
+  },
+  "5462402": {
+    "name": "Sg. Apin Apin di Waterworks",
+    "state": "Sabah",
+    "lat": 5.483333,
+    "lng": 116.265278
+  },
+  "5465401": {
+    "name": "Sg. Labau di Sinua",
+    "state": "Sabah",
+    "lat": 5.583333,
+    "lng": 115.954167
+  },
+  "5465402": {
+    "name": "Sg. Labau di Sk Mansiat",
+    "state": "Sabah",
+    "lat": 5.583333,
+    "lng": 115.954167
+  },
+  "5478401": {
+    "name": "Sg. Kinabatangan di Barik Manis",
+    "state": "Sabah",
+    "lat": 5.493056,
+    "lng": 117.877778
+  },
+  "5478402": {
+    "name": "Sg. Kinabatangan di Bkt. Garam",
+    "state": "Sabah",
+    "lat": 5.495833,
+    "lng": 117.834722
+  },
+  "5478403": {
+    "name": "Sg. Kinabatangan di Barik Manis",
+    "state": "Sabah",
+    "lat": 5.493056,
+    "lng": 117.877778
+  },
+  "5504401": {
+    "name": "Sungai Muda di Bumbung Lima",
+    "state": "Pulau Pinang",
+    "lat": 5.559444,
+    "lng": 100.436111
+  },
+  "5505412": {
+    "name": "Sg. Muda di Ldg. Victoria",
+    "state": "Pulau Pinang",
+    "lat": 5.531944,
+    "lng": 100.572222
+  },
+  "5505413": {
+    "name": "Sungai Muda  di Piang Tunggal",
+    "state": "Pulau Pinang",
+    "lat": 5.557222,
+    "lng": 100.506944
+  },
+  "5506413": {
+    "name": "Sg. Muda At Batu Pekaka",
+    "state": "Pulau Pinang",
+    "lat": 5.595833,
+    "lng": 100.615278
+  },
+  "5506416": {
+    "name": "Sg. Sedim di Merbau Pulas",
+    "state": "Pulau Pinang",
+    "lat": 5.566667,
+    "lng": 100.638889
+  },
+  "5506417": {
+    "name": "Sg. Karangan di Titi Karangan",
+    "state": "Pulau Pinang",
+    "lat": 5.522222,
+    "lng": 100.619444
+  },
+  "5513401": {
+    "name": "Tasik Temengoh di Banding",
+    "state": "Perak",
+    "lat": 5.550586,
+    "lng": 101.352733
+  },
+  "5521444": {
+    "name": "Sg. Kelantan di Kuala Krai",
+    "state": "Kelantan",
+    "lat": 5.534722,
+    "lng": 102.180556
+  },
+  "5524401": {
+    "name": "Sg. Besut di Kg.  La",
+    "state": "Terengganu",
+    "lat": 5.530556,
+    "lng": 102.483333
+  },
+  "5527421": {
+    "name": "Sg. Setiu di Kg. Buloh",
+    "state": "Terengganu",
+    "lat": 5.522222,
+    "lng": 102.745833
+  },
+  "5559401": {
+    "name": "Sg. Kimanis di Road Bridge",
+    "state": "Sabah",
+    "lat": 5.583333,
+    "lng": 115.954167
+  },
+  "5575401": {
+    "name": "Sg. Lokan di Lokan Bridge",
+    "state": "Sabah",
+    "lat": 5.556944,
+    "lng": 117.576389
+  },
+  "5606410": {
+    "name": "Sg. MUDA @ JAM. SYED OMAR",
+    "state": "Kedah",
+    "lat": 5.609722,
+    "lng": 100.626389
+  },
+  "5608418": {
+    "name": "Sg. Ketil di Kuala Pegang",
+    "state": "Kedah",
+    "lat": 5.638889,
+    "lng": 100.8125
+  },
+  "5609474": {
+    "name": "Sungai Ketil di Pulai",
+    "state": "Kedah",
+    "lat": 5.675028,
+    "lng": 100.915
+  },
+  "5610401": {
+    "name": "Sg. Rui di Jam. Jalan Raya",
+    "state": "Perak",
+    "lat": 5.602778,
+    "lng": 101.0625
+  },
+  "5621401": {
+    "name": "Sg. Sokor di Kg. Tegawan",
+    "state": "Kelantan",
+    "lat": 5.629167,
+    "lng": 102.101389
+  },
+  "5622401": {
+    "name": "Sg. Nal At Lubok Pauh",
+    "state": "Kelantan",
+    "lat": 5.636111,
+    "lng": 102.268056
+  },
+  "5624411": {
+    "name": "Sg. Dungun di Pasir Raja",
+    "state": "Terengganu",
+    "lat": 5.695833,
+    "lng": 102.479167
+  },
+  "5624412": {
+    "name": "Sg. Besut At Kg. Rantau Panjang",
+    "state": "Terengganu",
+    "lat": 5.695833,
+    "lng": 102.479167
+  },
+  "5659401": {
+    "name": "Sg. Papar di New P.H.Simpudu",
+    "state": "Sabah",
+    "lat": 5.691667,
+    "lng": 115.983333
+  },
+  "5663401": {
+    "name": "Sg. Pegalan di Keranaan",
+    "state": "Sabah",
+    "lat": 5.685556,
+    "lng": 116.376111
+  },
+  "5668401": {
+    "name": "Sg. Kegibangan di Tampias Pump Ho",
+    "state": "Sabah",
+    "lat": 5.685556,
+    "lng": 116.376111
+  },
+  "5708401": {
+    "name": "Sungai Ketil di Kampung Baru",
+    "state": "Kedah",
+    "lat": 5.7876,
+    "lng": 100.896278
+  },
+  "5718401": {
+    "name": "Sg. Lanas di Air Lanas",
+    "state": "Kelantan",
+    "lat": 5.786111,
+    "lng": 101.891667
+  },
+  "5721442": {
+    "name": "Sg. Kelantan di Jam. Guillemard/kusial",
+    "state": "Kelantan",
+    "lat": 5.7625,
+    "lng": 102.15
+  },
+  "5724411": {
+    "name": "Sg. Besut di Jambatan Jerteh",
+    "state": "Terengganu",
+    "lat": 5.738889,
+    "lng": 102.493056
+  },
+  "5724413": {
+    "name": "Sg. Pelagat di Pelagat",
+    "state": "Terengganu",
+    "lat": 5.730556,
+    "lng": 102.455556
+  },
+  "5760401": {
+    "name": "Sg. Papar di Kaiduan",
+    "state": "Sabah",
+    "lat": 5.769444,
+    "lng": 116.091667
+  },
+  "5760402": {
+    "name": "Sg. Papar di Kogopon",
+    "state": "Sabah",
+    "lat": 5.708333,
+    "lng": 116.036111
+  },
+  "5768401": {
+    "name": "Sg. Labuk di Tampias",
+    "state": "Sabah",
+    "lat": 5.718056,
+    "lng": 116.859722
+  },
+  "5768402": {
+    "name": "Sg. Liwagu di Maringkan",
+    "state": "Sabah",
+    "lat": 5.718056,
+    "lng": 116.859722
+  },
+  "5770401": {
+    "name": "Sg. Labuk At Tomboloi",
+    "state": "Sabah",
+    "lat": 5.740278,
+    "lng": 117.05
+  },
+  "5806414": {
+    "name": "Sg. Muda di Jeniang",
+    "state": "Kedah",
+    "lat": 5.819444,
+    "lng": 100.631944
+  },
+  "5818401": {
+    "name": "Sg. Golok di Jenob",
+    "state": "Kelantan",
+    "lat": 5.840278,
+    "lng": 101.891667
+  },
+  "5824401": {
+    "name": "Sg. Semerak di Pasir Putih",
+    "state": "Kelantan",
+    "lat": 5.859722,
+    "lng": 102.494444
+  },
+  "5872401": {
+    "name": "Sg. Labuk di Porog",
+    "state": "Sabah",
+    "lat": 5.854167,
+    "lng": 117.227778
+  },
+  "5872402": {
+    "name": "Sg. Labuk di Telupid",
+    "state": "Sabah",
+    "lat": 5.740278,
+    "lng": 117.05
+  },
+  "5961401": {
+    "name": "Sg. Moyog di Penampang",
+    "state": "Sabah",
+    "lat": 5.913889,
+    "lng": 116.111111
+  },
+  "5961402": {
+    "name": "Sg. Moyog di Penampang",
+    "state": "Sabah",
+    "lat": 5.913889,
+    "lng": 116.111111
+  },
+  "5966401": {
+    "name": "Sg. Liwagu At Bedukan",
+    "state": "Sabah",
+    "lat": 5.916667,
+    "lng": 116.652778
+  },
+  "6007415": {
+    "name": "Sg. Muda di Nami",
+    "state": "Kedah",
+    "lat": 6.055556,
+    "lng": 100.766667
+  },
+  "6019411": {
+    "name": "Sg. Golok di Rantau Panjang",
+    "state": "Kelantan",
+    "lat": 6.0225,
+    "lng": 101.974978
+  },
+  "6021401": {
+    "name": "Sg. Lemal At Repek Jam. Jln. Raya",
+    "state": "Kelantan",
+    "lat": 6.013889,
+    "lng": 102.102778
+  },
+  "6022421": {
+    "name": "Sg. Kemasin At Peringat",
+    "state": "Kelantan",
+    "lat": 6.030556,
+    "lng": 102.286111
+  },
+  "6065401": {
+    "name": "Sg. Liwagu di kinabalu park",
+    "state": "Sabah",
+    "lat": 5.916667,
+    "lng": 116.652778
+  },
+  "6073402": {
+    "name": "Sg. Tungud di Basai",
+    "state": "Sabah",
+    "lat": 6.053611,
+    "lng": 117.316389
+  },
+  "6120401": {
+    "name": "Sg. Golok di Kuala Jambu",
+    "state": "Kelantan",
+    "lat": 6.163889,
+    "lng": 102.095833
+  },
+  "6122441": {
+    "name": "Sg. Kelantan di Jeti Kastam",
+    "state": "Kelantan",
+    "lat": 6.133333,
+    "lng": 102.233333
+  },
+  "6162401": {
+    "name": "Sg. Tuaran At Malangang",
+    "state": "Sabah",
+    "lat": 6.102778,
+    "lng": 116.272222
+  },
+  "6162403": {
+    "name": "Sg. Tuaran di Pump House 1",
+    "state": "Sabah",
+    "lat": 6.15,
+    "lng": 116.238889
+  },
+  "6162404": {
+    "name": "Sg. Tuaran di Tamparuli",
+    "state": "Sabah",
+    "lat": 6.15,
+    "lng": 116.238889
+  },
+  "6168401": {
+    "name": "Sg. Merali At Merungin",
+    "state": "Sabah",
+    "lat": 6.104167,
+    "lng": 116.891667
+  },
+  "6172401": {
+    "name": "Sg. Sugut di Bukit Mondou",
+    "state": "Sabah",
+    "lat": 6.195833,
+    "lng": 117.238889
+  },
+  "6204401": {
+    "name": "Kepala Batas",
+    "state": "Kedah",
+    "lat": 6.203167,
+    "lng": 100.4135
+  },
+  "6204421": {
+    "name": "Sg. Pdg Terap di lengkuas",
+    "state": "Kedah",
+    "lat": 6.2125,
+    "lng": 100.454167
+  },
+  "6263401": {
+    "name": "Sg. Tenghilan At Tenghilan",
+    "state": "Sabah",
+    "lat": 6.255556,
+    "lng": 116.333333
+  },
+  "6264401": {
+    "name": "Sg. Kadamaian di Tamu Darat",
+    "state": "Sabah",
+    "lat": 6.263889,
+    "lng": 116.452778
+  },
+  "6304450": {
+    "name": "Jeragan",
+    "state": "Kedah",
+    "lat": 6.395,
+    "lng": 100.443733
+  },
+  "6306435": {
+    "name": "Durian Burung",
+    "state": "Kedah",
+    "lat": 6.376556,
+    "lng": 100.697778
+  },
+  "6364401": {
+    "name": "Sg. Wariu di Bridge no.2",
+    "state": "Sabah",
+    "lat": 6.325,
+    "lng": 116.483333
+  },
+  "6397401": {
+    "name": "Sg. Perangin di Tg. Burau",
+    "state": "Kedah",
+    "lat": 6.369722,
+    "lng": 99.6725
+  },
+  "6397402": {
+    "name": "Bukit Kemboja",
+    "state": "Kedah",
+    "lat": 6.354289,
+    "lng": 99.754686
+  },
+  "6397403": {
+    "name": "Rubber Dam",
+    "state": "Kedah",
+    "lat": 6.351994,
+    "lng": 99.722139
+  },
+  "6397405": {
+    "name": "Emp. Padang Saga",
+    "state": "Kedah",
+    "lat": 6.371211,
+    "lng": 99.770239
+  },
+  "6397411": {
+    "name": "Padang Matsirat",
+    "state": "Kedah",
+    "lat": 6.355828,
+    "lng": 99.735483
+  },
+  "6398421": {
+    "name": "Sg. Batu Asah di Kg. Kelibang",
+    "state": "Kedah",
+    "lat": 6.338333,
+    "lng": 99.813333
+  },
+  "6398431": {
+    "name": "Sg. Air Tawar di Ladang Sg. Raya",
+    "state": "Kedah",
+    "lat": 6.3675,
+    "lng": 99.864167
+  },
+  "6402433": {
+    "name": "Sg. Arau di Kuala Tunggang",
+    "state": "Perlis",
+    "lat": 6.452556,
+    "lng": 100.296667
+  },
+  "6402434": {
+    "name": "Sg. Gial di Titi Jln. Arau",
+    "state": "Perlis",
+    "lat": 6,
+    "lng": 100.263889
+  },
+  "6402435": {
+    "name": "Sg. Arau di Titi Jln. Arau",
+    "state": "Perlis",
+    "lat": 6,
+    "lng": 100.273611
+  },
+  "6404410": {
+    "name": "Padang Pasir",
+    "state": "Kedah",
+    "lat": 6.432111,
+    "lng": 100.420917
+  },
+  "6405401": {
+    "name": "Sungai Temin di UUM Sintok",
+    "state": "Kedah",
+    "lat": 6.472056,
+    "lng": 100.50325
+  },
+  "6465401": {
+    "name": "Sg. Kuang Kuang At Rosok Road",
+    "state": "Sabah",
+    "lat": 6.406944,
+    "lng": 115.533333
+  },
+  "6467401": {
+    "name": "Sg. Bandau At Simpangan",
+    "state": "Sabah",
+    "lat": 6.4,
+    "lng": 116.748611
+  },
+  "6468402": {
+    "name": "Sg. Bongan di Timbang Batu",
+    "state": "Sabah",
+    "lat": 6.447778,
+    "lng": 116.811667
+  },
+  "6502401": {
+    "name": "Sg. Jerneh di Titi Tampang",
+    "state": "Perlis",
+    "lat": 6.541667,
+    "lng": 100.263889
+  },
+  "6502402": {
+    "name": "Sg. Buloh di Kg. Batu Tangkup",
+    "state": "Perlis",
+    "lat": 6.55,
+    "lng": 100.2875
+  },
+  "6502403": {
+    "name": "Kolam Air di Timah Tasoh Dam",
+    "state": "Perlis",
+    "lat": 6.570833,
+    "lng": 100.245833
+  },
+  "6502431": {
+    "name": "Sg. Pelarit di Titi Baru",
+    "state": "Perlis",
+    "lat": 6.5875,
+    "lng": 100.211111
+  },
+  "6502432": {
+    "name": "Sg. Tasoh di Titi Baru",
+    "state": "Perlis",
+    "lat": 6.597222,
+    "lng": 100.245833
+  },
+  "6502436": {
+    "name": "Sg. Korok di Hulu Timah Tasoh dam",
+    "state": "Perlis",
+    "lat": 6.5625,
+    "lng": 100.223611
+  },
+  "6503401": {
+    "name": "Sg. Arau di Ldg. Tebu Felda",
+    "state": "Perlis",
+    "lat": 6,
+    "lng": 100.351389
+  },
+  "6602401": {
+    "name": "Sg. Pelarit di Wang Mu",
+    "state": "Perlis",
+    "lat": 6.604167,
+    "lng": 100.202778
+  },
+  "6602402": {
+    "name": "Sg. Pelarit di Kaki Bukit",
+    "state": "Perlis",
+    "lat": 6.6125,
+    "lng": 100.206944
+  },
+  "6602403": {
+    "name": "Sg. Jarum di  Kg. Masjid",
+    "state": "Perlis",
+    "lat": 6.625,
+    "lng": 100.260278
+  },
+  "6670401": {
+    "name": "Sg. Bengkoka At Kobon",
+    "state": "Sabah",
+    "lat": 6.625,
+    "lng": 117.041667
+  }
+}

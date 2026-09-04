@@ -12,8 +12,13 @@ const navLinks = [
   { href: "/kelas-tanah", label: "Program & Kelas" },
   { href: "/merchandise", label: "Merchandise" },
   { href: "/aktiviti", label: "Aktiviti" },
+  { href: "/banjir", label: "Semak Banjir" },
   { href: "/hubungi-kami", label: "Hubungi Kami" },
 ];
+
+// Dipaparkan sebagai ikon sahaja pada nav desktop (elak nav jadi padat);
+// tetap muncul sebagai teks penuh dalam menu mobile via navLinks di atas.
+const desktopIconOnlyHrefs = new Set(["/banjir"]);
 
 function MenuIcon() {
   return (
@@ -45,6 +50,17 @@ function CartIcon() {
   );
 }
 
+// SVG Ikon Gelombang (Semak Banjir)
+function WaveIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 7c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0" />
+      <path d="M2 13c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0" />
+      <path d="M2 19c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0" />
+    </svg>
+  );
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   
@@ -71,18 +87,30 @@ export default function Header() {
 
         {/* Menu desktop */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium tracking-wide">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="hover:text-brand-gold active:text-brand-gold transition-colors py-2"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks
+            .filter((link) => !desktopIconOnlyHrefs.has(link.href))
+            .map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hover:text-brand-gold active:text-brand-gold transition-colors py-2"
+              >
+                {link.label}
+              </Link>
+            ))}
         </nav>
 
         <div className="flex items-center gap-4">
+          {/* Ikon Semak Banjir - desktop sahaja (teks penuh tersedia dalam menu mobile) */}
+          <Link
+            href="/banjir"
+            title="Semak Banjir"
+            aria-label="Semak Banjir"
+            className="hidden lg:flex p-2 text-white hover:text-brand-gold transition-colors items-center"
+          >
+            <WaveIcon />
+          </Link>
+
           {/* 3. Butang Trolley (Paparan Desktop & Mobile) */}
           <Link
             href="/cart" // atau lokasi halaman borang checkout anda
