@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import CsvImportForm from "@/components/CsvImportForm";
 
 const TYPE_LABEL: Record<string, string> = {
   PLT: "Ahli PLT",
@@ -134,8 +133,6 @@ export default async function AdminMembersPage({
           </div>
         </div>
       )}
-
-      <CsvImportForm />
 
       <div className="bg-white rounded-md shadow-sm p-6 mb-8">
         <h2 className="font-semibold mb-4">Tambah Ahli Sedia Ada (Import Manual)</h2>
