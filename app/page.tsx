@@ -1,11 +1,12 @@
 export const revalidate = 60;
 
 import Hero from "@/components/Hero";
-import FeatureCards from "@/components/FeatureCards";
+import WhyLiterasiTanah from "@/components/WhyLiterasiTanah";
 import ClassTable from "@/components/ClassTable";
 import MembershipCTA from "@/components/MembershipCTA";
 import ProductGrid from "@/components/ProductGrid";
 import ActivityGrid from "@/components/ActivityGrid";
+import CommunityCTA from "@/components/CommunityCTA";
 import AdCarousel from "@/components/AdCarousel";
 import MerdekaBanner from "@/components/MerdekaBanner";
 import { prisma } from "@/lib/prisma";
@@ -19,7 +20,10 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-      <FeatureCards />
+
+      <div className="mt-20 lg:mt-28">
+        <WhyLiterasiTanah />
+      </div>
 
       <div className="mt-20 lg:mt-28">
         <MerdekaBanner />
@@ -38,10 +42,13 @@ export default async function HomePage() {
         <ProductGrid />
       </div>
       <div className="mt-20 lg:mt-28">
-        <ActivityGrid />
+        <ActivityGrid title="AKTIVITI KAMI" viewAllHref="/aktiviti" />
+      </div>
+      <div className="mt-20 lg:mt-28">
+        <AdCarousel ads={ads} />
       </div>
       <div className="mt-20 lg:mt-28 mb-20 lg:mb-28">
-        <AdCarousel ads={ads} />
+        <CommunityCTA />
       </div>
     </>
   );

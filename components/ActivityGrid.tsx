@@ -1,14 +1,28 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ActivityImages from "@/components/ActivityImages";
 
-export default async function ActivityGrid() {
+export default async function ActivityGrid({
+  title = "AKTIVITI TERKINI",
+  viewAllHref,
+}: {
+  title?: string;
+  viewAllHref?: string;
+} = {}) {
   const activities = await prisma.activity.findMany({
     orderBy: { tarikh: "desc" },
   });
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-16">
-      <h2 className="font-display text-2xl font-bold mb-6">AKTIVITI TERKINI</h2>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <h2 className="font-display text-2xl font-bold">{title}</h2>
+        {viewAllHref && (
+          <Link href={viewAllHref} className="text-sm font-semibold text-brand-gold hover:underline shrink-0">
+            Lihat semua aktiviti &rarr;
+          </Link>
+        )}
+      </div>
       {activities.length === 0 ? (
         <p className="text-brand-dark/50">
           Belum ada aktiviti. Tambah dari dashboard admin.

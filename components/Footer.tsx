@@ -1,6 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
 
+function IconFacebook() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z" />
+    </svg>
+  );
+}
+
+function IconMail() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3.5 6 8.5 6.5L20.5 6" />
+    </svg>
+  );
+}
+
 export default function Footer() {
   return (
     <footer className="bg-brand-dark text-white">
@@ -31,7 +48,11 @@ export default function Footer() {
 
         <div>
           <p className="font-semibold mb-3 text-brand-gold">Hubungi Kami</p>
-          <a href="mailto:info@tanahmalaya.org" className="text-sm text-white/80 hover:text-brand-gold">
+          <a
+            href="mailto:info@tanahmalaya.org"
+            className="flex items-center gap-2 text-sm text-white/80 hover:text-brand-gold"
+          >
+            <IconMail />
             info@tanahmalaya.org
           </a>
         </div>
@@ -42,8 +63,9 @@ export default function Footer() {
             href="https://web.facebook.com/profile.php?id=61592322463148"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-white/80 hover:text-brand-gold"
+            className="flex items-center gap-2 text-sm text-white/80 hover:text-brand-gold"
           >
+            <IconFacebook />
             Facebook
           </a>
         </div>
