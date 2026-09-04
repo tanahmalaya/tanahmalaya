@@ -23,11 +23,32 @@ const SEMAKAN_REASON: Record<string, string> = {
   BERSEKUTU: "kelayakan agama (keahlian bersekutu terbuka untuk umat Islam sahaja)",
 };
 
-export default async function AdminMembersPage() {
+export default async function AdminMembersPage({
+  searchParams,
+}: {
+  searchParams: { q?: string };
+}) {
   requireAdminOnly();
-  const members = await prisma.member.findMany({ orderBy: { createdAt: "desc" } });
-  const pendingSemakan = members.filter((m) => m.status === "MENUNGGU_SEMAKAN");
-  const pendingRefund = members.filter((m) => m.refundRequested && !m.refundedAt);
+  const q = (searchParams.q || "").trim();
+
+  // Senarai penuh diguna untuk banner "menunggu semakan/refund" supaya item
+  // tindakan tu sentiasa dipaparkan walaupun admin sedang buat carian.
+  const allMembers = await prisma.member.findMany({ orderBy: { createdAt: "desc" } });
+  const pendingSemakan = allMembers.filter((m) => m.status === "MENUNGGU_SEMAKAN");
+  const pendingRefund = allMembers.filter((m) => m.refundRequested && !m.refundedAt);
+
+  // Jadual utama pula ikut carian (nama/no ahli/no KP/e-mel) kalau ada.
+  const members = q
+    ? allMembers.filter((m) => {
+        const needle = q.toLowerCase();
+        return (
+          m.fullName.toLowerCase().includes(needle) ||
+          m.memberNo.toLowerCase().includes(needle) ||
+          m.icNumber.toLowerCase().includes(needle) ||
+          m.email.toLowerCase().includes(needle)
+        );
+      })
+    : allMembers;
 
   return (
     <div>
@@ -120,6 +141,34 @@ export default async function AdminMembersPage() {
             TAMBAH AHLI
           </button>
         </form>
+      </div>
+
+      <div className="bg-white rounded-md shadow-sm p-6 mb-4">
+        <form action="/admin/members" method="GET" className="flex flex-wrap gap-3">
+          <input
+            type="text"
+            name="q"
+            defaultValue={q}
+            placeholder="Cari nama, no ahli, no KP atau e-mel..."
+            className="flex-1 min-w-[200px] border border-brand-dark/20 rounded-sm p-3"
+          />
+          <button type="submit" className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-6 py-3">
+            CARI
+          </button>
+          {q && (
+            <a
+              href="/admin/members"
+              className="border border-brand-dark/20 text-brand-dark font-semibold rounded-sm px-6 py-3 flex items-center"
+            >
+              KOSONGKAN
+            </a>
+          )}
+        </form>
+        {q && (
+          <p className="text-xs text-brand-dark/50 mt-2">
+            {members.length} ahli dijumpai untuk &ldquo;{q}&rdquo;
+          </p>
+        )}
       </div>
 
       <div className="bg-white rounded-md shadow-sm overflow-x-auto">
