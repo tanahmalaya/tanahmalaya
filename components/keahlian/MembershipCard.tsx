@@ -43,7 +43,7 @@ export default function MembershipCard({
 
   return (
     <div
-      className="relative overflow-hidden rounded-xl shadow-xl aspect-[2.05/1] max-w-md mx-auto"
+      className="relative overflow-hidden rounded-xl shadow-xl w-full max-w-md mx-auto"
       style={{ background: style.bg }}
     >
       <svg
@@ -77,7 +77,7 @@ export default function MembershipCard({
         />
       </svg>
 
-      <div className="relative h-full flex flex-col justify-between p-5 sm:p-6">
+      <div className="relative flex flex-col gap-4 p-5 sm:p-6">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-md overflow-hidden shrink-0">
             <Image src="/logo.png" width={36} height={36} alt="" className="w-full h-full object-cover" />
