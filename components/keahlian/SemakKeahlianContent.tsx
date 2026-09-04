@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconUserCircle, IconShieldCheck, IconIdCard, IconSearch } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
+import MembershipCard from "@/components/keahlian/MembershipCard";
 import WhatsappGroupCard from "@/components/keahlian/WhatsappGroupCard";
 import RefundRequestForm from "@/components/keahlian/RefundRequestForm";
 import BackButton from "@/components/BackButton";
@@ -211,6 +212,9 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
             </div>
           ) : (
             <div className="space-y-4">
+              {result.status === "AKTIF" && (
+                <MembershipCard type={result.type} fullName={result.fullName} memberNo={result.memberNo} />
+              )}
               <div className="text-sm space-y-1.5 border-b border-white/10 pb-4">
                 <p className="text-white/60"><span className="text-white/40">Nama:</span> {result.fullName}</p>
                 <p className="text-white/60"><span className="text-white/40">Jenis Keahlian:</span> {TYPE_LABEL[result.type]}</p>
