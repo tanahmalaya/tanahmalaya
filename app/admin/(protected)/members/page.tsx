@@ -2,6 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import CopyButton from "@/components/admin/CopyButton";
+
+const SPR_SEMAK_URL = "https://mysprsemak.spr.gov.my/";
 
 const TYPE_LABEL: Record<string, string> = {
   PLT: "Ahli PLT",
@@ -73,12 +76,22 @@ export default async function AdminMembersPage({
           <p className="text-xs text-amber-800/80 mb-4">
             Ahli ni dah bayar yuran tapi kena disahkan dulu sebelum keahlian diaktifkan.
           </p>
+          <a
+            href={SPR_SEMAK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-xs font-semibold text-amber-900 underline mb-4"
+          >
+            Buka Portal Semak Pendaftaran Pemilih SPR &rarr;
+          </a>
           <div className="space-y-2">
             {pendingSemakan.map((m) => (
               <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 bg-white rounded-sm p-3 text-sm">
                 <div>
                   <span className="font-medium">{m.fullName}</span>{" "}
+                  <CopyButton value={m.fullName} label="Salin Nama" />{" "}
                   <span className="text-brand-dark/50">({m.icNumber})</span>{" "}
+                  <CopyButton value={m.icNumber} label="Salin No KP" />{" "}
                   <span className="inline-block bg-brand-cream text-brand-dark/70 text-[10px] font-semibold rounded-sm px-1.5 py-0.5 align-middle">
                     {TYPE_LABEL[m.type] || m.type}
                   </span>
