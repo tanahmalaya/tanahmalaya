@@ -12,13 +12,13 @@ const navLinks = [
   { href: "/kelas-tanah", label: "Program & Kelas" },
   { href: "/merchandise", label: "Merchandise" },
   { href: "/aktiviti", label: "Aktiviti" },
-  { href: "/banjir", label: "Semak Banjir" },
+  { href: "/peta", label: "Peta Banjir & Wakaf" },
   { href: "/hubungi-kami", label: "Hubungi Kami" },
 ];
 
 // Dipaparkan sebagai ikon sahaja pada nav desktop (elak nav jadi padat);
 // tetap muncul sebagai teks penuh dalam menu mobile via navLinks di atas.
-const desktopIconOnlyHrefs = new Set(["/banjir"]);
+const desktopIconOnlyHrefs = new Set(["/peta"]);
 
 function MenuIcon() {
   return (
@@ -101,11 +101,11 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {/* Ikon Semak Banjir - desktop sahaja (teks penuh tersedia dalam menu mobile) */}
+          {/* Ikon Peta Banjir & Wakaf - desktop sahaja (teks penuh tersedia dalam menu mobile) */}
           <Link
-            href="/banjir"
-            title="Semak Banjir"
-            aria-label="Semak Banjir"
+            href="/peta"
+            title="Peta Banjir & Tanah Wakaf"
+            aria-label="Peta Banjir & Tanah Wakaf"
             className="hidden lg:flex p-2 text-white hover:text-brand-gold transition-colors items-center"
           >
             <WaveIcon />

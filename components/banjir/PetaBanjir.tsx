@@ -265,11 +265,11 @@ export default function PetaBanjir() {
 
   return (
     <div>
-      <div className="bg-white rounded-md shadow-sm p-4 mb-4">
-        <label className="block text-sm font-medium text-brand-dark/80 mb-2">
+      <div className="bg-white rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_rgba(42,29,20,0.25)] border border-black/[0.04] p-4 sm:p-5 mb-4">
+        <label className="block text-xs font-semibold uppercase tracking-wide text-brand-dark/40 mb-2">
           Cari alamat, kawasan atau bandar
         </label>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
             <input
               type="text"
@@ -279,17 +279,17 @@ export default function PetaBanjir() {
                 setLokasi(null);
               }}
               placeholder="Cth: Taman Sri Muda, Shah Alam"
-              className="w-full border border-black/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
+              className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm bg-black/[0.02] focus:outline-none focus:ring-2 focus:ring-brand-gold/60 focus:bg-white transition-colors"
             />
             {(searchLoading || searchResults.length > 0) && (
-              <div className="absolute z-[1000] mt-1 w-full bg-white border border-black/10 rounded-md shadow-lg max-h-64 overflow-auto">
-                {searchLoading && <p className="px-3 py-2 text-xs text-brand-dark/50">Mencari...</p>}
+              <div className="absolute z-[1000] mt-1.5 w-full bg-white border border-black/[0.06] rounded-xl shadow-[0_12px_32px_-8px_rgba(42,29,20,0.25)] max-h-64 overflow-auto">
+                {searchLoading && <p className="px-3.5 py-2.5 text-xs text-brand-dark/50">Mencari...</p>}
                 {searchResults.map((r, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => pilihLokasi(r)}
-                    className="block w-full text-left px-3 py-2 text-sm hover:bg-brand-cream border-b border-black/5 last:border-0"
+                    className="block w-full text-left px-3.5 py-2.5 text-sm hover:bg-brand-cream border-b border-black/5 last:border-0 first:rounded-t-xl last:rounded-b-xl"
                   >
                     {r.label}
                   </button>
@@ -301,7 +301,7 @@ export default function PetaBanjir() {
             type="button"
             onClick={gunaGps}
             disabled={gpsLoading}
-            className="shrink-0 bg-brand-gold text-brand-dark px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-60"
+            className="shrink-0 bg-brand-gold text-brand-dark px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-60"
           >
             {gpsLoading ? "Mengesan..." : "📍 Guna Lokasi Saya"}
           </button>
@@ -310,17 +310,17 @@ export default function PetaBanjir() {
       </div>
 
       {errMsg && (
-        <div className="mb-4 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3">
+        <div className="mb-4 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-sm px-4 py-3">
           {errMsg}
         </div>
       )}
 
-      <div className="rounded-md overflow-hidden shadow-sm border border-black/5">
+      <div className="rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_36px_-18px_rgba(42,29,20,0.3)] border border-black/[0.04]">
         <MapContainer
           center={MALAYSIA_CENTER}
           zoom={6}
           scrollWheelZoom={true}
-          style={{ height: "550px", width: "100%" }}
+          className="h-[420px] sm:h-[550px] w-full"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -465,29 +465,29 @@ export default function PetaBanjir() {
       </div>
 
       {lokasi && semakan && (
-        <div className="mt-4 bg-white rounded-md shadow-sm p-5">
+        <div className="mt-4 bg-white rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_rgba(42,29,20,0.25)] border border-black/[0.04] p-4 sm:p-5">
           <h3 className="font-display font-bold text-lg mb-1">Semakan: {lokasi.label}</h3>
 
           {semakan.hotspotBerdekatan.length > 0 && (
-            <p className="text-sm bg-purple-50 border border-purple-300 text-purple-800 rounded-md px-3 py-2 mb-3 font-medium">
+            <p className="text-sm bg-purple-50 border border-purple-200 text-purple-800 rounded-xl px-3.5 py-2.5 mb-3 font-medium leading-relaxed">
               🟣 Lokasi ini berada dalam {HOTSPOT_RADIUS_KM}km dari hotspot banjir dikenali
               (PLANMalaysia): {semakan.hotspotBerdekatan.map((h) => h.name).join(", ")}.
             </p>
           )}
 
           {semakan.dalamKawasanBerisiko ? (
-            <p className="text-sm bg-red-50 border border-red-200 text-red-700 rounded-md px-3 py-2 mb-3">
+            <p className="text-sm bg-red-50 border border-red-200/70 text-red-700 rounded-xl px-3.5 py-2.5 mb-3 leading-relaxed">
               ⚠️ Lokasi ini berada berhampiran stesen air yang <strong>sedang</strong> melebihi
               paras Amaran/Bahaya sekarang.
             </p>
           ) : (
-            <p className="text-sm bg-green-50 border border-green-200 text-green-700 rounded-md px-3 py-2 mb-3">
+            <p className="text-sm bg-green-50 border border-green-200/70 text-green-700 rounded-xl px-3.5 py-2.5 mb-3 leading-relaxed">
               ✓ Tiada stesen air berhampiran yang sedang melebihi paras Amaran/Bahaya pada masa ini.
             </p>
           )}
 
           {semakan.ppsBerdekatan.length > 0 && (
-            <p className="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-md px-3 py-2 mb-3">
+            <p className="text-sm bg-amber-50 border border-amber-200/70 text-amber-800 rounded-xl px-3.5 py-2.5 mb-3 leading-relaxed">
               Terdapat {semakan.ppsBerdekatan.length} Pusat Pemindahan Sementara (PPS) banjir yang
               pernah/sedang dibuka dalam radius 15km dari lokasi ini.
             </p>
@@ -495,14 +495,17 @@ export default function PetaBanjir() {
 
           {semakan.stesenTerdekat.length > 0 && (
             <div className="text-sm">
-              <p className="font-medium text-brand-dark/80 mb-1">Stesen paras air terdekat:</p>
-              <ul className="space-y-1">
+              <p className="font-medium text-brand-dark/80 mb-1.5">Stesen paras air terdekat:</p>
+              <ul className="divide-y divide-black/5 rounded-xl border border-black/5 overflow-hidden">
                 {semakan.stesenTerdekat.map((s) => (
-                  <li key={s.id} className="flex items-center justify-between text-brand-dark/70">
+                  <li
+                    key={s.id}
+                    className="flex items-center justify-between text-brand-dark/70 px-3.5 py-2.5 bg-black/[0.015]"
+                  >
                     <span>
                       {s.name} ({s.district}) — {s.jarak.toFixed(1)} km
                     </span>
-                    <span style={{ color: STATUS_WARNA[s.status] }} className="font-semibold">
+                    <span style={{ color: STATUS_WARNA[s.status] }} className="font-semibold shrink-0 ml-3">
                       {STATUS_LABEL[s.status]}
                     </span>
                   </li>
@@ -511,7 +514,7 @@ export default function PetaBanjir() {
             </div>
           )}
 
-          <p className="mt-3 text-xs text-brand-dark/50">
+          <p className="mt-3 text-xs text-brand-dark/45 leading-relaxed">
             Semakan ini berdasarkan kedekatan kepada stesen paras air &amp; PPS banjir semasa —
             <strong> bukan</strong> pengesahan rasmi sama ada kawasan ini kawasan mudah banjir.
             Untuk kepastian, rujuk portal rasmi di bawah atau Pihak Berkuasa Tempatan (PBT).
@@ -519,15 +522,14 @@ export default function PetaBanjir() {
         </div>
       )}
 
-      <div className="mt-3 flex flex-col gap-2 text-xs text-brand-dark/60">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="font-semibold text-brand-dark/80">Paras Air:</span>
-          <LegendDot warna={STATUS_WARNA.normal} label="Normal" />
-          <LegendDot warna={STATUS_WARNA.waspada} label="Waspada" />
-          <LegendDot warna={STATUS_WARNA.amaran} label="Amaran" />
-          <LegendDot warna={STATUS_WARNA.bahaya} label="Bahaya" />
-          <LegendDot warna={STATUS_WARNA.tiada_data} label="Tiada bacaan" />
-          <LegendDot warna="#7C3AED" label="Hotspot Banjir Dikenali" />
+      <div className="mt-4 flex flex-col gap-2.5 text-xs text-brand-dark/50">
+        <div className="flex items-center gap-2 overflow-x-auto -mx-1 px-1 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <LegendChip warna={STATUS_WARNA.normal} label="Normal" />
+          <LegendChip warna={STATUS_WARNA.waspada} label="Waspada" />
+          <LegendChip warna={STATUS_WARNA.amaran} label="Amaran" />
+          <LegendChip warna={STATUS_WARNA.bahaya} label="Bahaya" />
+          <LegendChip warna={STATUS_WARNA.tiada_data} label="Tiada bacaan" />
+          <LegendChip warna="#7C3AED" label="Hotspot Banjir" />
         </div>
         <p>
           {pps && parasAir
@@ -546,10 +548,10 @@ export default function PetaBanjir() {
   );
 }
 
-function LegendDot({ warna, label }: { warna: string; label: string }) {
+function LegendChip({ warna, label }: { warna: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: warna }} />
+    <span className="inline-flex items-center gap-1.5 shrink-0 rounded-full bg-white border border-black/5 shadow-sm px-3 py-1.5">
+      <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ backgroundColor: warna }} />
       {label}
     </span>
   );

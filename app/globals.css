@@ -10,3 +10,51 @@
 body {
   @apply bg-brand-cream text-brand-dark font-sans;
 }
+
+/* Kemas kini rupa Leaflet supaya sepadan dengan gaya bersih & lembut laman ini */
+.leaflet-container {
+  font-family: var(--font-body);
+  background: #eef2f3;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: 0 12px 32px -8px rgba(42, 29, 20, 0.25);
+  padding: 2px;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.45;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 4px 10px -4px rgba(42, 29, 20, 0.2);
+}
+
+.leaflet-bar {
+  border-radius: 12px !important;
+  overflow: hidden;
+  border: none !important;
+  box-shadow: 0 6px 20px -8px rgba(42, 29, 20, 0.3) !important;
+}
+
+.leaflet-bar a {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #2a1d14 !important;
+}
+
+.leaflet-bar a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-control-layers {
+  border-radius: 14px !important;
+  border: none !important;
+  box-shadow: 0 6px 20px -8px rgba(42, 29, 20, 0.3) !important;
+}
+
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  border: none;
+}

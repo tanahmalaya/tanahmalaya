@@ -83,7 +83,7 @@ const siteNavigationJsonLd = {
     "Program & Kelas",
     "Merchandise",
     "Aktiviti",
-    "Semak Banjir",
+    "Peta Banjir & Wakaf",
     "Hubungi Kami",
   ],
   url: [
@@ -92,7 +92,7 @@ const siteNavigationJsonLd = {
     "https://tanahmalaya.org/kelas-tanah",
     "https://tanahmalaya.org/merchandise",
     "https://tanahmalaya.org/aktiviti",
-    "https://tanahmalaya.org/banjir",
+    "https://tanahmalaya.org/peta",
     "https://tanahmalaya.org/hubungi-kami",
   ],
 };
