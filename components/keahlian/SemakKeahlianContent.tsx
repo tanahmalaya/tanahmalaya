@@ -20,10 +20,23 @@ const STATUS_LABEL: Record<string, string> = {
   MENUNGGU_SEMAKAN: "Menunggu Semakan",
 };
 
+const STATUS_BADGE: Record<string, string> = {
+  AKTIF: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  TIDAK_AKTIF: "bg-red-50 text-red-600 border border-red-200",
+  MENUNGGU_BAYARAN: "bg-amber-50 text-amber-700 border border-amber-200",
+  MENUNGGU_SEMAKAN: "bg-amber-50 text-amber-700 border border-amber-200",
+};
+
 const TYPE_LABEL: Record<MemberType, string> = {
   PLT: "Ahli PLT",
   BERSEKUTU: "Ahli Bersekutu",
 };
+
+const CARD = "bg-white border border-black/5 border-l-4 border-l-emerald-500/70 rounded-2xl shadow-sm shadow-black/[0.04] p-6 md:p-7";
+const INPUT = "w-full bg-[#F7F5F1] border border-black/10 rounded-xl p-3 text-sm text-brand-dark placeholder-black/30 focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/15 outline-none transition";
+const LABEL = "block text-xs font-semibold mb-1.5 text-brand-dark/70";
+const BTN_PRIMARY = "w-full bg-brand-gold text-brand-dark font-semibold py-3.5 rounded-full flex items-center justify-center gap-2 shadow-sm shadow-brand-gold/30 hover:shadow-md hover:-translate-y-0.5 transition disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-sm";
+const BTN_SECONDARY = "w-full border border-black/10 text-brand-dark font-semibold py-3.5 rounded-full hover:bg-black/[0.03] transition";
 
 type MemberResult = {
   memberNo: string;
@@ -94,12 +107,17 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
   const wrongType = result && result.type !== expectedType;
 
   return (
-    <div className="bg-brand-dark text-white">
+    <div className="bg-white text-brand-dark">
       {/* Hero */}
-      <div className="relative overflow-hidden border-b border-brand-gold/30">
+      <div className="relative overflow-hidden bg-gradient-to-b from-[#FBF9F6] to-white border-b border-black/5">
         <div
           className="absolute -right-24 -top-24 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(198,138,46,0.18) 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, rgba(198,138,46,0.16) 0%, transparent 70%)" }}
+          aria-hidden
+        />
+        <div
+          className="absolute -left-24 -bottom-24 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(5,150,105,0.14) 0%, transparent 70%)" }}
           aria-hidden
         />
         <div className="max-w-4xl mx-auto px-6 py-10 flex items-center gap-5 relative">
@@ -108,7 +126,7 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
           </div>
           <div>
             <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-wide">{heading}</h1>
-            <p className="text-white/60 text-sm mt-1 max-w-lg">
+            <p className="text-brand-dark/60 text-sm mt-1 max-w-lg">
               Semak status keahlian {TYPE_LABEL[expectedType]} anda dalam Pertubuhan Literasi Tanah dengan mudah dan pantas.
             </p>
           </div>
@@ -117,11 +135,11 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
 
       {/* Breadcrumb */}
       <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-2">
-        <BackButton href="/keahlian" label="Kembali" variant="dark" />
-        <div className="text-xs text-white/50 flex items-center gap-2">
-          <Link href="/" className="hover:text-white">Utama</Link>
+        <BackButton href="/keahlian" label="Kembali" />
+        <div className="text-xs text-brand-dark/50 flex items-center gap-2">
+          <Link href="/" className="hover:text-brand-dark">Utama</Link>
           <span>&rsaquo;</span>
-          <Link href="/keahlian" className="hover:text-white">Keahlian</Link>
+          <Link href="/keahlian" className="hover:text-brand-dark">Keahlian</Link>
           <span>&rsaquo;</span>
           <span className="text-brand-gold font-semibold">Semak Keahlian</span>
         </div>
@@ -130,29 +148,29 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 pb-16 space-y-6">
         {/* Step 1 - form */}
-        <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
+        <div className={CARD}>
           <div className="flex items-center gap-2 text-brand-gold font-bold mb-1">
             <IconUserCircle />
             <span>1. MASUKKAN MAKLUMAT</span>
           </div>
-          <p className="text-white/60 text-sm mb-5">
+          <p className="text-brand-dark/60 text-sm mb-5">
             Sila masukkan maklumat berikut untuk menyemak status keahlian anda.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold mb-1.5 text-white/80">Nama Penuh</label>
+              <label className={LABEL}>Nama Penuh</label>
               <input
                 name="fullName"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Contoh: Ahmad bin Ali"
-                className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
+                className={INPUT}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5 text-white/80">No. Kad Pengenalan (tanpa tanda -)</label>
+              <label className={LABEL}>No. Kad Pengenalan (tanpa tanda -)</label>
               <input
                 name="icNumber"
                 required
@@ -160,29 +178,25 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
                 value={icNumber}
                 onChange={(e) => setIcNumber(e.target.value)}
                 placeholder="Contoh: 900101011234"
-                className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
+                className={INPUT}
               />
             </div>
 
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-brand-gold text-brand-dark font-semibold py-3 rounded-sm flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className={BTN_PRIMARY}>
               <IconSearch />
               {loading ? "MENYEMAK..." : "SEMAK KEAHLIAN"}
             </button>
           </form>
 
-          <p className="text-xs text-white/50 mt-4">
+          <p className="text-xs text-brand-dark/50 mt-4">
             Belum berdaftar? <Link href="/keahlian" className="text-brand-gold underline">Daftar sebagai ahli</Link>.
           </p>
         </div>
 
         {/* Step 2 - result */}
-        <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
+        <div className={CARD}>
           <div className="flex items-center gap-2 text-brand-gold font-bold mb-5">
             <IconShieldCheck />
             <span>2. KEPUTUSAN SEMAKAN</span>
@@ -190,23 +204,20 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
 
           {!result ? (
             <div className="flex flex-col items-center text-center py-8 gap-4">
-              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-brand-gold">
+              <div className="w-16 h-16 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold">
                 <IconIdCard />
               </div>
-              <p className="text-white/60 text-sm max-w-xs">
+              <p className="text-brand-dark/60 text-sm max-w-xs">
                 Masukkan maklumat di atas dan klik &ldquo;SEMAK KEAHLIAN&rdquo; untuk melihat status anda.
               </p>
             </div>
           ) : wrongType ? (
             <div className="space-y-4">
-              <p className="text-white/70 text-sm">
-                <strong className="text-white">{result.fullName}</strong> didaftarkan sebagai{" "}
+              <p className="text-brand-dark/70 text-sm">
+                <strong className="text-brand-dark">{result.fullName}</strong> didaftarkan sebagai{" "}
                 <strong className="text-brand-gold">{otherLabel}</strong>, bukan {TYPE_LABEL[expectedType]}.
               </p>
-              <Link
-                href={otherTypeHref}
-                className="inline-flex w-full items-center justify-center bg-brand-gold text-brand-dark font-semibold py-3 rounded-sm"
-              >
+              <Link href={otherTypeHref} className={BTN_PRIMARY}>
                 SEMAK DI HALAMAN {otherLabel.toUpperCase()}
               </Link>
             </div>
@@ -220,39 +231,37 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
                   joinedAt={result.joinedAt}
                 />
               )}
-              <div className="text-sm space-y-1.5 border-b border-white/10 pb-4">
-                <p className="text-white/60"><span className="text-white/40">Nama:</span> {result.fullName}</p>
-                <p className="text-white/60"><span className="text-white/40">Jenis Keahlian:</span> {TYPE_LABEL[result.type]}</p>
-                <p className="text-white/60">
-                  <span className="text-white/40">Tarikh Daftar:</span>{" "}
+              <div className="text-sm space-y-1.5 border-b border-black/10 pb-4">
+                <p className="text-brand-dark/60"><span className="text-brand-dark/40">Nama:</span> {result.fullName}</p>
+                <p className="text-brand-dark/60"><span className="text-brand-dark/40">Jenis Keahlian:</span> {TYPE_LABEL[result.type]}</p>
+                <p className="text-brand-dark/60">
+                  <span className="text-brand-dark/40">Tarikh Daftar:</span>{" "}
                   {new Date(result.joinedAt).toLocaleDateString("ms-MY")}
                 </p>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-white/70 font-semibold">Nombor Ahli</span>
+                <span className="text-brand-dark/70 font-semibold">Nombor Ahli</span>
                 <span className="font-bold text-xl text-brand-gold text-right">
                   {result.memberNo}
                   {result.noAhliLama && (
-                    <span className="block text-xs font-normal text-white/50">
+                    <span className="block text-xs font-normal text-brand-dark/50">
                       (dahulu {result.noAhliLama})
                     </span>
                   )}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-white/70 font-semibold">Status</span>
-                <span className="font-semibold">{STATUS_LABEL[result.status] || result.status}</span>
+                <span className="text-brand-dark/70 font-semibold">Status</span>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_BADGE[result.status] || "bg-black/5 text-brand-dark border border-black/10"}`}>
+                  {STATUS_LABEL[result.status] || result.status}
+                </span>
               </div>
               {result.status === "TIDAK_AKTIF" && (
-                <p className="text-white/50 text-xs">
+                <p className="text-brand-dark/50 text-xs">
                   Pendaftaran ini tidak dapat diteruskan. Sila lihat borang mohon refund di bawah.
                 </p>
               )}
-              <button
-                type="button"
-                onClick={() => setResult(null)}
-                className="w-full border border-white/20 text-white font-semibold py-3 rounded-sm hover:bg-white/5"
-              >
+              <button type="button" onClick={() => setResult(null)} className={BTN_SECONDARY}>
                 SEMAK LAGI
               </button>
             </div>
@@ -274,7 +283,7 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
           />
         )}
 
-        <OrgInfoCard />
+        <OrgInfoCard variant="light" />
       </div>
     </div>
   );

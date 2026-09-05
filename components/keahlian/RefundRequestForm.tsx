@@ -9,6 +9,10 @@ type Props = {
   refunded: boolean;
 };
 
+const CARD = "bg-white border border-black/5 border-l-4 border-l-emerald-500/70 rounded-2xl shadow-sm shadow-black/[0.04] p-6 md:p-7";
+const INPUT = "w-full bg-[#F7F5F1] border border-black/10 rounded-xl p-3 text-sm text-brand-dark placeholder-black/30 focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/15 outline-none transition";
+const LABEL = "block text-xs font-semibold mb-1.5 text-brand-dark/70";
+
 export default function RefundRequestForm({ fullName, icNumber, alreadyRequested, refunded }: Props) {
   const [bankName, setBankName] = useState("");
   const [accountNo, setAccountNo] = useState("");
@@ -39,9 +43,9 @@ export default function RefundRequestForm({ fullName, icNumber, alreadyRequested
 
   if (refunded) {
     return (
-      <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
+      <div className={CARD}>
         <p className="text-brand-gold font-bold text-sm mb-1">Refund Telah Diproses</p>
-        <p className="text-white/60 text-sm">
+        <p className="text-brand-dark/60 text-sm">
           Yuran pendaftaran anda telah dipulangkan. Terima kasih atas kesabaran anda.
         </p>
       </div>
@@ -50,9 +54,9 @@ export default function RefundRequestForm({ fullName, icNumber, alreadyRequested
 
   if (submitted || alreadyRequested) {
     return (
-      <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
+      <div className={CARD}>
         <p className="text-brand-gold font-bold text-sm mb-1">Permohonan Refund Diterima</p>
-        <p className="text-white/60 text-sm">
+        <p className="text-brand-dark/60 text-sm">
           Butiran bank anda telah direkodkan. Pihak PLT akan proses pemulangan yuran dalam masa
           terdekat.
         </p>
@@ -61,51 +65,51 @@ export default function RefundRequestForm({ fullName, icNumber, alreadyRequested
   }
 
   return (
-    <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
+    <div className={CARD}>
       <p className="text-brand-gold font-bold text-sm mb-1">Mohon Refund Yuran Pendaftaran</p>
-      <p className="text-white/60 text-sm mb-5">
+      <p className="text-brand-dark/60 text-sm mb-5">
         Pendaftaran anda tidak dapat diteruskan. Sila isi butiran bank di bawah untuk pihak PLT
         pulangkan semula yuran yang telah dibayar.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold mb-1.5 text-white/80">Nama Bank</label>
+          <label className={LABEL}>Nama Bank</label>
           <input
             required
             value={bankName}
             onChange={(e) => setBankName(e.target.value)}
             placeholder="Contoh: Maybank"
-            className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
+            className={INPUT}
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold mb-1.5 text-white/80">No. Akaun Bank</label>
+          <label className={LABEL}>No. Akaun Bank</label>
           <input
             required
             value={accountNo}
             onChange={(e) => setAccountNo(e.target.value)}
             placeholder="Contoh: 1234567890"
-            className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
+            className={INPUT}
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold mb-1.5 text-white/80">Nama Pemegang Akaun</label>
+          <label className={LABEL}>Nama Pemegang Akaun</label>
           <input
             required
             value={accountHolder}
             onChange={(e) => setAccountHolder(e.target.value)}
             placeholder="Sama seperti nama dalam bank"
-            className="w-full bg-black/20 border border-white/15 rounded-sm p-3 text-sm text-white placeholder-white/30 focus:border-brand-gold outline-none"
+            className={INPUT}
           />
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-brand-gold text-brand-dark font-semibold py-3 rounded-sm disabled:opacity-50"
+          className="w-full bg-brand-gold text-brand-dark font-semibold py-3.5 rounded-full shadow-sm shadow-brand-gold/30 hover:shadow-md hover:-translate-y-0.5 transition disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {loading ? "MENGHANTAR..." : "HANTAR PERMOHONAN REFUND"}
         </button>

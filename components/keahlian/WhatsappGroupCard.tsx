@@ -17,28 +17,28 @@ export default function WhatsappGroupCard({ variant = "BERSEKUTU" }: Props) {
   const groupLabel = variant === "PLT" ? "Ahli PLT" : "Ahli Bersekutu";
 
   return (
-    <div className="bg-white/[0.04] border border-white/10 rounded-md p-6">
+    <div className="bg-white border border-black/5 border-l-4 border-l-emerald-500/70 rounded-2xl shadow-sm shadow-black/[0.04] p-6 md:p-7">
       <div className="flex items-center gap-2 text-brand-gold font-bold mb-1">
         <IconWhatsapp />
         <span>3. SERTAI WHATSAPP GROUP</span>
       </div>
-      <p className="text-white/60 text-sm mb-5">
+      <p className="text-brand-dark/60 text-sm mb-5">
         Sertai WhatsApp group {groupLabel} Pertubuhan Literasi Tanah untuk terima info kelas, aktiviti dan pengumuman terkini.
       </p>
 
       <div className="flex flex-col sm:flex-row items-center gap-5">
-        <div className="bg-white rounded-md p-3 shrink-0">
+        <div className="bg-white border border-black/10 rounded-xl p-3 shrink-0">
           <Image src={qrSrc} width={140} height={140} alt={`QR kod WhatsApp group ${groupLabel} P. L. Tanah`} priority />
         </div>
         <div className="flex-1 space-y-3 text-center sm:text-left">
-          <p className="text-white/60 text-xs">
+          <p className="text-brand-dark/60 text-xs">
             Imbas kod QR guna kamera WhatsApp, atau tekan butang di bawah kalau anda buka laman ni dari telefon.
           </p>
           <a
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-dark font-semibold py-3 px-6 rounded-sm w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-dark font-semibold py-3 px-6 rounded-full w-full sm:w-auto shadow-sm shadow-brand-gold/30 hover:shadow-md hover:-translate-y-0.5 transition"
           >
             <IconWhatsapp />
             BUKA WHATSAPP GROUP

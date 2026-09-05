@@ -7,10 +7,10 @@ const CARD_STYLE: Record<
   { bg: string; ribbon: [string, string, string]; badge: string; accent: string }
 > = {
   PLT: {
-    bg: "linear-gradient(160deg, #241a12 0%, #17110b 55%, #0c0906 100%)",
+    bg: "linear-gradient(160deg, #6B4A30 0%, #4A3220 55%, #2E1F14 100%)",
     ribbon: ["#F3D9A4", "#C68A2E", "#8B5A2B"],
     badge: "AHLI PLT",
-    accent: "#D9A94F",
+    accent: "#F3D9A4",
   },
   BERSEKUTU: {
     bg: "linear-gradient(160deg, #232323 0%, #171717 55%, #0a0a0a 100%)",
