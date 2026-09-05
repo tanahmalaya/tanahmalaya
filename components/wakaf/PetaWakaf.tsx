@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Tooltip, CircleMarker, Circle, LayersControl, LayerGroup } from "react-leaflet";
+import { MapContainer, TileLayer, Popup, CircleMarker, Circle, LayersControl, LayerGroup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 type WakafPoint = { id: number; lat: number; lng: number };
@@ -26,11 +26,49 @@ function formatMasa(iso: string) {
   return new Date(iso).toLocaleString("ms-MY", { dateStyle: "medium", timeStyle: "short" });
 }
 
+function IconCopy() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
 export default function PetaWakaf() {
   const [negeriSlug, setNegeriSlug] = useState("selangor");
   const [data, setData] = useState<WakafResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [tunjukAnggaran, setTunjukAnggaran] = useState(true);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const salinKoordinat = useCallback((p: WakafPoint) => {
+    const text = `${p.lat}, ${p.lng}`;
+
+    async function salin() {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        setCopiedId(p.id);
+        setTimeout(() => setCopiedId((cur) => (cur === p.id ? null : cur)), 1500);
+      } catch {
+        // gagal salin secara automatik - pengguna masih nampak koordinat untuk salin manual
+      }
+    }
+
+    salin();
+  }, []);
 
   const muatData = useCallback(async (slug: string) => {
     setLoading(true);
@@ -159,17 +197,8 @@ export default function PetaWakaf() {
                       fillOpacity: 0.9,
                       weight: 1.5,
                     }}
-                    eventHandlers={{
-                      click: () => {
-                        window.open(
-                          `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.lat},${p.lng}`,
-                          "_blank",
-                          "noopener,noreferrer"
-                        );
-                      },
-                    }}
                   >
-                    <Tooltip direction="top" offset={[0, -8]} interactive>
+                    <Popup closeButton minWidth={190}>
                       <div className="text-xs leading-relaxed">
                         <p className="font-semibold text-brand-dark">
                           {data?.jenis === "cadangan" ? "Cadangan Projek Tanah Wakaf" : "Tanah Wakaf"}
@@ -177,18 +206,28 @@ export default function PetaWakaf() {
                         <p className="text-gray-600">
                           {data?.negeri} — {data?.agensi}
                         </p>
-                        <p className="text-teal-700 font-medium">Klik untuk buka Google Street View →</p>
+                        <p className="text-gray-500 font-mono text-[11px] mt-1">
+                          {p.lat.toFixed(6)}, {p.lng.toFixed(6)}
+                        </p>
                         <a
-                          href={`https://www.google.com/maps?q=${p.lat},${p.lng}`}
+                          href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-block mt-1 text-gray-500 underline hover:text-gray-700"
+                          className="inline-block mt-1.5 text-teal-700 font-medium hover:text-teal-800"
                         >
-                          Tiada Street View? Lihat di Google Maps
+                          Buka di Google Maps →
                         </a>
+                        <br />
+                        <button
+                          type="button"
+                          onClick={() => salinKoordinat(p)}
+                          className="mt-1.5 inline-flex items-center gap-1 border border-black/10 rounded-md px-2 py-1 text-[11px] font-medium text-gray-600 hover:text-brand-dark hover:border-black/20 transition-colors"
+                        >
+                          <IconCopy />
+                          {copiedId === p.id ? "Disalin!" : "Salin Koordinat"}
+                        </button>
                       </div>
-                    </Tooltip>
+                    </Popup>
                   </CircleMarker>
                 ))}
               </LayerGroup>
