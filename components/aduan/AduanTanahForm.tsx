@@ -438,8 +438,10 @@ export default function AduanTanahForm() {
                 onChange={(e) => setPengesahanMaklumat(e.target.checked)}
                 className="mt-0.5"
               />
-              Saya mengesahkan bahawa segala maklumat dan bukti yang dikemukakan adalah <strong>BENAR</strong>{" "}
-              sepanjang pengetahuan saya.
+              <span>
+                Saya mengesahkan bahawa segala maklumat dan bukti yang dikemukakan adalah{" "}
+                <strong>BENAR</strong> sepanjang pengetahuan saya.
+              </span>
             </label>
             <label className="flex items-start gap-2 text-sm">
               <input
