@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import LampiranUpload from "./LampiranUpload";
+import SumbanganCard from "@/components/SumbanganCard";
 import { NEGERI_LIST, HUBUNGAN_OPTIONS, KATEGORI_TANAH_OPTIONS, JENIS_PENCEROBOHAN_OPTIONS } from "@/lib/aduanTanah";
 
 const PetaPinLokasi = dynamic(() => import("./PetaPinLokasi"), {
@@ -157,16 +159,25 @@ export default function AduanTanahForm() {
 
   if (status === "berjaya") {
     return (
-      <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-6 text-center">
-        <p className="font-display font-bold text-lg mb-1">Aduan Berjaya Dihantar</p>
-        <p className="text-sm">
-          Rujukan aduan anda: <strong>#{seqBerjaya}</strong>
-        </p>
-        <p className="text-sm mt-2">
-          Terima kasih atas maklumat yang diberikan. Ini <strong>bukan</strong> pengganti laporan rasmi -
-          sila juga hubungi Pejabat Tanah dan Galian (PTG), Pihak Berkuasa Tempatan (PBT) atau PDRM
-          untuk tindakan segera.
-        </p>
+      <div className="space-y-6">
+        <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-6 text-center">
+          <p className="font-display font-bold text-lg mb-1">Aduan Berjaya Dihantar</p>
+          <p className="text-sm">
+            Rujukan aduan anda: <strong>#{seqBerjaya}</strong>
+          </p>
+          <p className="text-sm mt-2">
+            Terima kasih atas maklumat yang diberikan. Ini <strong>bukan</strong> pengganti laporan rasmi -
+            sila juga hubungi Pejabat Tanah dan Galian (PTG), Pihak Berkuasa Tempatan (PBT) atau PDRM
+            untuk tindakan segera.
+          </p>
+        </div>
+
+        <div>
+          <p className="text-center text-sm text-brand-dark/70 mb-3">
+            Kerja advokasi &amp; pemantauan tanah PLT bergantung kepada sumbangan orang awam macam anda.
+          </p>
+          <SumbanganCard />
+        </div>
       </div>
     );
   }
@@ -447,6 +458,12 @@ export default function AduanTanahForm() {
               <strong>BUKAN</strong> pengganti laporan rasmi di Pejabat Tanah dan Galian (PTG), pihak berkuasa
               tempatan (PBT), atau Polis Diraja Malaysia (PDRM). Pihak Pertubuhan tidak bertanggungjawab secara
               langsung atas sebarang implikasi perundangan antara pihak-pihak yang terlibat.
+            </p>
+
+            <p className="text-center text-sm pt-2">
+              <Link href="/sumbangan" className="text-brand-gold underline font-semibold">
+                💛 Sokong perjuangan kami — Sumbangan Ikhlas
+              </Link>
             </p>
           </div>
         )}

@@ -329,6 +329,27 @@ model LandComplaint {
   updatedAt DateTime    @updatedAt
 }
 
+// ---------- SUMBANGAN IKHLAS ----------
+enum DonationStatus {
+  MENUNGGU
+  BERJAYA
+  GAGAL
+}
+
+// Sumbangan bebas daripada orang awam (bukan yuran keahlian) - dipautkan
+// dari hujung Borang Aduan Pencerobohan Tanah & /sumbangan.
+model Donation {
+  id           String         @id @default(cuid())
+  seq          Int            @default(autoincrement())
+  namaPenderma String
+  emel         String
+  telefon      String
+  amountSen    Int
+  status       DonationStatus @default(MENUNGGU)
+  bayarcashRef String?
+  createdAt    DateTime       @default(now())
+}
+
 // ---------- IKLAN KOMUNITI (auto-rotate) ----------
 model Ad {
   id         String   @id @default(cuid())
