@@ -9,6 +9,7 @@ const adminNavItems = [
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/classes", label: "Kelas dan Program" },
   { href: "/admin/activities", label: "Aktiviti" },
+  { href: "/admin/aduan-tanah", label: "Aduan Tanah" },
   { href: "/admin/products", label: "Merchandise" },
   { href: "/admin/ads", label: "Iklan Komuniti" },
   { href: "/admin/settings", label: "Tetapan" },

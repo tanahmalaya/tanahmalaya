@@ -265,6 +265,70 @@ model OrderItem {
   productSize   ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: SetNull)
 }
 
+// ---------- ADUAN PENCEROBOHAN TANAH ----------
+enum HubunganTanah {
+  PEMILIK_BERDAFTAR
+  JIRAN_PENDUDUK
+  WAKAF_AMANAH
+  WAKIL_KOMUNITI_NGO
+  ORANG_AWAM
+}
+
+enum StatusKategoriTanah {
+  KERAJAAN_RIZAB
+  PERSENDIRIAN
+  ADAT_RIZAB_MELAYU
+  TIDAK_PASTI
+}
+
+enum StatusAduan {
+  BAHARU
+  DALAM_SEMAKAN
+  SELESAI
+}
+
+// Borang aduan awam pencerobohan/penyalahgunaan tanah (/hubungi-kami).
+// Pengadu boleh pilih kekal anonim - dalam kes ni namaPenuh/telefon/emel kosong.
+model LandComplaint {
+  id   String @id @default(cuid())
+  seq  Int    @default(autoincrement()) // no ringkas utk rujukan staff, cth #12
+
+  // Bahagian 1: Maklumat Pengadu
+  anonim            Boolean       @default(true)
+  benarkanDihubungi Boolean       @default(false)
+  namaPenuh         String?
+  telefon           String?
+  emel              String?
+  hubungan          HubunganTanah
+
+  // Bahagian 2: Lokasi & Identiti Tanah
+  negeri              String
+  daerahMukim         String
+  nomborLot           String?
+  gpsLat              Float?
+  gpsLng              Float?
+  statusKategoriTanah StatusKategoriTanah
+
+  // Bahagian 3: Butiran Isu & Pencerobohan
+  jenisPencerobohan    String[] // cth: ["STRUKTUR_HARAM", "PERTANIAN", ...]
+  jenisLain            String? // penjelasan bila pilih "Lain-lain"
+  anggaranTarikhMula   DateTime?
+  keteranganTerperinci String    @db.Text
+
+  // Bahagian 4: Bukti Fizikal & Lampiran (URL fail di Vercel Blob)
+  fotoUrls    String[] // maksimum 5
+  dokumenUrls String[]
+
+  // Bahagian 5: Pengesahan & Penafian
+  pengesahanMaklumat Boolean
+  persetujuanPdpa    Boolean
+
+  status    StatusAduan @default(BAHARU)
+  notaAdmin String?     @db.Text
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
 // ---------- IKLAN KOMUNITI (auto-rotate) ----------
 model Ad {
   id         String   @id @default(cuid())
