@@ -135,7 +135,7 @@ export default function SumbanganCard({ title = "Sumbangan Ikhlas" }: { title?: 
         disabled={loading}
         className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full disabled:opacity-60"
       >
-        {loading ? "Memproses..." : "SUMBANG SEKARANG"}
+        {loading ? "Memproses..." : "DONATE NOW"}
       </button>
       <p className="text-[11px] text-center text-brand-dark/40">
         Anda akan dibawa ke halaman pembayaran selamat BayarCash (FPX / Online Banking).
