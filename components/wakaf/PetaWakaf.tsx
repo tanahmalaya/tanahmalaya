@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Popup, CircleMarker, Circle, LayersControl, LayerGroup } from "react-leaflet";
+import { MapContainer, TileLayer, Tooltip, CircleMarker, Circle, LayersControl, LayerGroup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 type WakafPoint = { id: number; lat: number; lng: number };
@@ -159,33 +159,36 @@ export default function PetaWakaf() {
                       fillOpacity: 0.9,
                       weight: 1.5,
                     }}
+                    eventHandlers={{
+                      click: () => {
+                        window.open(
+                          `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.lat},${p.lng}`,
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+                      },
+                    }}
                   >
-                    <Popup>
-                      <div className="text-sm space-y-1.5 min-w-[180px]">
+                    <Tooltip direction="top" offset={[0, -8]} interactive>
+                      <div className="text-xs leading-relaxed">
                         <p className="font-semibold text-brand-dark">
                           {data?.jenis === "cadangan" ? "Cadangan Projek Tanah Wakaf" : "Tanah Wakaf"}
                         </p>
                         <p className="text-gray-600">
                           {data?.negeri} — {data?.agensi}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          Koordinat: {p.lat.toFixed(5)}, {p.lng.toFixed(5)}
-                        </p>
+                        <p className="text-teal-700 font-medium">Klik untuk buka Google Street View →</p>
                         <a
-                          href="https://jupem2u.kul.jupem.gov.my/mylot/negeri.html"
+                          href={`https://www.google.com/maps?q=${p.lat},${p.lng}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-teal-700 hover:text-teal-900"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-block mt-1 text-gray-500 underline hover:text-gray-700"
                         >
-                          Semak No. Lot di MyLOT (JUPEM)
-                          <span aria-hidden>→</span>
+                          Tiada Street View? Lihat di Google Maps
                         </a>
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          Buka portal rasmi JUPEM untuk cari no. lot kawasan ini secara manual
-                          menggunakan koordinat di atas.
-                        </p>
                       </div>
-                    </Popup>
+                    </Tooltip>
                   </CircleMarker>
                 ))}
               </LayerGroup>
