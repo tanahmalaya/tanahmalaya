@@ -1,5 +1,6 @@
 export const revalidate = 60;
 
+import Link from "next/link";
 import ProductGrid from "@/components/ProductGrid";
 import BackButton from "@/components/BackButton";
 
@@ -17,6 +18,11 @@ export default function MerchandisePage() {
         <BackButton href="/" label="Kembali ke Utama" className="mb-4" />
         <h1 className="font-display text-3xl font-bold">Merchandise</h1>
         <p className="text-brand-dark/70 mt-2">Sokong pertubuhan sambil menyokong gaya anda.</p>
+        <p className="text-sm mt-2">
+          <Link href="/sumbangan" className="text-brand-gold underline font-semibold">
+            💛 Tak jumpa yang berkenan? Sokong terus dengan Sumbangan Ikhlas
+          </Link>
+        </p>
       </div>
       <ProductGrid />
     </section>
