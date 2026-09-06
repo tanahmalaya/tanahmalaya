@@ -18,7 +18,7 @@ const navLinks = [
 
 // Dipaparkan sebagai ikon sahaja pada nav desktop (elak nav jadi padat);
 // tetap muncul sebagai teks penuh dalam menu mobile via navLinks di atas.
-const desktopIconOnlyHrefs = new Set(["/peta"]);
+const desktopIconOnlyHrefs = new Set(["/peta", "/hubungi-kami"]);
 
 function MenuIcon() {
   return (
@@ -50,13 +50,25 @@ function CartIcon() {
   );
 }
 
-// SVG Ikon Gelombang (Semak Banjir)
-function WaveIcon() {
+// SVG Ikon Peta (Peta Banjir & Wakaf)
+function MapIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 7c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0" />
-      <path d="M2 13c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0" />
-      <path d="M2 19c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0" />
+      <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
+      <path d="M15 5.764v15" />
+      <path d="M9 3.236v15" />
+    </svg>
+  );
+}
+
+// SVG Ikon Hubungi Kami (Call & Mesej)
+function ContactIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+      <g transform="translate(11,0) scale(0.5)">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+      </g>
     </svg>
   );
 }
@@ -108,7 +120,17 @@ export default function Header() {
             aria-label="Peta Banjir & Tanah Wakaf"
             className="hidden lg:flex p-2 text-white hover:text-brand-gold transition-colors items-center"
           >
-            <WaveIcon />
+            <MapIcon />
+          </Link>
+
+          {/* Ikon Hubungi Kami - desktop sahaja (teks penuh tersedia dalam menu mobile) */}
+          <Link
+            href="/hubungi-kami"
+            title="Hubungi Kami"
+            aria-label="Hubungi Kami"
+            className="hidden lg:flex p-2 text-white hover:text-brand-gold transition-colors items-center"
+          >
+            <ContactIcon />
           </Link>
 
           {/* 3. Butang Trolley (Paparan Desktop & Mobile) */}
