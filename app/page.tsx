@@ -2,7 +2,6 @@ export const revalidate = 60;
 
 import Hero from "@/components/Hero";
 import WhyLiterasiTanah from "@/components/WhyLiterasiTanah";
-import ClassTable from "@/components/ClassTable";
 import MembershipCTA from "@/components/MembershipCTA";
 import ProductGrid from "@/components/ProductGrid";
 import ActivityGrid from "@/components/ActivityGrid";
@@ -29,13 +28,8 @@ export default async function HomePage() {
         <MerdekaBanner />
       </div>
 
-      <div className="max-w-8xl mx-auto px-6 lg:px-10 pt-20 lg:pt-28 grid lg:grid-cols-3 gap-10 lg:gap-14 items-start">
-        <div className="lg:col-span-2">
-          <ClassTable />
-        </div>
-        <div className="lg:mt-16">
-          <MembershipCTA />
-        </div>
+      <div className="max-w-3xl mx-auto px-6 lg:px-10 pt-20 lg:pt-28">
+        <MembershipCTA />
       </div>
 
       <div className="mt-20 lg:mt-28">
