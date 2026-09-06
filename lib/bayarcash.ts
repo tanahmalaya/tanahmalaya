@@ -78,3 +78,64 @@ export function verifyBayarcashChecksum(payload: Record<string, string>, receive
   const expected = crypto.createHmac("sha256", BAYARCASH_SECRET_KEY).update(message).digest("hex");
   return expected === receivedChecksum;
 }
+
+// Status transaksi BayarCash (field "status" dalam response API & callback).
+export const BAYARCASH_STATUS = {
+  NEW: 0,
+  PENDING: 1,
+  FAILED: 2,
+  SUCCESS: 3,
+  CANCELLED: 4,
+} as const;
+
+export type BayarcashTransaction = {
+  id: string; // cth: trx_q6LJdl
+  order_number: string;
+  status: number;
+  status_description: string;
+  datetime: string;
+  amount: number;
+};
+
+/**
+ * Tarik SEMUA transaksi BayarCash untuk satu order_number terus dari API
+ * mereka (bukan bergantung webhook semata-mata) - guna untuk "resync" bila
+ * webhook tak sampai/hilang, atau bila pelanggan buat >1 percubaan bayaran
+ * untuk order yang sama (percubaan pertama gagal, kedua berjaya - webhook
+ * gagal cuma simpan SATU transaction_id terakhir, jadi kita kena tanya
+ * BayarCash terus untuk dapatkan SEMUA percubaan bagi order ni).
+ */
+export async function getBayarcashTransactionsByOrder(orderNumber: string): Promise<BayarcashTransaction[]> {
+  const res = await fetch(
+    `${BAYARCASH_API_URL}/transactions?order_number=${encodeURIComponent(orderNumber)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${BAYARCASH_PAT}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`BayarCash error: ${res.status} ${await res.text()}`);
+  }
+
+  const json = (await res.json()) as { data: BayarcashTransaction[] };
+  return json.data || [];
+}
+
+/**
+ * Antara semua percubaan bayaran (transaksi) untuk satu order, pilih SATU
+ * yang paling relevan untuk tentukan status order: keutamaan pertama transaksi
+ * yang BERJAYA (status 3, walaupun bukan yang terkini - contoh percubaan
+ * pertama gagal, kedua berjaya), kalau tiada yang berjaya baru ambil transaksi
+ * paling terkini (ikut datetime) untuk tentukan sebab gagal/menunggu.
+ */
+export function pickRelevantBayarcashTransaction(transactions: BayarcashTransaction[]): BayarcashTransaction | null {
+  if (transactions.length === 0) return null;
+  const success = transactions.find((t) => t.status === BAYARCASH_STATUS.SUCCESS);
+  if (success) return success;
+  return [...transactions].sort((a, b) => (a.datetime < b.datetime ? 1 : -1))[0];
+}

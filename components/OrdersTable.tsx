@@ -62,7 +62,7 @@ const STATUS_BADGE: Record<Bucket, { label: string; className: string }> = {
   PAYMENT_FAILED: { label: "Payment Failed", className: "bg-gray-200 text-gray-500" },
 };
 
-const ACTIONABLE: Bucket[] = ["NEW_READY_STOCK", "NEW_PREORDER", "PROCESSING_FAILED", "IN_PROCESS"];
+const ACTIONABLE: Bucket[] = ["NEW_READY_STOCK", "NEW_PREORDER", "PROCESSING_FAILED", "IN_PROCESS", "PENDING_PAYMENT", "PAYMENT_FAILED"];
 const REFUNDABLE: Bucket[] = ["IN_PROCESS", "SHIPPED"];
 
 function formatRM(sen: number | null | undefined) {
@@ -430,6 +430,34 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
     router.push(`/admin/orders/packing-slip?ids=${selected.join(",")}`);
   }
 
+  async function handleResync() {
+    if (selected.length === 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/orders/resync-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderIds: selected }),
+      });
+      const data = await res.json();
+      const changed = (data.results || []).filter((r: any) => r.newStatus !== r.previousStatus);
+      const messages = (data.results || [])
+        .map((r: any) => `#${r.seq}: ${r.previousStatus} -> ${r.newStatus} (${r.message})`)
+        .join("\n");
+      alert(
+        changed.length > 0
+          ? `${changed.length} order(s) updated from BayarCash's real status:\n\n${messages}`
+          : `No status changes.\n\n${messages}`
+      );
+      setSelected([]);
+      router.refresh();
+    } catch (e) {
+      alert("Error resyncing payment status. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="w-full bg-white rounded-lg shadow-sm border border-brand-dark/10 overflow-hidden">
       <div className="flex items-center gap-2 px-5 py-4 border-b border-brand-dark/10 text-xs overflow-x-auto">
@@ -496,6 +524,16 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                 PRINT AWB ({selected.length})
               </button>
             )}
+            {(tab === "PENDING_PAYMENT" || tab === "PAYMENT_FAILED") && (
+              <button
+                type="button"
+                onClick={handleResync}
+                disabled={selected.length === 0 || loading}
+                className="bg-brand-gold text-brand-dark font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
+              >
+                {loading ? "Checking BayarCash..." : `RESYNC PAYMENT STATUS (${selected.length})`}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -505,6 +543,14 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
           "RETRY PROCESSING" is safe to click repeatedly for orders that already have an EasyParcel
           order number - it does NOT create a new booking. If it keeps failing, use "DOWNLOAD CSV" to
           upload manually in the EasyParcel dashboard.
+        </p>
+      )}
+
+      {(tab === "PENDING_PAYMENT" || tab === "PAYMENT_FAILED") && (
+        <p className="px-5 pt-3 text-[11px] text-brand-dark/50">
+          "RESYNC PAYMENT STATUS" asks BayarCash directly for this order's real payment result -
+          use it when a customer says they paid but the order is still stuck here (delayed/lost
+          webhook, or they retried payment after a first failed attempt).
         </p>
       )}
 
