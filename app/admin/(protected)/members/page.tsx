@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { requireAdminOnly } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CopyButton from "@/components/admin/CopyButton";
+import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
 
 const SPR_SEMAK_URL = "https://mysprsemak.spr.gov.my/";
 
@@ -204,6 +205,7 @@ export default async function AdminMembersPage({
               <th className="p-4">E-mel</th>
               <th className="p-4">Status</th>
               <th className="p-4">Tarikh Sertai</th>
+              <th className="p-4"></th>
             </tr>
           </thead>
           <tbody>
@@ -223,6 +225,18 @@ export default async function AdminMembersPage({
                 <td className="p-4">{m.email}</td>
                 <td className="p-4">{STATUS_LABEL[m.status] || m.status}</td>
                 <td className="p-4">{m.joinedAt.toLocaleDateString("ms-MY")}</td>
+                <td className="p-4">
+                  {m.type === "BERSEKUTU" && m.status === "AKTIF" && (
+                    <form action={`/api/admin/members/${m.id}/upgrade-to-plt`} method="POST">
+                      <ConfirmSubmitButton
+                        confirmMessage={`Naik taraf ${m.fullName} (${m.memberNo}) daripada Ahli Bersekutu kepada Ahli PLT?\n\nAhli akan dapat no ahli baharu siri "TM-" dan disahkan bermastautin/berdaftar mengundi Selangor.`}
+                        className="border border-brand-gold text-brand-dark font-semibold rounded-sm px-3 py-2 text-xs whitespace-nowrap hover:bg-brand-gold/10"
+                      >
+                        NAIK TARAF KE PLT
+                      </ConfirmSubmitButton>
+                    </form>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
