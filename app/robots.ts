@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/api", "/cart", "/keahlian/semak", "/keahlian/semak-plt"],
+      disallow: ["/admin", "/api", "/cart", "/keahlian/semak", "/keahlian/semak-plt", "/semak"],
     },
     sitemap: "https://tanahmalaya.org/sitemap.xml",
   };

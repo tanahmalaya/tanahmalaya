@@ -17,13 +17,9 @@ export default function MembershipCTA() {
         ISI BORANG KEAHLIAN
       </Link>
       <p className="text-white/70 text-sm mt-4">
-        Sudah jadi ahli? Semak nombor ahli:{" "}
-        <Link href="/keahlian/semak-plt" className="text-brand-gold underline">
-          Ahli PLT
-        </Link>{" "}
-        &middot;{" "}
-        <Link href="/keahlian/semak" className="text-brand-gold underline">
-          Ahli Bersekutu
+        Sudah jadi ahli?{" "}
+        <Link href="/semak" className="text-brand-gold underline">
+          Semak nombor ahli anda di sini
         </Link>
       </p>
     </div>

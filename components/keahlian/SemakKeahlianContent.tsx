@@ -50,8 +50,8 @@ type MemberResult = {
 };
 
 type Props = {
-  expectedType: MemberType;
-  otherTypeHref: string;
+  expectedType?: MemberType;
+  otherTypeHref?: string;
 };
 
 export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Props) {
@@ -62,7 +62,12 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
   const [error, setError] = useState("");
   const [result, setResult] = useState<MemberResult | null>(null);
 
-  const heading = expectedType === "PLT" ? "SEMAK KEAHLIAN AHLI PLT" : "SEMAK KEAHLIAN AHLI BERSEKUTU";
+  const heading =
+    expectedType === "PLT"
+      ? "SEMAK KEAHLIAN AHLI PLT"
+      : expectedType === "BERSEKUTU"
+      ? "SEMAK KEAHLIAN AHLI BERSEKUTU"
+      : "SEMAK KEAHLIAN";
   const otherLabel = expectedType === "PLT" ? TYPE_LABEL.BERSEKUTU : TYPE_LABEL.PLT;
 
   async function checkMember(name: string, ic: string) {
@@ -104,7 +109,7 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
     checkMember(fullName, icNumber);
   }
 
-  const wrongType = result && result.type !== expectedType;
+  const wrongType = !!(result && expectedType && result.type !== expectedType);
 
   return (
     <div className="bg-white text-brand-dark">
@@ -127,7 +132,7 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
           <div>
             <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-wide">{heading}</h1>
             <p className="text-brand-dark/60 text-sm mt-1 max-w-lg">
-              Semak status keahlian {TYPE_LABEL[expectedType]} anda dalam Pertubuhan Literasi Tanah dengan mudah dan pantas.
+              Semak status keahlian {expectedType ? `${TYPE_LABEL[expectedType]} ` : ""}anda dalam Pertubuhan Literasi Tanah dengan mudah dan pantas.
             </p>
           </div>
         </div>
@@ -215,9 +220,9 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
             <div className="space-y-4">
               <p className="text-brand-dark/70 text-sm">
                 <strong className="text-brand-dark">{result.fullName}</strong> didaftarkan sebagai{" "}
-                <strong className="text-brand-gold">{otherLabel}</strong>, bukan {TYPE_LABEL[expectedType]}.
+                <strong className="text-brand-gold">{otherLabel}</strong>, bukan {TYPE_LABEL[expectedType!]}.
               </p>
-              <Link href={otherTypeHref} className={BTN_PRIMARY}>
+              <Link href={otherTypeHref!} className={BTN_PRIMARY}>
                 SEMAK DI HALAMAN {otherLabel.toUpperCase()}
               </Link>
             </div>
@@ -271,7 +276,7 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
         {/* Step 3 - sertai WhatsApp group - hanya papar selepas semakan jumpa
             rekod ahli AKTIF sebenar bagi jenis keahlian yang betul, elak QR
             group didedahkan kepada sesiapa saja yang buka laman ni. */}
-        {result && !wrongType && result.status === "AKTIF" && <WhatsappGroupCard variant={expectedType} />}
+        {result && !wrongType && result.status === "AKTIF" && <WhatsappGroupCard variant={result.type} />}
 
         {/* Pendaftaran ditolak - buka borang mohon refund yuran yang dah dibayar. */}
         {result && !wrongType && result.status === "TIDAK_AKTIF" && (

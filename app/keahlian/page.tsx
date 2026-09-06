@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { IconUserCircle, IconShieldCheck, IconIdCard } from "@/components/keahlian/icons";
+import { IconUserCircle, IconShieldCheck, IconIdCard, IconSearch } from "@/components/keahlian/icons";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
 import BackButton from "@/components/BackButton";
 import { isValidMalaysianIC, getAgeFromIC, MIN_AGE_AHLI_PLT } from "@/lib/ic";
@@ -161,6 +161,27 @@ export default function KeahlianPage() {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 pb-16 space-y-6">
+        {/* Sudah jadi ahli - butang semak keahlian yang senang dilihat, boleh
+            share terus (contoh: Facebook) supaya ahli sedia ada tak perlu
+            hubungi admin untuk tahu status/nombor ahli. */}
+        <Link
+          href="/semak"
+          className="flex items-center justify-between gap-3 bg-brand-gold/[0.08] border border-brand-gold/30 rounded-2xl px-5 py-4 hover:bg-brand-gold/[0.14] transition group"
+        >
+          <span className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-brand-gold/15 text-brand-gold flex items-center justify-center shrink-0">
+              <IconSearch />
+            </span>
+            <span>
+              <span className="block font-semibold text-brand-dark">Sudah jadi ahli?</span>
+              <span className="block text-brand-dark/60 text-sm">Semak status &amp; nombor keahlian anda di sini</span>
+            </span>
+          </span>
+          <span className="text-brand-gold font-semibold text-sm shrink-0 group-hover:translate-x-0.5 transition">
+            SEMAK KEAHLIAN &rarr;
+          </span>
+        </Link>
+
         {/* Pilih jenis keahlian */}
         <div className="grid sm:grid-cols-2 gap-4">
           {(Object.keys(TYPE_INFO) as MemberType[]).map((t) => {
@@ -317,7 +338,7 @@ export default function KeahlianPage() {
 
           <p className="text-xs text-brand-dark/50 mt-4">
             Sudah mendaftar?{" "}
-            <Link href={memberType === "PLT" ? "/keahlian/semak-plt" : "/keahlian/semak"} className="text-brand-gold underline">
+            <Link href="/semak" className="text-brand-gold underline">
               Semak nombor ahli anda di sini
             </Link>
             .
