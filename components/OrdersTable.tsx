@@ -322,6 +322,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
   const [tab, setTab] = useState<Bucket | "ALL">("ALL");
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [notifying, setNotifying] = useState(false);
   const [exporting, setExporting] = useState(false);
   const router = useRouter();
 
@@ -458,6 +459,34 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
     }
   }
 
+  async function handleNotify() {
+    if (selected.length === 0) return;
+    if (!confirm(`Hantar email kepada ${selected.length} pembeli, tanya sama ada ada masalah dengan pembelian/pembayaran mereka?`)) return;
+    setNotifying(true);
+    try {
+      const res = await fetch("/api/admin/orders/notify-payment-issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderIds: selected }),
+      });
+      const data = await res.json();
+      const failed = (data.results || []).filter((r: any) => !r.sent);
+      const messages = (data.results || [])
+        .map((r: any) => `#${r.seq} (${r.emel}): ${r.sent ? "dihantar" : r.message}`)
+        .join("\n");
+      alert(
+        failed.length > 0
+          ? `${failed.length} email gagal dihantar:\n\n${messages}`
+          : `Semua email berjaya dihantar:\n\n${messages}`
+      );
+      setSelected([]);
+    } catch (e) {
+      alert("Error hantar email. Please try again.");
+    } finally {
+      setNotifying(false);
+    }
+  }
+
   return (
     <div className="w-full bg-white rounded-lg shadow-sm border border-brand-dark/10 overflow-hidden">
       <div className="flex items-center gap-2 px-5 py-4 border-b border-brand-dark/10 text-xs overflow-x-auto">
@@ -534,6 +563,16 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                 {loading ? "Checking BayarCash..." : `RESYNC PAYMENT STATUS (${selected.length})`}
               </button>
             )}
+            {(tab === "PENDING_PAYMENT" || tab === "PAYMENT_FAILED") && (
+              <button
+                type="button"
+                onClick={handleNotify}
+                disabled={selected.length === 0 || notifying}
+                className="bg-white border border-brand-dark/20 text-brand-dark font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
+              >
+                {notifying ? "Menghantar..." : `HANTAR EMAIL (${selected.length})`}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -550,7 +589,8 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
         <p className="px-5 pt-3 text-[11px] text-brand-dark/50">
           "RESYNC PAYMENT STATUS" asks BayarCash directly for this order's real payment result -
           use it when a customer says they paid but the order is still stuck here (delayed/lost
-          webhook, or they retried payment after a first failed attempt).
+          webhook, or they retried payment after a first failed attempt). "HANTAR EMAIL" emails the
+          buyer asking if they had trouble completing their purchase/payment.
         </p>
       )}
 
