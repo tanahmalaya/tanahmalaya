@@ -19,11 +19,17 @@ const PetaWakaf = dynamic(() => import("@/components/wakaf/PetaWakaf"), {
   loading: () => loadingMap,
 });
 
-type Tab = "banjir" | "wakaf";
+const PetaHargaTanah = dynamic(() => import("@/components/hargatanah/PetaHargaTanah"), {
+  ssr: false,
+  loading: () => loadingMap,
+});
+
+type Tab = "banjir" | "wakaf" | "harga-tanah";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "banjir", label: "Semak Banjir", icon: "🌊" },
   { id: "wakaf", label: "Tanah Wakaf", icon: "🕌" },
+  { id: "harga-tanah", label: "Harga Tanah", icon: "💰" },
 ];
 
 export default function PetaTabs() {
@@ -31,7 +37,7 @@ export default function PetaTabs() {
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get("tab");
-    if (t === "wakaf" || t === "banjir") setTab(t);
+    if (t === "wakaf" || t === "banjir" || t === "harga-tanah") setTab(t);
   }, []);
 
   const pilihTab = (t: Tab) => {
@@ -45,9 +51,9 @@ export default function PetaTabs() {
 
   return (
     <div>
-      <div className="relative grid grid-cols-2 gap-1 mb-6 p-1 bg-black/[0.05] rounded-2xl max-w-md">
+      <div className="relative grid grid-cols-3 gap-1 mb-6 p-1 bg-black/[0.05] rounded-2xl max-w-lg">
         <div
-          className="absolute inset-y-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_12px_-4px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-out"
+          className="absolute inset-y-1 w-[calc(33.333%-3px)] rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_12px_-4px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${aktifIndex * 100}%)` }}
         />
         {TABS.map((t) => (
@@ -67,6 +73,7 @@ export default function PetaTabs() {
 
       {tab === "banjir" && <PetaBanjir />}
       {tab === "wakaf" && <PetaWakaf />}
+      {tab === "harga-tanah" && <PetaHargaTanah />}
     </div>
   );
 }

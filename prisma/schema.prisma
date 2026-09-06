@@ -71,6 +71,8 @@ model Member {
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  hargaTanahSubmissions HargaTanahSubmission[]
 }
 
 enum MemberStatus {
@@ -348,6 +350,92 @@ model Donation {
   status       DonationStatus @default(MENUNGGU)
   bayarcashRef String?
   createdAt    DateTime       @default(now())
+}
+
+// ---------- PETA ANGGARAN HARGA TANAH ----------
+enum JenisTanah {
+  KOSONG        // tanah kosong / vacant land
+  PERTANIAN     // ladang getah/sawit/durian/hortikultur/estet dll
+  PEMBANGUNAN   // development land
+  PERUMAHAN
+  PERINDUSTRIAN
+  KOMERSIAL
+}
+
+enum JenisHakmilik {
+  FREEHOLD
+  LEASEHOLD
+  TIDAK_PASTI
+}
+
+enum UnitKeluasan {
+  SQFT
+  EKAR
+  HEKTAR
+}
+
+// Data rujukan RASMI - diimport dari "Jadual Data Transaksi Harta Tanah" NAPIC
+// (napic.jpph.gov.my/ms/penerbitan > Pasaran Harta Tanah), diterbitkan sukuan,
+// peringkat DAERAH sahaja (bukan mukim/lot). Satu row = satu kombinasi
+// (negeri, daerah, tahun, sukuan, jenisTanah, julatHarga).
+model NapicRujukanHarga {
+  id            String     @id @default(cuid())
+  negeri        String
+  daerah        String
+  tahun         Int
+  sukuan        String     // label asal NAPIC, cth "Q1" / "S1"
+  jenisTanah    JenisTanah
+  julatHargaMin Int        // RM, cth 100000
+  julatHargaMax Int?       // RM, null = julat terbuka ("1,000,001 & Above")
+  bilangan      Int        @default(0) // bilangan transaksi dalam julat ni
+  nilaiSen      BigInt?    // jumlah nilai transaksi (sen) dalam julat ni, jika tersedia dalam fail
+  sumberFail    String?    // nama fail asal NAPIC, untuk rujukan/audit
+  createdAt     DateTime   @default(now())
+
+  @@unique([negeri, daerah, tahun, sukuan, jenisTanah, julatHargaMin])
+  @@index([negeri, daerah])
+}
+
+enum JenisHargaSubmission {
+  TAWARAN     // harga tawaran/asking price
+  TRANSAKSI   // harga jual-beli sebenar
+}
+
+enum StatusSemakanHarga {
+  MENUNGGU_SEMAKAN
+  DISAHKAN
+  DITOLAK
+}
+
+// Harga tanah submit oleh ahli (crowd-sourced) - untuk anggaran per-lot yang
+// lebih tepat berbanding purata daerah NAPIC. Perlu disahkan admin dulu
+// sebelum dipaparkan awam (alur sama macam Member.MENUNGGU_SEMAKAN).
+model HargaTanahSubmission {
+  id          String   @id @default(cuid())
+  memberId    String?
+  member      Member?  @relation(fields: [memberId], references: [id])
+
+  gpsLat      Float
+  gpsLng      Float
+  negeri      String
+  daerahMukim String
+  nomborLot   String?
+
+  jenisTanah    JenisTanah
+  jenisHakmilik JenisHakmilik @default(TIDAK_PASTI)
+  keluasan      Float
+  unitKeluasan  UnitKeluasan  @default(SQFT)
+  hargaSen      BigInt        // harga tawaran/transaksi, dalam sen
+  jenisHarga    JenisHargaSubmission @default(TAWARAN)
+  tarikh        DateTime      @default(now())
+
+  status    StatusSemakanHarga @default(MENUNGGU_SEMAKAN)
+  notaAdmin String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([negeri, daerahMukim])
 }
 
 // ---------- IKLAN KOMUNITI (auto-rotate) ----------
