@@ -15,7 +15,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-body)", "sans-serif"],
-        display: ["var(--font-display)", "serif"]
+        display: ["var(--font-body)", "sans-serif"]
       },
       maxWidth: {
         "8xl": "96rem",   // 1536px - kandungan lebar untuk skrin besar

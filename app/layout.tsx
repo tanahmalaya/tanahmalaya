@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 // 1. Import CartProvider (sesuai path fail context anda)
 import { CartProvider } from "@/app/context/CartContext";
 import { CheckoutProvider } from "@/app/context/CheckoutContext";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 
 const SITE_NAME = "Pertubuhan Literasi Tanah";
 const SITE_DESCRIPTION =
@@ -103,7 +106,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ms">
+    <html lang="ms" className={inter.variable}>
       <body>
         <script
           type="application/ld+json"

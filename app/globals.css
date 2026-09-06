@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-body: 'Inter', sans-serif;
-  --font-display: 'Playfair Display', serif;
-}
-
 body {
   @apply bg-brand-cream text-brand-dark font-sans;
 }
