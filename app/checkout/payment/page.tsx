@@ -19,6 +19,7 @@ export default function CheckoutPaymentPage() {
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 0);
@@ -26,8 +27,16 @@ export default function CheckoutPaymentPage() {
   }, []);
 
   useEffect(() => {
-    if (ready && (!quote || !contact || !address)) router.replace("/checkout/information");
-  }, [ready, quote, contact, address, router]);
+    if (ready && !redirecting && (!quote || !contact || !address)) router.replace("/checkout/information");
+  }, [ready, redirecting, quote, contact, address, router]);
+
+  if (redirecting) {
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-10 text-center text-brand-dark/70">
+        Mengalihkan ke halaman pembayaran...
+      </div>
+    );
+  }
 
   if (!quote || !contact || !address) return null;
 
@@ -53,6 +62,7 @@ export default function CheckoutPaymentPage() {
       const res = await fetch("/api/orders", { method: "POST", body: payload });
       const result = await res.json();
       if (result.url) {
+        setRedirecting(true);
         clearCart();
         resetCheckout();
         window.location.href = result.url;

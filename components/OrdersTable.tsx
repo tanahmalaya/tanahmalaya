@@ -459,6 +459,35 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
     }
   }
 
+  async function handleMarkFailed() {
+    if (selected.length === 0) return;
+    if (
+      !confirm(
+        `Tandakan ${selected.length} order sebagai Gagal (cleanup)?\n\nHanya guna ni SELEPAS "Resync Payment Status" sahkan tiada transaksi/bayaran untuk order tersebut di BayarCash. Order boleh di-resync semula kemudian kalau bayaran sebenarnya muncul.`
+      )
+    )
+      return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/orders/mark-failed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderIds: selected }),
+      });
+      const data = await res.json();
+      const messages = (data.results || [])
+        .map((r: any) => `#${r.seq}: ${r.previousStatus} -> ${r.newStatus} (${r.message})`)
+        .join("\n");
+      alert(`Selesai:\n\n${messages}`);
+      setSelected([]);
+      router.refresh();
+    } catch (e) {
+      alert("Error menandakan order. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleNotify() {
     if (selected.length === 0) return;
     if (!confirm(`Hantar email kepada ${selected.length} pembeli, tanya sama ada ada masalah dengan pembelian/pembayaran mereka?`)) return;
@@ -573,6 +602,16 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                 {notifying ? "Menghantar..." : `HANTAR EMAIL (${selected.length})`}
               </button>
             )}
+            {(tab === "PENDING_PAYMENT" || tab === "PAYMENT_FAILED") && (
+              <button
+                type="button"
+                onClick={handleMarkFailed}
+                disabled={selected.length === 0 || loading}
+                className="bg-white border border-red-300 text-red-600 font-semibold text-xs rounded-sm px-3 py-2 disabled:opacity-50"
+              >
+                {loading ? "Memproses..." : `TANDA GAGAL / CLEANUP (${selected.length})`}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -590,7 +629,10 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
           "RESYNC PAYMENT STATUS" asks BayarCash directly for this order's real payment result -
           use it when a customer says they paid but the order is still stuck here (delayed/lost
           webhook, or they retried payment after a first failed attempt). "HANTAR EMAIL" emails the
-          buyer asking if they had trouble completing their purchase/payment.
+          buyer asking if they had trouble completing their purchase/payment. "TANDA GAGAL /
+          CLEANUP" manually marks stuck orders as Gagal - only use it after Resync confirms there's
+          no transaction at BayarCash at all (e.g. customer never reached the payment page); the
+          order can still be resynced back to Berjaya later if a payment does turn up.
         </p>
       )}
 
