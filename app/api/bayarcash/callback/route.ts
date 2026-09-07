@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nextMemberNo } from "@/lib/members";
 import { applyOrderPaymentResult } from "@/lib/orderPayment";
+import { sendMemberWelcomeEmail, sendClassRegistrationEmail, sendDonationReceiptEmail } from "@/lib/receiptEmails";
 
 // BayarCash akan hantar POST ke sini selepas pembayaran selesai/gagal.
 // Rujuk dokumentasi rasmi BayarCash untuk nama field sebenar (payload di
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
       // Bayaran BERJAYA - baru cipta rekod Member sebenar dalam Supabase
       const existing = await prisma.member.findUnique({ where: { icNumber: pending.icNumber } });
       if (!existing) {
-        await prisma.member.create({
+        const member = await prisma.member.create({
           data: {
             memberNo: await nextMemberNo(pending.memberType),
             fullName: pending.fullName,
@@ -41,6 +42,11 @@ export async function POST(req: NextRequest) {
             paymentRef: payload.transaction_id ?? null,
           },
         });
+        try {
+          await sendMemberWelcomeEmail(member);
+        } catch (e) {
+          console.error("Gagal hantar email keahlian:", e);
+        }
       }
       // Padam rekod sementara - dah tak diperlukan
       await prisma.pendingRegistration.delete({ where: { id: pending.id } });
@@ -64,7 +70,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Kalau bukan pendaftaran keahlian/merchandise, cuba padan dengan pendaftaran Program & Kelas
-  const registration = await prisma.classRegistration.findUnique({ where: { id: orderId } });
+  const registration = await prisma.classRegistration.findUnique({ where: { id: orderId }, include: { class: true } });
   if (registration) {
     // Jangan downgrade balik ke GAGAL kalau dah BERJAYA (cth. percubaan bayaran
     // pertama gagal, kedua berjaya - callback boleh sampai tak ikut turutan).
@@ -76,6 +82,13 @@ export async function POST(req: NextRequest) {
           bayarcashRef: payload.transaction_id ?? null,
         },
       });
+      if (isPaid) {
+        try {
+          await sendClassRegistrationEmail(registration);
+        } catch (e) {
+          console.error("Gagal hantar email pendaftaran kelas:", e);
+        }
+      }
     }
     return NextResponse.json({ ok: true });
   }
@@ -91,6 +104,13 @@ export async function POST(req: NextRequest) {
           bayarcashRef: payload.transaction_id ?? null,
         },
       });
+      if (isPaid) {
+        try {
+          await sendDonationReceiptEmail(donation);
+        } catch (e) {
+          console.error("Gagal hantar email sumbangan:", e);
+        }
+      }
     }
     return NextResponse.json({ ok: true });
   }

@@ -11,6 +11,7 @@ import {
   fetchEasyParcelAwbLink,
 } from "@/lib/easyparcel";
 import { formatKandunganRingkas } from "@/lib/productSize";
+import { sendOrderTrackingEmail } from "@/lib/receiptEmails";
 
 const MAX_BULK = 30;
 
@@ -53,15 +54,17 @@ export async function POST(req: NextRequest) {
       if (order.easyparcelOrderNo && !order.trackingNumber) {
         const resolved = await resolveExistingEasyParcelOrder(order.easyparcelOrderNo);
         if (resolved.trackingNumber) {
+          const courierNameFinal = resolved.courierName ?? order.courierName;
           await prisma.order.update({
             where: { id: order.id },
             data: {
               trackingNumber: resolved.trackingNumber,
-              courierName: resolved.courierName ?? order.courierName,
+              courierName: courierNameFinal,
               awbUrl: resolved.awbUrl,
               fulfillmentError: null,
             },
           });
+          await notifyTracking(order, resolved.trackingNumber, courierNameFinal);
           results.push({ id: orderId, success: true });
           continue;
         }
@@ -145,17 +148,19 @@ export async function POST(req: NextRequest) {
       });
 
       if (booking.success && booking.trackingNumber) {
+        const courierNameFinal = booking.courierName ?? courierNameGuna;
         await prisma.order.update({
           where: { id: order.id },
           data: {
             easyparcelOrderNo: booking.orderNo,
             trackingNumber: booking.trackingNumber,
-            courierName: booking.courierName ?? courierNameGuna,
+            courierName: courierNameFinal,
             awbUrl: booking.awbUrl ?? (await backfillAwbUrl(booking.trackingNumber)),
             serviceId,
             fulfillmentError: null,
           },
         });
+        await notifyTracking(order, booking.trackingNumber, courierNameFinal);
         results.push({ id: orderId, success: true });
       } else if (booking.success && !booking.trackingNumber) {
         // EasyParcel kata order "berjaya" DICIPTA (order_number wujud) tapi
@@ -176,15 +181,17 @@ export async function POST(req: NextRequest) {
           : { trackingNumber: null, courierName: null, rawDebug: booking.rawDebug };
 
         if (resolved.trackingNumber) {
+          const courierNameFinal = resolved.courierName ?? courierNameGuna;
           await prisma.order.update({
             where: { id: order.id },
             data: {
               trackingNumber: resolved.trackingNumber,
-              courierName: resolved.courierName ?? courierNameGuna,
+              courierName: courierNameFinal,
               awbUrl: resolved.awbUrl,
               fulfillmentError: null,
             },
           });
+          await notifyTracking(order, resolved.trackingNumber, courierNameFinal);
           results.push({ id: orderId, success: true });
           continue;
         }
@@ -210,6 +217,14 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ results });
+}
+
+async function notifyTracking(order: { seq: number; emel: string; namaPembeli: string }, trackingNumber: string, courierName: string | null) {
+  try {
+    await sendOrderTrackingEmail({ seq: order.seq, emel: order.emel, namaPembeli: order.namaPembeli, trackingNumber, courierName });
+  } catch (e) {
+    console.error("Gagal hantar email tracking order:", e);
+  }
 }
 
 /**

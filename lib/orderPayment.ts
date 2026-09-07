@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { totalStok } from "@/lib/productSize";
+import { sendOrderReceiptEmail } from "@/lib/receiptEmails";
 
 // Status yang bermaksud order dah "settled" - iaitu keputusan bayaran dah
 // diproses (BERJAYA/GAGAL yang datang lewat/berulang TAK BOLEH overwrite ni).
@@ -76,6 +77,14 @@ export async function applyOrderPaymentResult(orderId: string, isPaid: boolean, 
       ...(oversoldNote ? { fulfillmentError: oversoldNote } : {}),
     },
   });
+
+  if (isPaid) {
+    try {
+      await sendOrderReceiptEmail(order);
+    } catch (e) {
+      console.error("Gagal hantar email resit order:", e);
+    }
+  }
 
   return { applied: true as const, newStatus: isPaid ? "BERJAYA" : "GAGAL" };
 }
