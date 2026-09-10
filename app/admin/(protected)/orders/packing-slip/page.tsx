@@ -43,8 +43,7 @@ export default function PackingSlipPage() {
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [printingAll, setPrintingAll] = useState(false);
-  const [printProgress, setPrintProgress] = useState<{ current: number; total: number } | null>(null);
+  const [bulkPrinting, setBulkPrinting] = useState(false);
 
   useEffect(() => {
     if (ids.length === 0) return;
@@ -85,10 +84,9 @@ export default function PackingSlipPage() {
 
   // The AWB PDF is hosted cross-origin (EasyParcel), so a directly-embedded
   // iframe can't be scripted (browsers block contentWindow.print() /
-  // afterprint across origins). Fetch each PDF through our own same-origin
-  // proxy first, turn it into a blob: URL (which IS same-origin/scriptable),
-  // then print it in a hidden iframe - one at a time, waiting for the print
-  // dialog to close before moving to the next AWB.
+  // afterprint across origins). The proxy also merges every selected AWB
+  // into ONE PDF server-side, so this opens a single print job/dialog that
+  // covers all of them at once instead of one dialog per AWB.
   function printBlobUrl(blobUrl: string): Promise<void> {
     return new Promise((resolve) => {
       const iframe = document.createElement("iframe");
@@ -119,26 +117,22 @@ export default function PackingSlipPage() {
     });
   }
 
-  async function handlePrintAll() {
+  async function handleBulkPrint() {
     const targets = orders.filter((o) => o.awbUrl && selected.has(o.id));
     if (targets.length === 0) return;
-    setPrintingAll(true);
-    for (let i = 0; i < targets.length; i++) {
-      const o = targets[i];
-      setPrintProgress({ current: i + 1, total: targets.length });
-      try {
-        const res = await fetch(`/api/admin/orders/awb-proxy?orderId=${o.id}`);
-        if (!res.ok) continue;
+    setBulkPrinting(true);
+    try {
+      const idsParam = targets.map((o) => o.id).join(",");
+      const res = await fetch(`/api/admin/orders/awb-proxy?orderIds=${idsParam}`);
+      if (res.ok) {
         const blob = await res.blob();
         const blobUrl = URL.createObjectURL(blob);
         await printBlobUrl(blobUrl);
         URL.revokeObjectURL(blobUrl);
-      } catch {
-        // Skip this AWB (e.g. proxy/network failure) and continue with the rest.
       }
+    } finally {
+      setBulkPrinting(false);
     }
-    setPrintingAll(false);
-    setPrintProgress(null);
   }
 
   if (loading) return <div className="p-8">Loading...</div>;
@@ -148,34 +142,32 @@ export default function PackingSlipPage() {
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-3 print:hidden flex-wrap">
-        <button onClick={() => window.print()} className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-5 py-2">
+      <div className="flex items-center gap-2 mb-3 print:hidden flex-wrap">
+        <button onClick={() => window.print()} className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5">
           PRINT (PDF)
         </button>
         <button
-          onClick={handlePrintAll}
-          disabled={printingAll || selectedPrintableCount === 0}
-          className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
+          onClick={handleBulkPrint}
+          disabled={bulkPrinting || selectedPrintableCount === 0}
+          className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
-          {printingAll
-            ? `PRINTING ${printProgress?.current ?? 0}/${printProgress?.total ?? 0}...`
-            : `PRINT SELECTED AWB (${selectedPrintableCount})`}
+          {bulkPrinting ? "PRINTING..." : `BULK PRINT AWB (${selectedPrintableCount})`}
         </button>
-        <label className="flex items-center gap-2 text-sm text-brand-dark/70 ml-2">
+        <label className="flex items-center gap-1.5 text-xs text-brand-dark/70 ml-1">
           <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
           Select All
         </label>
         <button
           onClick={() => markShipped(orders.filter((o) => selected.has(o.id)).map((o) => o.id))}
           disabled={done || selected.size === 0}
-          className="bg-brand-dark text-white font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
+          className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
           {done ? "SHIPPED ✓" : `MARK SELECTED AS SHIPPED (${selected.size})`}
         </button>
         <button
           onClick={() => markShipped(ids)}
           disabled={done}
-          className="bg-brand-dark text-white font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
+          className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
           {done ? "SHIPPED ✓" : "MARK ALL AS SHIPPED"}
         </button>
