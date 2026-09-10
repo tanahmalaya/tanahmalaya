@@ -10,16 +10,18 @@ const navLinks = [
   { href: "/tentang-kami", label: "Tentang Kami" },
   { href: "/keahlian", label: "Keahlian" },
   { href: "/borang-claim", label: "Member Only" },
-  { href: "/kelas-tanah", label: "Program & Kelas" },
   { href: "/merchandise", label: "Merchandise" },
   { href: "/aktiviti", label: "Aktiviti" },
-  { href: "/peta", label: "Peta Banjir & Wakaf" },
   { href: "/hubungi-kami", label: "Hubungi Kami" },
 ];
 
+// Program & Kelas dan Peta dah bukan pautan header berasingan - kedua-duanya
+// kini "di dalam" Member Only sahaja (lihat pautan dalam app/borang-claim/page.tsx),
+// memandangkan akses terhad kepada Ahli PLT.
+
 // Dipaparkan sebagai ikon sahaja pada nav desktop (elak nav jadi padat);
 // tetap muncul sebagai teks penuh dalam menu mobile via navLinks di atas.
-const desktopIconOnlyHrefs = new Set(["/peta", "/hubungi-kami"]);
+const desktopIconOnlyHrefs = new Set(["/hubungi-kami"]);
 
 function MenuIcon() {
   return (
@@ -47,17 +49,6 @@ function CartIcon() {
       <circle cx="9" cy="21" r="1" />
       <circle cx="20" cy="21" r="1" />
       <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-    </svg>
-  );
-}
-
-// SVG Ikon Peta (Peta Banjir & Wakaf)
-function MapIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
-      <path d="M15 5.764v15" />
-      <path d="M9 3.236v15" />
     </svg>
   );
 }
@@ -111,16 +102,6 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {/* Ikon Peta Banjir & Wakaf - desktop sahaja (teks penuh tersedia dalam menu mobile) */}
-          <Link
-            href="/peta"
-            title="Peta Banjir & Tanah Wakaf"
-            aria-label="Peta Banjir & Tanah Wakaf"
-            className="hidden lg:flex p-2 text-white hover:text-brand-gold transition-colors items-center"
-          >
-            <MapIcon />
-          </Link>
-
           {/* Ikon Hubungi Kami - desktop sahaja (teks penuh tersedia dalam menu mobile) */}
           <Link
             href="/hubungi-kami"
