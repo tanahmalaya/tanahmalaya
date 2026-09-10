@@ -51,13 +51,13 @@ export default async function BorangClaimPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div className="max-w-2xl mx-auto px-6 py-3 flex items-center justify-between flex-wrap gap-3">
         <BackButton href="/keahlian" label="Kembali" />
-        <div className="flex items-center gap-4 text-xs text-brand-dark/50">
-          <a href="/peta" className="hover:text-brand-gold underline">Peta</a>
-          <a href="/kelas-tanah" className="hover:text-brand-gold underline">Kelas &amp; Program</a>
+        <div className="flex items-center gap-5 text-sm font-bold">
+          <a href="/peta" className="text-brand-dark hover:text-brand-gold underline">Peta</a>
+          <a href="/kelas-tanah" className="text-brand-dark hover:text-brand-gold underline">Kelas &amp; Program</a>
           <form action="/api/members/logout" method="POST">
-            <button type="submit" className="hover:text-red-500 underline">Log Keluar</button>
+            <button type="submit" className="text-red-600 hover:text-red-700 underline">Log Keluar</button>
           </form>
         </div>
       </div>
