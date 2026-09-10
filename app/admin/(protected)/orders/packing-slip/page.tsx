@@ -42,47 +42,146 @@ export default function PackingSlipPage() {
   const [orders, setOrders] = useState<OrderPrintView[]>([]);
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [printingAll, setPrintingAll] = useState(false);
+  const [printProgress, setPrintProgress] = useState<{ current: number; total: number } | null>(null);
 
   useEffect(() => {
     if (ids.length === 0) return;
     fetch(`/api/admin/orders/list?ids=${ids.join(",")}`)
       .then((res) => res.json())
       .then((data) => {
-        setOrders(data.orders || []);
+        const fetched: OrderPrintView[] = data.orders || [];
+        setOrders(fetched);
+        setSelected(new Set(fetched.map((o) => o.id)));
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleMarkShipped() {
+  function toggleSelected(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    setSelected((prev) => (prev.size === orders.length ? new Set() : new Set(orders.map((o) => o.id))));
+  }
+
+  async function markShipped(orderIds: string[]) {
+    if (orderIds.length === 0) return;
     await fetch("/api/admin/orders/mark-printed", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderIds: ids }),
+      body: JSON.stringify({ orderIds }),
     });
     setDone(true);
     setTimeout(() => router.push("/admin/orders"), 1500);
   }
 
+  // The AWB PDF is hosted cross-origin (EasyParcel), so a directly-embedded
+  // iframe can't be scripted (browsers block contentWindow.print() /
+  // afterprint across origins). Fetch each PDF through our own same-origin
+  // proxy first, turn it into a blob: URL (which IS same-origin/scriptable),
+  // then print it in a hidden iframe - one at a time, waiting for the print
+  // dialog to close before moving to the next AWB.
+  function printBlobUrl(blobUrl: string): Promise<void> {
+    return new Promise((resolve) => {
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "0";
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        iframe.remove();
+        resolve();
+      };
+      iframe.onload = () => {
+        const win = iframe.contentWindow;
+        if (!win) return finish();
+        win.addEventListener("afterprint", finish);
+        win.focus();
+        win.print();
+        // Fallback in case afterprint never fires.
+        setTimeout(finish, 8000);
+      };
+      iframe.src = blobUrl;
+      document.body.appendChild(iframe);
+    });
+  }
+
+  async function handlePrintAll() {
+    const targets = orders.filter((o) => o.awbUrl);
+    if (targets.length === 0) return;
+    setPrintingAll(true);
+    for (let i = 0; i < targets.length; i++) {
+      const o = targets[i];
+      setPrintProgress({ current: i + 1, total: targets.length });
+      try {
+        const res = await fetch(`/api/admin/orders/awb-proxy?orderId=${o.id}`);
+        if (!res.ok) continue;
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        await printBlobUrl(blobUrl);
+        URL.revokeObjectURL(blobUrl);
+      } catch {
+        // Skip this AWB (e.g. proxy/network failure) and continue with the rest.
+      }
+    }
+    setPrintingAll(false);
+    setPrintProgress(null);
+  }
+
   if (loading) return <div className="p-8">Loading...</div>;
+
+  const allSelected = orders.length > 0 && selected.size === orders.length;
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-6 print:hidden flex-wrap">
+      <div className="flex items-center gap-3 mb-3 print:hidden flex-wrap">
         <button onClick={() => window.print()} className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-5 py-2">
           PRINT (PDF)
         </button>
         <button
-          onClick={handleMarkShipped}
+          onClick={handlePrintAll}
+          disabled={printingAll || orders.every((o) => !o.awbUrl)}
+          className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
+        >
+          {printingAll
+            ? `PRINTING ${printProgress?.current ?? 0}/${printProgress?.total ?? 0}...`
+            : "PRINT ALL AWB"}
+        </button>
+        <label className="flex items-center gap-2 text-sm text-brand-dark/70 ml-2">
+          <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+          Select All
+        </label>
+        <button
+          onClick={() => markShipped(orders.filter((o) => selected.has(o.id)).map((o) => o.id))}
+          disabled={done || selected.size === 0}
+          className="bg-brand-dark text-white font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
+        >
+          {done ? "SHIPPED ✓" : `MARK SELECTED AS SHIPPED (${selected.size})`}
+        </button>
+        <button
+          onClick={() => markShipped(ids)}
           disabled={done}
           className="bg-brand-dark text-white font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
         >
-          {done ? "SHIPPED ✓" : "MARK AS SHIPPED"}
+          {done ? "SHIPPED ✓" : "MARK ALL AS SHIPPED"}
         </button>
-        <p className="text-xs text-brand-dark/50 ml-auto max-w-xs">
-          Only click "Mark as Shipped" once the AWB is actually printed and stuck on the parcel.
-        </p>
       </div>
+      <p className="text-xs text-brand-dark/50 mb-6 print:hidden max-w-xl">
+        Only click "Mark as Shipped" once the AWB is actually printed and stuck on the parcel.
+      </p>
 
       <h1 className="text-2xl font-bold mb-6 print:hidden">
         Print AWB — {orders.length} Order(s)
@@ -92,9 +191,17 @@ export default function PackingSlipPage() {
         {orders.map((o) => (
           <div key={o.id} className="border border-brand-dark/20 rounded-md p-6 break-inside-avoid print:break-after-page">
             <div className="flex justify-between items-start border-b border-brand-dark/10 pb-3 mb-3">
-              <div>
-                <p className="font-bold text-lg">Order #{o.seq}</p>
-                <p className="text-sm text-brand-dark/70">Date: {formatDate(o.createdAt)}</p>
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1 print:hidden"
+                  checked={selected.has(o.id)}
+                  onChange={() => toggleSelected(o.id)}
+                />
+                <div>
+                  <p className="font-bold text-lg">Order #{o.seq}</p>
+                  <p className="text-sm text-brand-dark/70">Date: {formatDate(o.createdAt)}</p>
+                </div>
               </div>
               {(o.courierName || o.trackingNumber) && (
                 <div className="text-right text-sm">
@@ -128,7 +235,11 @@ export default function PackingSlipPage() {
                 )}
               </div>
               {o.awbUrl ? (
-                <iframe src={o.awbUrl} title={`AWB #${o.seq}`} className="w-full h-[420px] border border-brand-dark/20 rounded-sm" />
+                <iframe
+                  src={o.awbUrl}
+                  title={`AWB #${o.seq}`}
+                  className="w-full h-[420px] border border-brand-dark/20 rounded-sm"
+                />
               ) : (
                 <p className="text-sm text-red-600 border border-red-200 bg-red-50 rounded-sm p-3">
                   AWB link not available for this order yet. Check the EasyParcel dashboard directly using the
