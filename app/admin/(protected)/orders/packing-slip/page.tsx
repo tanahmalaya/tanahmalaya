@@ -143,9 +143,10 @@ export default function PackingSlipPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <div className="flex items-center gap-2 mb-3 print:hidden flex-wrap">
-        <button onClick={() => window.print()} className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5">
-          PRINT (PDF)
-        </button>
+        <label className="flex items-center gap-1.5 text-xs text-brand-dark/70 mr-1">
+          <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+          Select All
+        </label>
         <button
           onClick={handleBulkPrint}
           disabled={bulkPrinting || selectedPrintableCount === 0}
@@ -153,10 +154,6 @@ export default function PackingSlipPage() {
         >
           {bulkPrinting ? "PRINTING..." : `BULK PRINT AWB (${selectedPrintableCount})`}
         </button>
-        <label className="flex items-center gap-1.5 text-xs text-brand-dark/70 ml-1">
-          <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-          Select All
-        </label>
         <button
           onClick={() => markShipped(orders.filter((o) => selected.has(o.id)).map((o) => o.id))}
           disabled={done || selected.size === 0}
@@ -164,12 +161,9 @@ export default function PackingSlipPage() {
         >
           {done ? "SHIPPED ✓" : `MARK SELECTED AS SHIPPED (${selected.size})`}
         </button>
-        <button
-          onClick={() => markShipped(ids)}
-          disabled={done}
-          className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-        >
-          {done ? "SHIPPED ✓" : "MARK ALL AS SHIPPED"}
+        <span className="w-px h-5 bg-brand-dark/15 mx-1" />
+        <button onClick={() => window.print()} className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5">
+          PRINT (PDF)
         </button>
       </div>
       <p className="text-xs text-brand-dark/50 mb-6 print:hidden max-w-xl">
