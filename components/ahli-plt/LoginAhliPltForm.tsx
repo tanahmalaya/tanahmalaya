@@ -56,9 +56,9 @@ export default function LoginAhliPltForm() {
             <Image src="/logo.png" width={64} height={64} alt="Pertubuhan Literasi Tanah" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold tracking-wide">AKSES AHLI PLT</h1>
+            <h1 className="font-display text-2xl font-bold tracking-wide">MEMBER ONLY</h1>
             <p className="text-brand-dark/60 text-sm mt-1">
-              Borang Tuntutan Petty Cash, Program &amp; Kelas dan Peta hanya untuk Ahli PLT aktif.
+              Claim, Program &amp; Kelas dan Peta hanya untuk Ahli PLT aktif.
             </p>
           </div>
         </div>

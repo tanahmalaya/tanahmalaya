@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     include: { member: { select: { email: true } } },
   });
   if (!claim) {
-    return NextResponse.json({ error: "Tuntutan tidak dijumpai" }, { status: 404 });
+    return NextResponse.json({ error: "Claim tidak dijumpai" }, { status: 404 });
   }
   if (!VALID_TRANSITIONS[claim.status]?.includes(status)) {
     return NextResponse.json({ error: `Tidak boleh tukar status daripada ${claim.status} ke ${status}` }, { status: 400 });

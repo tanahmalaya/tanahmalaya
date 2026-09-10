@@ -7,7 +7,7 @@ import BackButton from "@/components/BackButton";
 import BorangClaimForm, { type ClaimHistoryItem } from "@/components/petty-cash/BorangClaimForm";
 
 export const metadata = {
-  title: "Borang Tuntutan Petty Cash",
+  title: "Claim",
   robots: { index: false },
 };
 
@@ -45,7 +45,7 @@ export default async function BorangClaimPage() {
             <Image src="/logo.png" width={64} height={64} alt="Pertubuhan Literasi Tanah" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold tracking-wide">TUNTUTAN PETTY CASH</h1>
+            <h1 className="font-display text-2xl font-bold tracking-wide">CLAIM</h1>
             <p className="text-brand-dark/60 text-sm mt-1">Ahli PLT: {member.fullName}</p>
           </div>
         </div>

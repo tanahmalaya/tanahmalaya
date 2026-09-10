@@ -38,7 +38,7 @@ export default async function AdminPettyCashPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">Tuntutan Petty Cash</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">Claim</h1>
       <PettyCashClaimsTable claims={claims} />
     </div>
   );

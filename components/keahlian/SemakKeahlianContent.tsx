@@ -282,12 +282,12 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
             untuk Ahli PLT AKTIF, bukan Ahli Bersekutu. */}
         {result && !wrongType && result.type === "PLT" && result.status === "AKTIF" && (
           <div className={CARD}>
-            <p className="font-semibold text-brand-dark mb-1">Akses Ahli PLT</p>
+            <p className="font-semibold text-brand-dark mb-1">Member Only</p>
             <p className="text-brand-dark/60 text-sm mb-4">
-              Akses Borang Tuntutan Petty Cash, Program &amp; Kelas dan Peta - khas untuk Ahli PLT aktif.
+              Akses Claim, Program &amp; Kelas dan Peta - khas untuk Ahli PLT aktif.
             </p>
-            <Link href="/ahli-plt/log-masuk" className={BTN_PRIMARY}>
-              KE AKSES AHLI PLT →
+            <Link href="/borang-claim" className={BTN_PRIMARY}>
+              MEMBER ONLY →
             </Link>
           </div>
         )}

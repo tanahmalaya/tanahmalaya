@@ -96,7 +96,7 @@ export default function BorangClaimForm({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal hantar tuntutan");
+      if (!res.ok) throw new Error(data.error || "Gagal hantar claim");
 
       setJustSubmittedSeq(data.seq);
       setHistory((prev) => [
@@ -127,7 +127,7 @@ export default function BorangClaimForm({
     <div className="space-y-6">
       <div className={CARD}>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-brand-gold font-bold">BORANG TUNTUTAN BARU</h2>
+          <h2 className="text-brand-gold font-bold">CLAIM BARU</h2>
           <span className="text-xs text-brand-dark/50">No. Ahli: {memberNo}</span>
         </div>
         <p className="text-brand-dark/60 text-sm mb-5">
@@ -136,14 +136,14 @@ export default function BorangClaimForm({
 
         {justSubmittedSeq !== null && (
           <div className="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl p-3">
-            Tuntutan #{justSubmittedSeq} berjaya dihantar. Status: Menunggu semakan PLT.
+            Claim #{justSubmittedSeq} berjaya dihantar. Status: Menunggu semakan PLT.
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>Jumlah Tuntutan (RM)</label>
+              <label className={LABEL}>Jumlah Claim (RM)</label>
               <input
                 type="number"
                 min="0.01"
@@ -213,7 +213,7 @@ export default function BorangClaimForm({
             </div>
             {(savedBankName || savedAccountNo) && (
               <p className="text-xs text-brand-dark/45 mt-2">
-                Maklumat bank diisi automatik daripada tuntutan lepas anda — boleh ubah jika perlu.
+                Maklumat bank diisi automatik daripada claim lepas anda — boleh ubah jika perlu.
               </p>
             )}
           </div>
@@ -221,15 +221,15 @@ export default function BorangClaimForm({
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-            {loading ? "MENGHANTAR..." : "HANTAR TUNTUTAN"}
+            {loading ? "MENGHANTAR..." : "HANTAR CLAIM"}
           </button>
         </form>
       </div>
 
       <div className={CARD}>
-        <h2 className="text-brand-gold font-bold mb-4">SEJARAH TUNTUTAN SAYA</h2>
+        <h2 className="text-brand-gold font-bold mb-4">SEJARAH CLAIM SAYA</h2>
         {history.length === 0 ? (
-          <p className="text-brand-dark/50 text-sm">Belum ada tuntutan dihantar.</p>
+          <p className="text-brand-dark/50 text-sm">Belum ada claim dihantar.</p>
         ) : (
           <div className="space-y-3">
             {history.map((c) => (
