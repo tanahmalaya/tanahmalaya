@@ -75,6 +75,15 @@ model Member {
   savedAccountNo     String?
   savedAccountHolder String?
 
+  // OTP e-mel untuk log masuk kawasan Ahli PLT (2 langkah: Nama + No. KP,
+  // kemudian kod 6-digit dihantar ke e-mel berdaftar) - lihat lib/memberAuth.ts
+  // dan app/api/members/login-request & login-verify. Kod disimpan sebagai
+  // hash (bukan plain text), dikosongkan lepas berjaya log masuk/tamat tempoh.
+  otpCodeHash  String?
+  otpExpiresAt DateTime?
+  otpAttempts  Int       @default(0)
+  otpSentAt    DateTime? // untuk hadkan kekerapan minta kod baharu (anti-spam)
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

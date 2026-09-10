@@ -42,6 +42,25 @@ function box(rows: { label: string; value: string }[]) {
   </table>`;
 }
 
+// Dihantar untuk langkah ke-2 log masuk kawasan Ahli PLT (lihat
+// app/api/members/login-request) - kod OTP 6-digit, sah selama
+// OTP_EXPIRY_MINUTES (lib/memberAuth.ts).
+export async function sendMemberLoginOtpEmail(member: { fullName: string; email: string; code: string }) {
+  await sendEmail({
+    to: member.email,
+    subject: `Kod Log Masuk Ahli PLT: ${member.code} - Pertubuhan Literasi Tanah`,
+    html: wrap(
+      member.fullName,
+      `<p>Guna kod di bawah untuk sahkan log masuk ke kawasan Ahli PLT (Claim, Program &amp; Kelas, Peta):</p>
+       <div style="text-align:center;margin:24px 0;">
+         <span style="display:inline-block;font-size:32px;font-weight:800;letter-spacing:8px;color:#C68A2E;">${member.code}</span>
+       </div>
+       <p>Kod ini sah selama 10 minit. Jangan kongsi kod ini dengan sesiapa.</p>
+       <p style="color:#8B5A2B;font-size:13px;">Bukan anda yang mohon kod ini? Abaikan sahaja e-mel ini.</p>`
+    ),
+  });
+}
+
 // Dihantar bila pendaftaran keahlian berjaya bayar (Member baru dicipta,
 // tapi masih MENUNGGU_SEMAKAN sehingga admin sahkan).
 export async function sendMemberWelcomeEmail(member: { fullName: string; email: string; memberNo: string }) {

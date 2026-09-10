@@ -6,6 +6,25 @@ import { prisma } from "@/lib/prisma";
 const JWT_SECRET = process.env.JWT_SECRET!;
 const COOKIE_NAME = "plt_member_session";
 
+// OTP e-mel (langkah ke-2 log masuk Ahli PLT) - lihat
+// app/api/members/login-request & login-verify.
+export const OTP_EXPIRY_MINUTES = 10;
+export const OTP_RESEND_COOLDOWN_SECONDS = 60;
+export const OTP_MAX_ATTEMPTS = 5;
+
+export function generateOtpCode(): string {
+  return String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0");
+}
+
+// cth: "muhammad***@gmail.com" - cukup untuk ahli sahkan emel yang betul
+// dihantar tanpa dedahkan alamat penuh.
+export function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  const visible = local.slice(0, Math.min(3, local.length));
+  return `${visible}${"*".repeat(Math.max(local.length - visible.length, 3))}@${domain}`;
+}
+
 export function signMemberSession(memberId: string) {
   return jwt.sign({ memberId }, JWT_SECRET, { expiresIn: "30d" });
 }
