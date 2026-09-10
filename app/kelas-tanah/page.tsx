@@ -1,7 +1,8 @@
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 import ClassTable from "@/components/ClassTable";
 import BackButton from "@/components/BackButton";
+import { requirePltMember } from "@/lib/memberAuth";
 
 export const metadata = {
   title: "Program & Kelas",
@@ -10,7 +11,10 @@ export const metadata = {
   alternates: { canonical: "/kelas-tanah" },
 };
 
-export default function KelasTanahPage() {
+// Kawasan Ahli PLT sahaja - lihat lib/memberAuth.ts.
+export default async function KelasTanahPage() {
+  await requirePltMember("/kelas-tanah");
+
   return (
     <section className="py-8">
       <div className="max-w-7xl mx-auto px-6 pt-8">

@@ -1,5 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import BackButton from "@/components/BackButton";
 import PetaTabs from "@/components/peta/PetaTabs";
+import { requirePltMember } from "@/lib/memberAuth";
 
 export const metadata = {
   title: "Peta Banjir & Tanah Wakaf",
@@ -8,7 +11,10 @@ export const metadata = {
   alternates: { canonical: "/peta" },
 };
 
-export default function PetaPage() {
+// Kawasan Ahli PLT sahaja - lihat lib/memberAuth.ts.
+export default async function PetaPage() {
+  await requirePltMember("/peta");
+
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <BackButton href="/" label="Kembali ke Utama" className="mb-4" />

@@ -69,10 +69,17 @@ model Member {
   refundRequestedAt   DateTime?
   refundedAt          DateTime?
 
+  // Maklumat bank disimpan lepas tuntutan petty cash PERTAMA (lihat
+  // PettyCashClaim) supaya ahli tak perlu isi semula setiap kali mohon.
+  savedBankName      String?
+  savedAccountNo     String?
+  savedAccountHolder String?
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   hargaTanahSubmissions HargaTanahSubmission[]
+  pettyCashClaims       PettyCashClaim[]
 }
 
 enum MemberStatus {
@@ -447,4 +454,47 @@ model Ad {
   aktif      Boolean  @default(true)
   susunan    Int      @default(0) // urutan paparan
   createdAt  DateTime @default(now())
+}
+
+// ---------- TUNTUTAN PETTY CASH (kawasan ahli PLT sahaja - lihat lib/memberAuth.ts) ----------
+model PettyCashClaim {
+  id       String @id @default(cuid())
+  seq      Int    @default(autoincrement())
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+  // Snapshot nama/no ahli masa mohon (kekal konsisten dalam rekod claim
+  // walaupun profil ahli berubah selepas ni).
+  namaPemohon String
+  memberNo    String
+
+  jumlahSen           Int // jumlah tuntutan, dalam sen
+  kategori            ClaimKategori
+  tujuan              String
+  tarikhPerbelanjaan  DateTime
+  resitUrl            String? // pilihan - tak wajib untuk perbelanjaan berkaitan kerja
+
+  bankName      String
+  accountNo     String
+  accountHolder String
+
+  status       ClaimStatus @default(MENUNGGU)
+  catatanAdmin String? // sebab tolak / nota admin lain
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ClaimKategori {
+  PENGANGKUTAN
+  ALAT_TULIS
+  PROGRAM_AKTIVITI
+  LAIN_LAIN
+}
+
+enum ClaimStatus {
+  MENUNGGU
+  DILULUSKAN
+  DITOLAK
+  DIBAYAR
 }

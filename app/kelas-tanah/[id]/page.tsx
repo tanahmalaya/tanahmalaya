@@ -1,9 +1,10 @@
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ProgramRegistrationForm from "@/components/ProgramRegistrationForm";
 import BackButton from "@/components/BackButton";
+import { requirePltMember } from "@/lib/memberAuth";
 
 const jenisLabel: Record<string, string> = {
   ONLINE: "Online",
@@ -26,7 +27,10 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
+// Kawasan Ahli PLT sahaja - lihat lib/memberAuth.ts.
 export default async function ProgramDetailPage({ params }: { params: { id: string } }) {
+  await requirePltMember(`/kelas-tanah/${params.id}`);
+
   const kelas = await prisma.landClass.findUnique({
     where: { id: params.id },
     include: { registrations: { where: { status: "BERJAYA" } } },

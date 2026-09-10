@@ -8,6 +8,7 @@ const adminNavItems = [
   { href: "/admin/members", label: "Senarai Ahli" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/classes", label: "Kelas dan Program" },
+  { href: "/admin/petty-cash", label: "Tuntutan Petty Cash" },
   { href: "/admin/activities", label: "Aktiviti" },
   { href: "/admin/aduan-tanah", label: "Aduan Tanah" },
   { href: "/admin/products", label: "Merchandise" },

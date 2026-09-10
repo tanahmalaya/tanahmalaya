@@ -278,6 +278,20 @@ export default function SemakKeahlianContent({ expectedType, otherTypeHref }: Pr
             group didedahkan kepada sesiapa saja yang buka laman ni. */}
         {result && !wrongType && result.status === "AKTIF" && <WhatsappGroupCard variant={result.type} />}
 
+        {/* Kawasan Ahli PLT (Borang Claim, Kelas & Program, Peta) - hanya
+            untuk Ahli PLT AKTIF, bukan Ahli Bersekutu. */}
+        {result && !wrongType && result.type === "PLT" && result.status === "AKTIF" && (
+          <div className={CARD}>
+            <p className="font-semibold text-brand-dark mb-1">Akses Ahli PLT</p>
+            <p className="text-brand-dark/60 text-sm mb-4">
+              Akses Borang Tuntutan Petty Cash, Program &amp; Kelas dan Peta - khas untuk Ahli PLT aktif.
+            </p>
+            <Link href="/ahli-plt/log-masuk" className={BTN_PRIMARY}>
+              KE AKSES AHLI PLT →
+            </Link>
+          </div>
+        )}
+
         {/* Pendaftaran ditolak - buka borang mohon refund yuran yang dah dibayar. */}
         {result && !wrongType && result.status === "TIDAK_AKTIF" && (
           <RefundRequestForm

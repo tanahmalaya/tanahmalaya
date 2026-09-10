@@ -167,6 +167,54 @@ export async function sendClassRegistrationEmail(registration: {
   });
 }
 
+// Dihantar bila admin LULUSKAN tuntutan petty cash (status -> DILULUSKAN).
+export async function sendClaimApprovedEmail(claim: { seq: number; namaPemohon: string; email: string; jumlahSen: number }) {
+  await sendEmail({
+    to: claim.email,
+    subject: `Tuntutan Petty Cash #${claim.seq} Diluluskan - Pertubuhan Literasi Tanah`,
+    html: wrap(
+      claim.namaPemohon,
+      `<p>Tuntutan petty cash anda telah <strong>diluluskan</strong>.</p>
+       ${box([
+         { label: "No. Tuntutan", value: `#${claim.seq}` },
+         { label: "Jumlah", value: formatRM(claim.jumlahSen) },
+       ])}
+       <p>Bayaran akan diproses ke akaun bank yang didaftarkan. Kami akan maklumkan sebaik bayaran selesai.</p>`
+    ),
+  });
+}
+
+// Dihantar bila admin TOLAK tuntutan petty cash (status -> DITOLAK).
+export async function sendClaimRejectedEmail(claim: { seq: number; namaPemohon: string; email: string; jumlahSen: number; catatanAdmin: string | null }) {
+  await sendEmail({
+    to: claim.email,
+    subject: `Tuntutan Petty Cash #${claim.seq} Ditolak - Pertubuhan Literasi Tanah`,
+    html: wrap(
+      claim.namaPemohon,
+      `<p>Setelah disemak, tuntutan petty cash anda (<strong>#${claim.seq}</strong>, ${formatRM(claim.jumlahSen)}) <strong>tidak dapat diluluskan</strong> pada masa ini.</p>
+       ${claim.catatanAdmin ? `<p><strong>Sebab:</strong> ${claim.catatanAdmin}</p>` : ""}
+       <p>Kalau ada sebarang pertanyaan, sila hubungi kami di <a href="mailto:info@tanahmalaya.org" style="color:#C68A2E;">info@tanahmalaya.org</a>.</p>`
+    ),
+  });
+}
+
+// Dihantar bila admin tandakan tuntutan petty cash sudah dibayar (status -> DIBAYAR).
+export async function sendClaimPaidEmail(claim: { seq: number; namaPemohon: string; email: string; jumlahSen: number }) {
+  await sendEmail({
+    to: claim.email,
+    subject: `Tuntutan Petty Cash #${claim.seq} Telah Dibayar - Pertubuhan Literasi Tanah`,
+    html: wrap(
+      claim.namaPemohon,
+      `<p>Bayaran balik untuk tuntutan petty cash anda telah <strong>dihantar</strong>.</p>
+       ${box([
+         { label: "No. Tuntutan", value: `#${claim.seq}` },
+         { label: "Jumlah", value: formatRM(claim.jumlahSen) },
+       ])}
+       <p>Sila semak akaun bank anda. Terima kasih atas kesabaran anda.</p>`
+    ),
+  });
+}
+
 // Dihantar bila Sumbangan Ikhlas berjaya dibayar.
 export async function sendDonationReceiptEmail(donation: { seq: number; namaPenderma: string; emel: string; amountSen: number }) {
   await sendEmail({
