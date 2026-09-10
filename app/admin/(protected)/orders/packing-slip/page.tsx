@@ -120,7 +120,7 @@ export default function PackingSlipPage() {
   }
 
   async function handlePrintAll() {
-    const targets = orders.filter((o) => o.awbUrl);
+    const targets = orders.filter((o) => o.awbUrl && selected.has(o.id));
     if (targets.length === 0) return;
     setPrintingAll(true);
     for (let i = 0; i < targets.length; i++) {
@@ -144,6 +144,7 @@ export default function PackingSlipPage() {
   if (loading) return <div className="p-8">Loading...</div>;
 
   const allSelected = orders.length > 0 && selected.size === orders.length;
+  const selectedPrintableCount = orders.filter((o) => o.awbUrl && selected.has(o.id)).length;
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -153,12 +154,12 @@ export default function PackingSlipPage() {
         </button>
         <button
           onClick={handlePrintAll}
-          disabled={printingAll || orders.every((o) => !o.awbUrl)}
+          disabled={printingAll || selectedPrintableCount === 0}
           className="bg-brand-gold text-brand-dark font-semibold rounded-sm px-5 py-2 disabled:opacity-50"
         >
           {printingAll
             ? `PRINTING ${printProgress?.current ?? 0}/${printProgress?.total ?? 0}...`
-            : "PRINT ALL AWB"}
+            : `PRINT SELECTED AWB (${selectedPrintableCount})`}
         </button>
         <label className="flex items-center gap-2 text-sm text-brand-dark/70 ml-2">
           <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
