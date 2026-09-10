@@ -70,6 +70,9 @@ export default function BorangClaimForm({
   const [accountNo, setAccountNo] = useState(savedAccountNo || "");
   const [accountHolder, setAccountHolder] = useState(savedAccountHolder || "");
 
+  const [bankIsSaved, setBankIsSaved] = useState(!!(savedBankName && savedAccountNo && savedAccountHolder));
+  const [editingBank, setEditingBank] = useState(!bankIsSaved);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [history, setHistory] = useState(initialHistory);
@@ -116,6 +119,8 @@ export default function BorangClaimForm({
       setJumlahRM("");
       setTujuan("");
       setResitUrl(null);
+      setBankIsSaved(true);
+      setEditingBank(false);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -197,24 +202,58 @@ export default function BorangClaimForm({
 
           <div className="border-t border-black/10 pt-4">
             <p className="text-xs font-semibold text-brand-dark/70 mb-3">MAKLUMAT BANK UNTUK BAYARAN BALIK</p>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={LABEL}>Nama Bank</label>
-                <input required value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Contoh: Maybank" className={INPUT} />
+
+            {bankIsSaved && !editingBank ? (
+              <div className="flex items-center justify-between gap-3 bg-[#F7F5F1] rounded-xl p-3.5">
+                <div className="text-sm">
+                  <p className="font-semibold">{bankName}</p>
+                  <p className="text-brand-dark/60">
+                    •••• {accountNo.slice(-4)} — {accountHolder}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingBank(true)}
+                  className="text-xs font-semibold text-brand-gold underline shrink-0"
+                >
+                  Tukar
+                </button>
               </div>
-              <div>
-                <label className={LABEL}>No. Akaun</label>
-                <input required value={accountNo} onChange={(e) => setAccountNo(e.target.value)} className={INPUT} />
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className={LABEL}>Nama Pemegang Akaun</label>
-              <input required value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} className={INPUT} />
-            </div>
-            {(savedBankName || savedAccountNo) && (
-              <p className="text-xs text-brand-dark/45 mt-2">
-                Maklumat bank diisi automatik daripada claim lepas anda — boleh ubah jika perlu.
-              </p>
+            ) : (
+              <>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={LABEL}>Nama Bank</label>
+                    <input required value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Contoh: Maybank" className={INPUT} />
+                  </div>
+                  <div>
+                    <label className={LABEL}>No. Akaun</label>
+                    <input required value={accountNo} onChange={(e) => setAccountNo(e.target.value)} className={INPUT} />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label className={LABEL}>Nama Pemegang Akaun</label>
+                  <input required value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} className={INPUT} />
+                </div>
+                {bankIsSaved ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBankName(savedBankName || "");
+                      setAccountNo(savedAccountNo || "");
+                      setAccountHolder(savedAccountHolder || "");
+                      setEditingBank(false);
+                    }}
+                    className="text-xs text-brand-dark/50 underline mt-2"
+                  >
+                    Guna semula maklumat tersimpan
+                  </button>
+                ) : (
+                  <p className="text-xs text-brand-dark/45 mt-2">
+                    Maklumat ini akan disimpan supaya tidak perlu diisi semula pada claim akan datang.
+                  </p>
+                )}
+              </>
             )}
           </div>
 
