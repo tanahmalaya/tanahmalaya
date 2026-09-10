@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Kategori = "PENGANGKUTAN" | "ALAT_TULIS" | "PROGRAM_AKTIVITI" | "LAIN_LAIN";
@@ -38,6 +38,10 @@ const TAB_DEF: { key: Status; label: string }[] = [
   { key: "DIBAYAR", label: "Dibayar" },
 ];
 
+// Tab yang ada tindakan (lulus/tolak/bayar) - hanya tab ni ada checkbox
+// pilih & Select All, sebab DITOLAK/DIBAYAR dah status akhir (tiada tindakan).
+const ACTIONABLE_TABS: Status[] = ["MENUNGGU", "DILULUSKAN"];
+
 const STATUS_BADGE: Record<Status, string> = {
   MENUNGGU: "bg-amber-50 text-amber-700 border border-amber-200",
   DILULUSKAN: "bg-blue-50 text-blue-700 border border-blue-200",
@@ -57,25 +61,55 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
   const router = useRouter();
   const [tab, setTab] = useState<Status>("MENUNGGU");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkRejecting, setBulkRejecting] = useState(false);
+  const [bulkRejectReason, setBulkRejectReason] = useState("");
 
   const visible = claims.filter((c) => c.status === tab);
   const counts = TAB_DEF.reduce<Record<Status, number>>((acc, t) => {
     acc[t.key] = claims.filter((c) => c.status === t.key).length;
     return acc;
   }, {} as Record<Status, number>);
+  const actionable = ACTIONABLE_TABS.includes(tab);
+
+  // Kosongkan pilihan bila tukar tab supaya tak "bawa" selection merentasi
+  // status yang berlainan tindakan.
+  useEffect(() => {
+    setSelected(new Set());
+    setBulkRejecting(false);
+    setBulkRejectReason("");
+  }, [tab]);
+
+  function toggleSelected(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    setSelected((prev) => (prev.size === visible.length ? new Set() : new Set(visible.map((c) => c.id))));
+  }
 
   async function updateStatus(claimId: string, status: "DILULUSKAN" | "DITOLAK" | "DIBAYAR", catatanAdmin?: string) {
+    const res = await fetch("/api/admin/petty-cash/update-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ claimId, status, catatanAdmin }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Gagal kemaskini status");
+  }
+
+  async function handleSingleAction(claimId: string, status: "DILULUSKAN" | "DITOLAK" | "DIBAYAR", catatanAdmin?: string) {
     setLoadingId(claimId);
     try {
-      const res = await fetch("/api/admin/petty-cash/update-status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ claimId, status, catatanAdmin }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal kemaskini status");
+      await updateStatus(claimId, status, catatanAdmin);
       setRejectingId(null);
       setRejectReason("");
       router.refresh();
@@ -85,6 +119,26 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
       setLoadingId(null);
     }
   }
+
+  async function handleBulkAction(status: "DILULUSKAN" | "DITOLAK" | "DIBAYAR", catatanAdmin?: string) {
+    setBulkLoading(true);
+    try {
+      for (const claimId of selected) {
+        // eslint-disable-next-line no-await-in-loop
+        await updateStatus(claimId, status, catatanAdmin);
+      }
+      setSelected(new Set());
+      setBulkRejecting(false);
+      setBulkRejectReason("");
+      router.refresh();
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  const allSelected = visible.length > 0 && selected.size === visible.length;
 
   return (
     <div>
@@ -102,6 +156,60 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
         ))}
       </div>
 
+      {actionable && visible.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 bg-brand-cream/50 border border-brand-dark/10 rounded-md px-4 py-3">
+          <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
+            <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+            Select All
+          </label>
+
+          {tab === "MENUNGGU" && (
+            <button
+              onClick={() => handleBulkAction("DILULUSKAN")}
+              disabled={bulkLoading || selected.size === 0}
+              className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+            >
+              {bulkLoading ? "MEMPROSES..." : `LULUSKAN (${selected.size})`}
+            </button>
+          )}
+          {tab === "DILULUSKAN" && (
+            <button
+              onClick={() => handleBulkAction("DIBAYAR")}
+              disabled={bulkLoading || selected.size === 0}
+              className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+            >
+              {bulkLoading ? "MEMPROSES..." : `TANDA DIBAYAR (${selected.size})`}
+            </button>
+          )}
+          <button
+            onClick={() => setBulkRejecting((v) => !v)}
+            disabled={bulkLoading || selected.size === 0}
+            className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+          >
+            {`TOLAK (${selected.size})`}
+          </button>
+
+          {bulkRejecting && (
+            <div className="w-full mt-1">
+              <textarea
+                rows={2}
+                value={bulkRejectReason}
+                onChange={(e) => setBulkRejectReason(e.target.value)}
+                className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
+                placeholder="Sebab ditolak (akan dihantar ke setiap ahli yang dipilih)"
+              />
+              <button
+                onClick={() => handleBulkAction("DITOLAK", bulkRejectReason)}
+                disabled={bulkLoading || !bulkRejectReason.trim()}
+                className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+              >
+                SAHKAN TOLAK ({selected.size})
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {visible.length === 0 ? (
         <p className="text-brand-dark/50 text-sm">Tiada tuntutan dalam kategori ini.</p>
       ) : (
@@ -109,13 +217,23 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
           {visible.map((c) => (
             <div key={c.id} className="bg-white border border-brand-dark/10 rounded-md p-5">
               <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
-                <div>
-                  <p className="font-semibold">
-                    #{c.seq} — {c.namaPemohon} <span className="text-brand-dark/40 font-normal text-sm">({c.memberNo})</span>
-                  </p>
-                  <p className="text-xs text-brand-dark/50">
-                    {KATEGORI_LABEL[c.kategori]} · {formatDate(c.tarikhPerbelanjaan)}
-                  </p>
+                <div className="flex items-start gap-3">
+                  {actionable && (
+                    <input
+                      type="checkbox"
+                      className="mt-1"
+                      checked={selected.has(c.id)}
+                      onChange={() => toggleSelected(c.id)}
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold">
+                      #{c.seq} — {c.namaPemohon} <span className="text-brand-dark/40 font-normal text-sm">({c.memberNo})</span>
+                    </p>
+                    <p className="text-xs text-brand-dark/50">
+                      {KATEGORI_LABEL[c.kategori]} · {formatDate(c.tarikhPerbelanjaan)}
+                    </p>
+                  </div>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${STATUS_BADGE[c.status]}`}>
                   {TAB_DEF.find((t) => t.key === c.status)?.label}
@@ -152,7 +270,7 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
               {c.status === "MENUNGGU" && (
                 <div className="flex gap-2 mt-4 pt-4 border-t border-brand-dark/10">
                   <button
-                    onClick={() => updateStatus(c.id, "DILULUSKAN")}
+                    onClick={() => handleSingleAction(c.id, "DILULUSKAN")}
                     disabled={loadingId === c.id}
                     className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
@@ -171,7 +289,7 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
               {c.status === "DILULUSKAN" && (
                 <div className="flex gap-2 mt-4 pt-4 border-t border-brand-dark/10">
                   <button
-                    onClick={() => updateStatus(c.id, "DIBAYAR")}
+                    onClick={() => handleSingleAction(c.id, "DIBAYAR")}
                     disabled={loadingId === c.id}
                     className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
@@ -198,7 +316,7 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
                     placeholder="Contoh: Perbelanjaan tidak berkaitan aktiviti PLT"
                   />
                   <button
-                    onClick={() => updateStatus(c.id, "DITOLAK", rejectReason)}
+                    onClick={() => handleSingleAction(c.id, "DITOLAK", rejectReason)}
                     disabled={loadingId === c.id || !rejectReason.trim()}
                     className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
