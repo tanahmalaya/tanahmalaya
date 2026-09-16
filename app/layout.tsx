@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import ConditionalChrome from "@/components/ConditionalChrome";
 // 1. Import CartProvider (sesuai path fail context anda)
 import { CartProvider } from "@/app/context/CartContext";
 import { CheckoutProvider } from "@/app/context/CheckoutContext";
@@ -123,9 +122,7 @@ export default function RootLayout({
         {/* 2. Wrap semua kandungan di dalam CartProvider */}
         <CartProvider>
           <CheckoutProvider>
-            <Header />
-            <main>{children}</main>
-            <Footer />
+            <ConditionalChrome>{children}</ConditionalChrome>
           </CheckoutProvider>
         </CartProvider>
       </body>

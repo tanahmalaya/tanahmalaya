@@ -61,6 +61,25 @@ export async function sendMemberLoginOtpEmail(member: { fullName: string; email:
   });
 }
 
+// Dihantar untuk log masuk akaun Penjual marketplace Geran (lihat
+// app/api/sellers/login-request) - kod OTP 6-digit, sah selama
+// OTP_EXPIRY_MINUTES (lib/memberAuth.ts, dikongsi dengan lib/sellerAuth.ts).
+export async function sendSellerLoginOtpEmail(seller: { fullName: string; email: string; code: string }) {
+  await sendEmail({
+    to: seller.email,
+    subject: `Kod Log Masuk Geran: ${seller.code} - Pertubuhan Literasi Tanah`,
+    html: wrap(
+      seller.fullName,
+      `<p>Guna kod di bawah untuk sahkan log masuk ke akaun Penjual Geran (senaraikan tanah untuk dijual):</p>
+       <div style="text-align:center;margin:24px 0;">
+         <span style="display:inline-block;font-size:32px;font-weight:800;letter-spacing:8px;color:#C68A2E;">${seller.code}</span>
+       </div>
+       <p>Kod ini sah selama 10 minit. Jangan kongsi kod ini dengan sesiapa.</p>
+       <p style="color:#8B5A2B;font-size:13px;">Bukan anda yang mohon kod ini? Abaikan sahaja e-mel ini.</p>`
+    ),
+  });
+}
+
 // Dihantar bila pendaftaran keahlian berjaya bayar (Member baru dicipta,
 // tapi masih MENUNGGU_SEMAKAN sehingga admin sahkan).
 export async function sendMemberWelcomeEmail(member: { fullName: string; email: string; memberNo: string }) {

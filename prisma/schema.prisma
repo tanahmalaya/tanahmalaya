@@ -34,30 +34,30 @@ enum MemberType {
 // Rekod SEMENTARA - simpan borang Membership semasa pelawat tengah bayar.
 // Bila bayaran BERJAYA, rekod Member sebenar baru dicipta dan ini dipadam.
 model PendingRegistration {
-  id             String     @id @default(cuid())
-  fullName       String
-  icNumber       String
-  phone          String
-  email          String
-  memberType     MemberType @default(BERSEKUTU)
-  akuanSelangor  Boolean    @default(false) // akujanji bermastautin/berdaftar mengundi Selangor (hanya relevan utk PLT)
-  createdAt      DateTime   @default(now())
+  id            String     @id @default(cuid())
+  fullName      String
+  icNumber      String
+  phone         String
+  email         String
+  memberType    MemberType @default(BERSEKUTU)
+  akuanSelangor Boolean    @default(false) // akujanji bermastautin/berdaftar mengundi Selangor (hanya relevan utk PLT)
+  createdAt     DateTime   @default(now())
 }
 
 model Member {
-  id            String   @id @default(cuid())
-  memberNo      String   @unique // cth: TM-001 (Ahli PLT) atau PLT-001 (Ahli Bersekutu)
-  noAhliLama    String?  // no ahli asal (cth: TM-002) jika ahli lama daftar semula & dapat memberNo baharu
+  id            String       @id @default(cuid())
+  memberNo      String       @unique // cth: TM-001 (Ahli PLT) atau PLT-001 (Ahli Bersekutu)
+  noAhliLama    String? // no ahli asal (cth: TM-002) jika ahli lama daftar semula & dapat memberNo baharu
   fullName      String
-  icNumber      String   @unique // no kad pengenalan, tanpa tanda "-"
+  icNumber      String       @unique // no kad pengenalan, tanpa tanda "-"
   phone         String
   email         String
   type          MemberType   @default(BERSEKUTU)
   status        MemberStatus @default(AKTIF)
-  akuanSelangor Boolean  @default(false) // akujanji ahli PLT bermastautin/berdaftar mengundi Selangor
-  joinedAt      DateTime @default(now())
-  paymentRef    String?  // rujukan transaksi BayarCash
-  addedManually Boolean  @default(false) // true jika admin import ahli sedia ada
+  akuanSelangor Boolean      @default(false) // akujanji ahli PLT bermastautin/berdaftar mengundi Selangor
+  joinedAt      DateTime     @default(now())
+  paymentRef    String? // rujukan transaksi BayarCash
+  addedManually Boolean      @default(false) // true jika admin import ahli sedia ada
 
   // Refund yuran - untuk ahli yang DITOLAK (status TIDAK_AKTIF) selepas bayar.
   // Ahli isi borang refund di /keahlian/semak, admin proses transfer manual
@@ -84,8 +84,8 @@ model Member {
   otpAttempts  Int       @default(0)
   otpSentAt    DateTime? // untuk hadkan kekerapan minta kod baharu (anti-spam)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   hargaTanahSubmissions HargaTanahSubmission[]
   pettyCashClaims       PettyCashClaim[]
@@ -100,20 +100,20 @@ enum MemberStatus {
 
 // ---------- Program & Kelas ----------
 model LandClass {
-  id          String   @id @default(cuid())
-  tarikh      DateTime
-  namaKelas   String   // cth: "Kelas Asas 1"
-  topik       String
-  jenisKelas  ProgramType @default(OFFLINE)
-  lokasi      String   // cth: "Zoom Online" / "PLT Centre (Kuala Lumpur)"
-  jadual      String?  // cth: "Setiap Isnin & Khamis, 8:00pm-9:00pm"
-  maxPeserta  Int?     // had bilangan peserta/seat, kosong = tiada had
-  yuranSen    Int      @default(0) // yuran kelas dalam sen, 0 = percuma
-  picName     String?  // nama person in charge
-  picContact  String?  // no telefon/emel PIC
-  status      ClassStatus @default(TERBUKA)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String              @id @default(cuid())
+  tarikh        DateTime
+  namaKelas     String // cth: "Kelas Asas 1"
+  topik         String
+  jenisKelas    ProgramType         @default(OFFLINE)
+  lokasi        String // cth: "Zoom Online" / "PLT Centre (Kuala Lumpur)"
+  jadual        String? // cth: "Setiap Isnin & Khamis, 8:00pm-9:00pm"
+  maxPeserta    Int? // had bilangan peserta/seat, kosong = tiada had
+  yuranSen      Int                 @default(0) // yuran kelas dalam sen, 0 = percuma
+  picName       String? // nama person in charge
+  picContact    String? // no telefon/emel PIC
+  status        ClassStatus         @default(TERBUKA)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
   registrations ClassRegistration[]
 }
 
@@ -131,15 +131,15 @@ enum ClassStatus {
 
 // Pendaftaran peserta untuk satu program/kelas
 model ClassRegistration {
-  id            String   @id @default(cuid())
-  classId       String
-  namaPeserta   String
-  telefon       String
-  emel          String
-  status        RegistrationStatus @default(MENUNGGU)
-  bayarcashRef  String?
-  createdAt     DateTime @default(now())
-  class         LandClass @relation(fields: [classId], references: [id])
+  id           String             @id @default(cuid())
+  classId      String
+  namaPeserta  String
+  telefon      String
+  emel         String
+  status       RegistrationStatus @default(MENUNGGU)
+  bayarcashRef String?
+  createdAt    DateTime           @default(now())
+  class        LandClass          @relation(fields: [classId], references: [id])
 }
 
 enum RegistrationStatus {
@@ -150,16 +150,16 @@ enum RegistrationStatus {
 
 // ---------- Aktiviti ----------
 model Activity {
-  id          String   @id @default(cuid())
-  tarikh      DateTime
-  tajuk       String
-  keterangan  String
-  gambar1     String?
-  gambar2     String?
-  gambar3     String?
-  gambar4     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  tarikh     DateTime
+  tajuk      String
+  keterangan String
+  gambar1    String?
+  gambar2    String?
+  gambar3    String?
+  gambar4    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // ---------- Merchandise ----------
@@ -169,26 +169,26 @@ model Setting {
 }
 
 model Product {
-  id             String   @id @default(cuid())
-  nama           String
-  kodRingkas     String?  // singkatan pendek (cth "TSS", "HM", "JCK") untuk remark/AWB label - elak teks bertindih bila banyak barang dalam satu order
-  penerangan     String?
-  hargaSen       Int      // simpan dalam sen supaya elak isu titik perpuluhan
-  gambarDepan    String?  // gambar Utama - dipaparkan dalam senarai produk
-  gambarBelakang String?
-  gambarSisi     String?
-  sizingChartUrl String?  // carta saiz (untuk baju, dll)
-  stok           Int      @default(0) // stok keseluruhan - diguna HANYA jika produk tiada saiz (lihat ProductSize)
-  status         ProductStatus @default(READY_STOCK)
-  aktif          Boolean  @default(true)
+  id              String        @id @default(cuid())
+  nama            String
+  kodRingkas      String? // singkatan pendek (cth "TSS", "HM", "JCK") untuk remark/AWB label - elak teks bertindih bila banyak barang dalam satu order
+  penerangan      String?
+  hargaSen        Int // simpan dalam sen supaya elak isu titik perpuluhan
+  gambarDepan     String? // gambar Utama - dipaparkan dalam senarai produk
+  gambarBelakang  String?
+  gambarSisi      String?
+  sizingChartUrl  String? // carta saiz (untuk baju, dll)
+  stok            Int           @default(0) // stok keseluruhan - diguna HANYA jika produk tiada saiz (lihat ProductSize)
+  status          ProductStatus @default(READY_STOCK)
+  aktif           Boolean       @default(true)
   // Penghantaran: FLAT = kadar tetap, BERAT = kira automatik ikut berat & poskod
-  shippingMode   ShippingMode @default(FLAT)
-  shippingFlatSen Int?    // kadar tetap dalam sen (guna jika shippingMode = FLAT)
-  beratGram      Int?     // berat produk dalam gram (guna jika shippingMode = BERAT)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  orderItems     OrderItem[]
-  sizes          ProductSize[] // kosong = produk tiada pilihan saiz (guna field "stok" di atas)
+  shippingMode    ShippingMode  @default(FLAT)
+  shippingFlatSen Int? // kadar tetap dalam sen (guna jika shippingMode = FLAT)
+  beratGram       Int? // berat produk dalam gram (guna jika shippingMode = BERAT)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  orderItems      OrderItem[]
+  sizes           ProductSize[] // kosong = produk tiada pilihan saiz (guna field "stok" di atas)
 }
 
 enum ProductStatus {
@@ -205,11 +205,11 @@ enum ShippingMode {
 // sekurang-kurangnya satu baris di sini, pelanggan WAJIB pilih saiz semasa
 // checkout dan stok ditrack berasingan ikut saiz (bukan Product.stok).
 model ProductSize {
-  id        String   @id @default(cuid())
-  productId String
-  saiz      Saiz
-  stok      Int      @default(0)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id         String      @id @default(cuid())
+  productId  String
+  saiz       Saiz
+  stok       Int         @default(0)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
   @@unique([productId, saiz])
@@ -220,62 +220,62 @@ enum Saiz {
   M
   L
   XL
-  XXL  // dipaparkan sebagai "2XL"
+  XXL // dipaparkan sebagai "2XL"
   XXXL // dipaparkan sebagai "3XL"
 }
 
 model Order {
-  id          String   @id @default(cuid())
-  seq         Int      @default(autoincrement()) // nombor mudah #1, #2 untuk staff
-  memberId    String?
-  namaPembeli String
-  emel        String
-  telefon     String
+  id                String      @id @default(cuid())
+  seq               Int         @default(autoincrement()) // nombor mudah #1, #2 untuk staff
+  memberId          String?
+  namaPembeli       String
+  emel              String
+  telefon           String
   // Alamat penghantaran
-  alamat      String   @default("")
-  poskod      String   @default("")
-  bandar      String   @default("")
-  negeri      String   @default("")
-  jumlahSen   Int
-  shippingSen Int      @default(0)
+  alamat            String      @default("")
+  poskod            String      @default("")
+  bandar            String      @default("")
+  negeri            String      @default("")
+  jumlahSen         Int
+  shippingSen       Int         @default(0)
   // Tiada kadar SPX/J&T automatik untuk destinasi ni masa checkout - shippingSen
   // guna caj flat sementara, staff kena pilih kurier sebenar & sahkan caj manual.
-  manualCourier Boolean @default(false)
-  status      OrderStatus @default(MENUNGGU)
-  bayarcashRef String?
+  manualCourier     Boolean     @default(false)
+  status            OrderStatus @default(MENUNGGU)
+  bayarcashRef      String?
   // EasyParcel
-  courierName          String?
-  serviceId            String?
-  easyparcelOrderNo    String?
-  trackingNumber       String?
-  awbUrl               String?   // pautan PDF label AWB sebenar dari EasyParcel (untuk cetak)
-  fulfillmentError     String?   // diisi kalau cubaan proses order gagal
-  printedAt            DateTime? // masa staff klik "Mark as Shipped"
+  courierName       String?
+  serviceId         String?
+  easyparcelOrderNo String?
+  trackingNumber    String?
+  awbUrl            String? // pautan PDF label AWB sebenar dari EasyParcel (untuk cetak)
+  fulfillmentError  String? // diisi kalau cubaan proses order gagal
+  printedAt         DateTime? // masa staff klik "Mark as Shipped"
   // Status terkini dari webhook EasyParcel (topic "tracking/create"), cth: "Delivery In Transit"
-  courierStatus        String?
-  courierStatusAt      DateTime?
+  courierStatus     String?
+  courierStatusAt   DateTime?
   // Refund
-  refundSen            Int?      // jumlah refund dalam sen (boleh partial, <= jumlahSen)
-  refundReason         String?
-  refundedAt           DateTime?
-  createdAt   DateTime @default(now())
-  items       OrderItem[]
+  refundSen         Int? // jumlah refund dalam sen (boleh partial, <= jumlahSen)
+  refundReason      String?
+  refundedAt        DateTime?
+  createdAt         DateTime    @default(now())
+  items             OrderItem[]
 }
 
 enum OrderStatus {
-  MENUNGGU     // menunggu bayaran
-  BERJAYA      // bayaran berjaya, tunggu fulfill/pos
-  GAGAL        // bayaran gagal
-  SELESAI      // dah dicetak & dipos (auto bila staff klik "Selesai Cetak")
-  DIPULANGKAN  // refund
+  MENUNGGU // menunggu bayaran
+  BERJAYA // bayaran berjaya, tunggu fulfill/pos
+  GAGAL // bayaran gagal
+  SELESAI // dah dicetak & dipos (auto bila staff klik "Selesai Cetak")
+  DIPULANGKAN // refund
 }
 
 model OrderItem {
-  id            String  @id @default(cuid())
+  id            String       @id @default(cuid())
   orderId       String
   productId     String
   productSizeId String? // rujukan baris ProductSize (jika produk ada saiz)
-  saiz          Saiz?   // saiz yang dibeli, disimpan terus supaya kekal dalam rekod order walaupun ProductSize dipadam kemudian
+  saiz          Saiz? // saiz yang dibeli, disimpan terus supaya kekal dalam rekod order walaupun ProductSize dipadam kemudian
   kuantiti      Int
   hargaSen      Int
   order         Order        @relation(fields: [orderId], references: [id])
@@ -308,8 +308,8 @@ enum StatusAduan {
 // Borang aduan awam pencerobohan/penyalahgunaan tanah (/hubungi-kami).
 // Pengadu boleh pilih kekal anonim - dalam kes ni namaPenuh/telefon/emel kosong.
 model LandComplaint {
-  id   String @id @default(cuid())
-  seq  Int    @default(autoincrement()) // no ringkas utk rujukan staff, cth #12
+  id  String @id @default(cuid())
+  seq Int    @default(autoincrement()) // no ringkas utk rujukan staff, cth #12
 
   // Bahagian 1: Maklumat Pengadu
   anonim            Boolean       @default(true)
@@ -370,9 +370,9 @@ model Donation {
 
 // ---------- PETA ANGGARAN HARGA TANAH ----------
 enum JenisTanah {
-  KOSONG        // tanah kosong / vacant land
-  PERTANIAN     // ladang getah/sawit/durian/hortikultur/estet dll
-  PEMBANGUNAN   // development land
+  KOSONG // tanah kosong / vacant land
+  PERTANIAN // ladang getah/sawit/durian/hortikultur/estet dll
+  PEMBANGUNAN // development land
   PERUMAHAN
   PERINDUSTRIAN
   KOMERSIAL
@@ -399,13 +399,13 @@ model NapicRujukanHarga {
   negeri        String
   daerah        String
   tahun         Int
-  sukuan        String     // label asal NAPIC, cth "Q1" / "S1"
+  sukuan        String // label asal NAPIC, cth "Q1" / "S1"
   jenisTanah    JenisTanah
-  julatHargaMin Int        // RM, cth 100000
-  julatHargaMax Int?       // RM, null = julat terbuka ("1,000,001 & Above")
+  julatHargaMin Int // RM, cth 100000
+  julatHargaMax Int? // RM, null = julat terbuka ("1,000,001 & Above")
   bilangan      Int        @default(0) // bilangan transaksi dalam julat ni
-  nilaiSen      BigInt?    // jumlah nilai transaksi (sen) dalam julat ni, jika tersedia dalam fail
-  sumberFail    String?    // nama fail asal NAPIC, untuk rujukan/audit
+  nilaiSen      BigInt? // jumlah nilai transaksi (sen) dalam julat ni, jika tersedia dalam fail
+  sumberFail    String? // nama fail asal NAPIC, untuk rujukan/audit
   createdAt     DateTime   @default(now())
 
   @@unique([negeri, daerah, tahun, sukuan, jenisTanah, julatHargaMin])
@@ -413,8 +413,8 @@ model NapicRujukanHarga {
 }
 
 enum JenisHargaSubmission {
-  TAWARAN     // harga tawaran/asking price
-  TRANSAKSI   // harga jual-beli sebenar
+  TAWARAN // harga tawaran/asking price
+  TRANSAKSI // harga jual-beli sebenar
 }
 
 enum StatusSemakanHarga {
@@ -427,9 +427,9 @@ enum StatusSemakanHarga {
 // lebih tepat berbanding purata daerah NAPIC. Perlu disahkan admin dulu
 // sebelum dipaparkan awam (alur sama macam Member.MENUNGGU_SEMAKAN).
 model HargaTanahSubmission {
-  id          String   @id @default(cuid())
-  memberId    String?
-  member      Member?  @relation(fields: [memberId], references: [id])
+  id       String  @id @default(cuid())
+  memberId String?
+  member   Member? @relation(fields: [memberId], references: [id])
 
   gpsLat      Float
   gpsLng      Float
@@ -438,12 +438,12 @@ model HargaTanahSubmission {
   nomborLot   String?
 
   jenisTanah    JenisTanah
-  jenisHakmilik JenisHakmilik @default(TIDAK_PASTI)
+  jenisHakmilik JenisHakmilik        @default(TIDAK_PASTI)
   keluasan      Float
-  unitKeluasan  UnitKeluasan  @default(SQFT)
-  hargaSen      BigInt        // harga tawaran/transaksi, dalam sen
+  unitKeluasan  UnitKeluasan         @default(SQFT)
+  hargaSen      BigInt // harga tawaran/transaksi, dalam sen
   jenisHarga    JenisHargaSubmission @default(TAWARAN)
-  tarikh        DateTime      @default(now())
+  tarikh        DateTime             @default(now())
 
   status    StatusSemakanHarga @default(MENUNGGU_SEMAKAN)
   notaAdmin String?
@@ -456,32 +456,32 @@ model HargaTanahSubmission {
 
 // ---------- IKLAN KOMUNITI (auto-rotate) ----------
 model Ad {
-  id         String   @id @default(cuid())
-  namaAhli   String   // cth: "Roofman", "JomNikah", "Barang Thai"
-  gambarUrl  String
-  pautan     String   // link keluar bila diklik
-  aktif      Boolean  @default(true)
-  susunan    Int      @default(0) // urutan paparan
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  namaAhli  String // cth: "Roofman", "JomNikah", "Barang Thai"
+  gambarUrl String
+  pautan    String // link keluar bila diklik
+  aktif     Boolean  @default(true)
+  susunan   Int      @default(0) // urutan paparan
+  createdAt DateTime @default(now())
 }
 
 // ---------- TUNTUTAN PETTY CASH (kawasan ahli PLT sahaja - lihat lib/memberAuth.ts) ----------
 model PettyCashClaim {
-  id       String @id @default(cuid())
-  seq      Int    @default(autoincrement())
+  id  String @id @default(cuid())
+  seq Int    @default(autoincrement())
 
-  memberId String
-  member   Member @relation(fields: [memberId], references: [id])
+  memberId    String
+  member      Member @relation(fields: [memberId], references: [id])
   // Snapshot nama/no ahli masa mohon (kekal konsisten dalam rekod claim
   // walaupun profil ahli berubah selepas ni).
   namaPemohon String
   memberNo    String
 
-  jumlahSen           Int // jumlah tuntutan, dalam sen
-  kategori            ClaimKategori
-  tujuan              String
-  tarikhPerbelanjaan  DateTime
-  resitUrl            String? // pilihan - tak wajib untuk perbelanjaan berkaitan kerja
+  jumlahSen          Int // jumlah tuntutan, dalam sen
+  kategori           ClaimKategori
+  tujuan             String
+  tarikhPerbelanjaan DateTime
+  resitUrl           String? // pilihan - tak wajib untuk perbelanjaan berkaitan kerja
 
   bankName      String
   accountNo     String
@@ -506,4 +506,81 @@ enum ClaimStatus {
   DILULUSKAN
   DITOLAK
   DIBAYAR
+}
+
+// ---------- MARKETPLACE GERAN TANAH (terbuka kepada awam) ----------
+// Akaun ringkas untuk sesiapa sahaja (bukan semestinya Ahli PLT) senaraikan
+// tanah bergeran untuk dijual - log masuk OTP e-mel, alur sama macam
+// Member.otpCodeHash di atas tapi tanpa yuran/kelulusan keahlian.
+model Seller {
+  id       String @id @default(cuid())
+  fullName String
+  phone    String
+  email    String @unique
+
+  otpCodeHash  String?
+  otpExpiresAt DateTime?
+  otpAttempts  Int       @default(0)
+  otpSentAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gerans Geran[]
+}
+
+enum StatusGeran {
+  MENUNGGU_SEMAKAN
+  DISAHKAN
+  DITOLAK
+}
+
+// Asas permintaan drone survey (footage/gambar udara) pada satu penyenaraian -
+// belum termasuk sistem pendaftaran/jadual pilot penuh, admin proses manual.
+enum StatusDroneSurvey {
+  TIDAK_BERKAITAN
+  MENUNGGU_PILOT
+  DIJADUALKAN
+  SELESAI
+}
+
+// Tanah bergeran (hakmilik jelas) disenaraikan sendiri oleh penjual untuk
+// dipaparkan dalam direktori carian awam /geran - disemak & disahkan admin
+// dulu sebelum kelihatan awam, alur sama macam HargaTanahSubmission di atas.
+model Geran {
+  id  String @id @default(cuid())
+  seq Int    @default(autoincrement())
+
+  sellerId       String
+  seller         Seller @relation(fields: [sellerId], references: [id])
+  // Snapshot maklumat penjual masa disenaraikan (kekal konsisten dalam rekod
+  // walaupun profil penjual berubah selepas ni).
+  namaPenjual    String
+  telefonPenjual String
+  emelPenjual    String
+
+  tajuk         String // cth: "3 Ekar Tanah Pertanian, Jeram Pasu"
+  negeri        String
+  daerahMukim   String
+  nomborLot     String?
+  nomborGeran   String?
+  jenisTanah    JenisTanah
+  jenisHakmilik JenisHakmilik @default(TIDAK_PASTI)
+  keluasan      Float
+  unitKeluasan  UnitKeluasan  @default(SQFT)
+  hargaSen      BigInt // harga tawaran, dalam sen
+  keterangan    String?       @db.Text
+  gambarUrls    String[] // maksimum 5, URL fail di Vercel Blob
+
+  mintaDroneSurvey  Boolean           @default(false)
+  statusDroneSurvey StatusDroneSurvey @default(TIDAK_BERKAITAN)
+
+  status       StatusGeran @default(MENUNGGU_SEMAKAN)
+  catatanAdmin String? // sebab tolak / nota admin lain
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([negeri, daerahMukim])
+  @@index([status])
 }
