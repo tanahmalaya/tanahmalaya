@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, formatRM, formatKeluasan } from "@/lib/geran";
+import FavoriteButton from "@/components/geran/FavoriteButton";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
@@ -54,12 +56,21 @@ function LandPlaceholderIcon() {
   );
 }
 
-export default function GeranDirectory({ listings }: { listings: GeranListing[] }) {
+export default function GeranDirectory({
+  listings,
+  isLoggedIn,
+  favoritedIds,
+}: {
+  listings: GeranListing[];
+  isLoggedIn: boolean;
+  favoritedIds: string[];
+}) {
   const [query, setQuery] = useState("");
   const [jenisAktif, setJenisAktif] = useState<"SEMUA" | JenisTanah>("SEMUA");
   const [negeriAktif, setNegeriAktif] = useState("SEMUA");
   const [hargaMin, setHargaMin] = useState("");
   const [hargaMaks, setHargaMaks] = useState("");
+  const [favSet, setFavSet] = useState<Set<string>>(new Set(favoritedIds));
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -78,6 +89,15 @@ export default function GeranDirectory({ listings }: { listings: GeranListing[] 
       return true;
     });
   }, [listings, query, jenisAktif, negeriAktif, hargaMin, hargaMaks]);
+
+  function handleToggle(geranId: string, favorited: boolean) {
+    setFavSet((prev) => {
+      const next = new Set(prev);
+      if (favorited) next.add(geranId);
+      else next.delete(geranId);
+      return next;
+    });
+  }
 
   return (
     <div>
@@ -171,43 +191,46 @@ export default function GeranDirectory({ listings }: { listings: GeranListing[] 
           {filtered.map((l) => (
             <div
               key={l.id}
-              className="bg-white rounded-3xl overflow-hidden border border-black/[0.04] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_36px_-20px_rgba(14,59,46,0.35)] active:scale-[0.98] transition-transform"
+              className="relative bg-white rounded-3xl overflow-hidden border border-black/[0.04] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_36px_-20px_rgba(14,59,46,0.35)] active:scale-[0.98] transition-transform"
             >
-              <div className="relative aspect-[4/3] bg-gradient-to-br from-[#F6F4EE] to-black/[0.03]">
-                {l.gambarUrls[0] ? (
-                  <Image src={l.gambarUrls[0]} alt={l.tajuk} fill className="object-cover" sizes="(max-width: 640px) 100vw, 33vw" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#0E3B2E]/20">
-                    <LandPlaceholderIcon />
-                  </div>
-                )}
-                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                  ✓ Disahkan
-                </span>
-                <span className="absolute top-3 right-3 bg-[#0E3B2E]/85 backdrop-blur text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
-                  {JENIS_HAKMILIK_LABEL[l.jenisHakmilik]}
-                </span>
-              </div>
+              <FavoriteButton
+                geranId={l.id}
+                favorited={favSet.has(l.id)}
+                isLoggedIn={isLoggedIn}
+                redirectPath="/geran"
+                onToggle={handleToggle}
+                className="absolute top-3 right-3 z-10"
+              />
 
-              <div className="p-4">
-                <div className="flex items-center gap-1 text-[12px] text-[#0E3B2E]/45 mb-1">
-                  <PinIcon />
-                  {l.daerahMukim}, {l.negeri}
+              <Link href={`/geran/${l.id}`} className="block">
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-[#F6F4EE] to-black/[0.03]">
+                  {l.gambarUrls[0] ? (
+                    <Image src={l.gambarUrls[0]} alt={l.tajuk} fill className="object-cover" sizes="(max-width: 640px) 100vw, 33vw" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#0E3B2E]/20">
+                      <LandPlaceholderIcon />
+                    </div>
+                  )}
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                    ✓ Disahkan
+                  </span>
                 </div>
-                <h3 className="font-display font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 text-[#0E3B2E]">{l.tajuk}</h3>
-                <p className="text-[12px] text-[#0E3B2E]/50 mb-3">
-                  {JENIS_TANAH_LABEL[l.jenisTanah]} · {formatKeluasan(l.keluasan, l.unitKeluasan)}
-                </p>
-                <div className="flex items-center justify-between">
+
+                <div className="p-4">
+                  <div className="flex items-center gap-1 text-[12px] text-[#0E3B2E]/45 mb-1">
+                    <PinIcon />
+                    {l.daerahMukim}, {l.negeri}
+                    <span className="ml-auto text-[11px] font-semibold text-[#0E3B2E]/50 bg-[#0E3B2E]/[0.06] px-2 py-0.5 rounded-full">
+                      {JENIS_HAKMILIK_LABEL[l.jenisHakmilik]}
+                    </span>
+                  </div>
+                  <h3 className="font-display font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 text-[#0E3B2E]">{l.tajuk}</h3>
+                  <p className="text-[12px] text-[#0E3B2E]/50 mb-3">
+                    {JENIS_TANAH_LABEL[l.jenisTanah]} · {formatKeluasan(l.keluasan, l.unitKeluasan)}
+                  </p>
                   <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(l.hargaSen)}</p>
-                  <a
-                    href={`/hubungi-kami?ref=geran-${l.seq}`}
-                    className="text-[12px] font-semibold text-[#0E3B2E] bg-black/[0.05] hover:bg-black/[0.08] px-3 py-1.5 rounded-full transition-colors"
-                  >
-                    Hubungi PLT
-                  </a>
                 </div>
-              </div>
+              </Link>
             </div>
           ))}
         </div>

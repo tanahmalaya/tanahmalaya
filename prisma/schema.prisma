@@ -526,7 +526,8 @@ model Seller {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  gerans Geran[]
+  gerans    Geran[]
+  favorites GeranFavorite[]
 }
 
 enum StatusGeran {
@@ -581,6 +582,22 @@ model Geran {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  favoritedBy GeranFavorite[]
+
   @@index([negeri, daerahMukim])
   @@index([status])
+}
+
+// Kegemaran (wishlist) - penjual/pembeli log masuk boleh simpan penyenaraian
+// untuk rujuk balik kemudian, lihat /geran/kegemaran.
+model GeranFavorite {
+  id       String @id @default(cuid())
+  sellerId String
+  seller   Seller @relation(fields: [sellerId], references: [id])
+  geranId  String
+  geran    Geran  @relation(fields: [geranId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([sellerId, geranId])
 }

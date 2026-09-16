@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getSellerSession } from "@/lib/sellerAuth";
 import GeranDirectory, { type GeranListing } from "@/components/geran/GeranDirectory";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
@@ -15,10 +16,17 @@ export const metadata = {
 };
 
 export default async function GeranPage() {
-  const gerans = await prisma.geran.findMany({
-    where: { status: "DISAHKAN" },
-    orderBy: { createdAt: "desc" },
-  });
+  const session = getSellerSession();
+
+  const [gerans, favorites] = await Promise.all([
+    prisma.geran.findMany({
+      where: { status: "DISAHKAN" },
+      orderBy: { createdAt: "desc" },
+    }),
+    session
+      ? prisma.geranFavorite.findMany({ where: { sellerId: session.sellerId }, select: { geranId: true } })
+      : Promise.resolve([]),
+  ]);
 
   const listings: GeranListing[] = gerans.map((g) => ({
     id: g.id,
@@ -40,9 +48,16 @@ export default async function GeranPage() {
     <div className="bg-[#F6F4EE] min-h-screen">
       <GeranBrandHeader
         action={
-          <Link href="/geran/jual" className={GERAN_BTN_PRIMARY_INLINE}>
-            + Jual Tanah Anda
-          </Link>
+          <div className="flex items-center gap-4">
+            {session && (
+              <Link href="/geran/kegemaran" className="text-sm font-semibold text-[#0E3B2E]/60 hover:text-[#0E3B2E]">
+                ❤ Kegemaran
+              </Link>
+            )}
+            <Link href="/geran/jual" className={GERAN_BTN_PRIMARY_INLINE}>
+              + Jual Tanah Anda
+            </Link>
+          </div>
         }
       />
 
@@ -56,7 +71,11 @@ export default async function GeranPage() {
             disahkan dahulu.
           </p>
         </div>
-        <GeranDirectory listings={listings} />
+        <GeranDirectory
+          listings={listings}
+          isLoggedIn={!!session}
+          favoritedIds={favorites.map((f) => f.geranId)}
+        />
       </div>
 
       <GeranFooter />
