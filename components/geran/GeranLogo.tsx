@@ -1,9 +1,9 @@
 import Image from "next/image";
 
-// Lambang "GERAN" - huruf "G" bermozek petak tanah (hijau + emas), fail asal
-// disediakan pengguna (public/geran-logo-g.jpeg, latar hitam pepejal).
-// Dibalut kotak putih bulat supaya sentiasa kontras bersih di atas hero hijau
-// gelap GERAN, macam gaya app-icon.
+// Lambang "GERAN" - huruf "G" bulat dengan corak tanah/sungai hijau, dipotong
+// daripada logo penuh disediakan pengguna (public/Geran_logo.jpeg, latar
+// putih). Dibalut kotak putih bulat supaya sentiasa kontras bersih di atas
+// hero hijau gelap GERAN, macam gaya app-icon.
 export default function GeranLogo({ size = 40 }: { size?: number }) {
   return (
     <span
