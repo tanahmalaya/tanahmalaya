@@ -6,8 +6,6 @@ import BackButton from "@/components/BackButton";
 import GeranForm, { type GeranHistoryItem } from "@/components/geran/GeranForm";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
-import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/geran/MohonDronePilotModal";
-import MohonRenModal, { type RenStatusInfo } from "@/components/geran/MohonRenModal";
 
 export const metadata = {
   title: "Jual Tanah - Senaraikan Geran",
@@ -18,27 +16,10 @@ export const metadata = {
 export default async function JualTanahPage() {
   const seller = await requireSeller("/geran/jual");
 
-  const [gerans, dronePilotApplication, renApplication] = await Promise.all([
-    prisma.geran.findMany({
-      where: { sellerId: seller.id },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.dronePilotApplication.findFirst({
-      where: { sellerId: seller.id },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.renApplication.findFirst({
-      where: { sellerId: seller.id },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
-
-  const dronePilotStatus: DronePilotStatusInfo = dronePilotApplication
-    ? { status: dronePilotApplication.status, catatanAdmin: dronePilotApplication.catatanAdmin }
-    : null;
-  const renStatus: RenStatusInfo = renApplication
-    ? { status: renApplication.status, catatanAdmin: renApplication.catatanAdmin }
-    : null;
+  const gerans = await prisma.geran.findMany({
+    where: { sellerId: seller.id },
+    orderBy: { createdAt: "desc" },
+  });
 
   const history: GeranHistoryItem[] = gerans.map((g) => ({
     id: g.id,
@@ -70,17 +51,7 @@ export default async function JualTanahPage() {
       />
 
       <div className="max-w-2xl mx-auto px-6 py-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-          <p className="text-sm text-[#0E3B2E]/55">Ahli: {seller.fullName}</p>
-          <div className="flex flex-wrap gap-2">
-            <MohonRenModal namaPenjual={seller.fullName} telefonPenjual={seller.phone} initialStatus={renStatus} />
-            <MohonDronePilotModal
-              namaPenjual={seller.fullName}
-              telefonPenjual={seller.phone}
-              initialStatus={dronePilotStatus}
-            />
-          </div>
-        </div>
+        <p className="text-sm text-[#0E3B2E]/55 mb-6">Ahli: {seller.fullName}</p>
         <GeranForm namaPenjual={seller.fullName} initialHistory={history} isRen={seller.renDisahkan} />
       </div>
 

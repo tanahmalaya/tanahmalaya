@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     where: { sellerId: seller.id, status: { in: ["MENUNGGU_SEMAKAN", "DISAHKAN"] } },
   });
   if (existing) {
-    return NextResponse.json({ error: "Anda sudah ada permohonan/status Juruterbang Drone." }, { status: 400 });
+    return NextResponse.json({ error: "Anda sudah ada permohonan/status Drone Pilot." }, { status: 400 });
   }
 
   const body = await req.json().catch(() => null);

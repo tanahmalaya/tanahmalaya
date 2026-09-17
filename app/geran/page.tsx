@@ -6,6 +6,8 @@ import { getSellerSession } from "@/lib/sellerAuth";
 import GeranDirectory, { type GeranListing } from "@/components/geran/GeranDirectory";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
+import MohonRenModal, { type RenStatusInfo } from "@/components/geran/MohonRenModal";
+import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/geran/MohonDronePilotModal";
 import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
 
 export const metadata = {
@@ -18,7 +20,7 @@ export const metadata = {
 export default async function GeranPage() {
   const session = getSellerSession();
 
-  const [gerans, favorites] = await Promise.all([
+  const [gerans, favorites, seller, dronePilotApplication, renApplication] = await Promise.all([
     prisma.geran.findMany({
       where: { status: "DISAHKAN" },
       orderBy: { createdAt: "desc" },
@@ -26,7 +28,21 @@ export default async function GeranPage() {
     session
       ? prisma.geranFavorite.findMany({ where: { sellerId: session.sellerId }, select: { geranId: true } })
       : Promise.resolve([]),
+    session ? prisma.seller.findUnique({ where: { id: session.sellerId } }) : Promise.resolve(null),
+    session
+      ? prisma.dronePilotApplication.findFirst({ where: { sellerId: session.sellerId }, orderBy: { createdAt: "desc" } })
+      : Promise.resolve(null),
+    session
+      ? prisma.renApplication.findFirst({ where: { sellerId: session.sellerId }, orderBy: { createdAt: "desc" } })
+      : Promise.resolve(null),
   ]);
+
+  const renStatus: RenStatusInfo = renApplication
+    ? { status: renApplication.status, catatanAdmin: renApplication.catatanAdmin }
+    : null;
+  const dronePilotStatus: DronePilotStatusInfo = dronePilotApplication
+    ? { status: dronePilotApplication.status, catatanAdmin: dronePilotApplication.catatanAdmin }
+    : null;
 
   const listings: GeranListing[] = gerans.map((g) => ({
     id: g.id,
@@ -50,8 +66,8 @@ export default async function GeranPage() {
         action={
           <div className="flex items-center gap-4">
             {session && (
-              <Link href="/geran/kegemaran" className="text-sm font-semibold text-[#0E3B2E]/60 hover:text-[#0E3B2E]">
-                ❤ Kegemaran
+              <Link href="/geran/favorite" className="text-sm font-semibold text-[#0E3B2E]/60 hover:text-[#0E3B2E]">
+                ❤ Favorite
               </Link>
             )}
             <Link href="/geran/jual" className={GERAN_BTN_PRIMARY_INLINE}>
@@ -70,6 +86,22 @@ export default async function GeranPage() {
             Direktori tanah bergeran (hakmilik jelas) untuk dijual — setiap penyenaraian disemak &amp;
             disahkan dahulu.
           </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
+            <MohonRenModal
+              namaPenjual={seller?.fullName ?? ""}
+              telefonPenjual={seller?.phone ?? ""}
+              initialStatus={renStatus}
+              isLoggedIn={!!session}
+              redirectPath="/geran"
+            />
+            <MohonDronePilotModal
+              namaPenjual={seller?.fullName ?? ""}
+              telefonPenjual={seller?.phone ?? ""}
+              initialStatus={dronePilotStatus}
+              isLoggedIn={!!session}
+              redirectPath="/geran"
+            />
+          </div>
         </div>
         <GeranDirectory
           listings={listings}

@@ -11,7 +11,7 @@ const adminNavItems = [
   { href: "/admin/petty-cash", label: "Claim" },
   { href: "/admin/geran", label: "Geran" },
   { href: "/admin/ren", label: "REN Berdaftar" },
-  { href: "/admin/pilot-drone", label: "Juruterbang Drone" },
+  { href: "/admin/pilot-drone", label: "Drone Pilot" },
   { href: "/admin/activities", label: "Aktiviti" },
   { href: "/admin/aduan-tanah", label: "Aduan Tanah" },
   { href: "/admin/products", label: "Merchandise" },

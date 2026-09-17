@@ -47,7 +47,7 @@ export default function GeranDetailActions({
             Log Masuk untuk Hubungi
           </Link>
           <p className="text-xs text-[#0E3B2E]/45 mt-2">
-            Daftar akaun percuma untuk hubungi PLT &amp; simpan tanah ke kegemaran.
+            Daftar akaun percuma untuk hubungi PLT &amp; simpan tanah ke favorite.
           </p>
         </div>
       )}

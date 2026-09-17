@@ -523,7 +523,7 @@ model Seller {
   otpAttempts  Int       @default(0)
   otpSentAt    DateTime?
 
-  // true bila permohonan Juruterbang Drone (DronePilotApplication) diluluskan admin
+  // true bila permohonan Drone Pilot (DronePilotApplication) diluluskan admin
   dronePilotDisahkan Boolean @default(false)
   // true bila permohonan jadi REN Berdaftar PLT (RenApplication) diluluskan admin -
   // penyenaraian Geran oleh penjual jenis ni terus DISAHKAN (auto-approve), lihat
@@ -607,8 +607,8 @@ model Geran {
   @@index([status])
 }
 
-// Kegemaran (wishlist) - penjual/pembeli log masuk boleh simpan penyenaraian
-// untuk rujuk balik kemudian, lihat /geran/kegemaran.
+// Favorite (wishlist) - penjual/pembeli log masuk boleh simpan penyenaraian
+// untuk rujuk balik kemudian, lihat /geran/favorite.
 model GeranFavorite {
   id       String @id @default(cuid())
   sellerId String
@@ -628,7 +628,7 @@ enum StatusPermohonanDrone {
   DITOLAK
 }
 
-// Permohonan ahli jadi Juruterbang Drone (untuk proses permintaan drone
+// Permohonan ahli jadi Drone Pilot (untuk proses permintaan drone
 // survey pada penyenaraian Geran - lihat Geran.mintaDroneSurvey/statusDroneSurvey).
 // Sekadar maklumat diri & model drone sendiri, admin sahkan secara manual
 // (belum ada sijil/lesen pilot wajib), alur sama macam Geran.status di atas.

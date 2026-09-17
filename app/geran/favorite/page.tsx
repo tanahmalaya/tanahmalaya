@@ -10,13 +10,13 @@ import BackButton from "@/components/BackButton";
 import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, formatRM, formatKeluasan } from "@/lib/geran";
 
 export const metadata = {
-  title: "Kegemaran Saya - GERAN",
+  title: "Favorite Saya - GERAN",
   robots: { index: false },
 };
 
 // Kawasan akaun Penjual sahaja - lihat lib/sellerAuth.ts.
-export default async function KegemaranPage() {
-  const seller = await requireSeller("/geran/kegemaran");
+export default async function FavoritePage() {
+  const seller = await requireSeller("/geran/favorite");
 
   const favorites = await prisma.geranFavorite.findMany({
     where: { sellerId: seller.id },
@@ -32,14 +32,14 @@ export default async function KegemaranPage() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0E3B2E] mb-1">
-          ❤ Kegemaran Saya
+          ❤ Favorite Saya
         </h1>
         <p className="text-[#0E3B2E]/55 text-[15px] mb-6">Tanah bergeran yang anda simpan untuk rujukan.</p>
 
         {listings.length === 0 ? (
           <div className="text-center py-16 px-6">
             <p className="text-4xl mb-3">🤍</p>
-            <p className="font-semibold text-[#0E3B2E]/70">Belum ada kegemaran disimpan</p>
+            <p className="font-semibold text-[#0E3B2E]/70">Belum ada favorite disimpan</p>
             <p className="text-sm text-[#0E3B2E]/45 mt-1 mb-4">
               Klik ikon hati pada mana-mana penyenaraian untuk simpan di sini.
             </p>

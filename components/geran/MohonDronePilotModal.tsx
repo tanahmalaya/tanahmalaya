@@ -1,9 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import { STATUS_GERAN_LABEL } from "@/lib/geran";
 import { GERAN_INPUT, GERAN_LABEL, GERAN_BTN_PRIMARY } from "@/components/geran/theme";
+
+const TRIGGER_CHIP = "text-xs font-semibold text-[#0E3B2E] underline decoration-[#0E3B2E]/30 underline-offset-2";
 
 type Status = keyof typeof STATUS_GERAN_LABEL;
 
@@ -22,10 +25,14 @@ export default function MohonDronePilotModal({
   namaPenjual,
   telefonPenjual,
   initialStatus,
+  isLoggedIn,
+  redirectPath,
 }: {
   namaPenjual: string;
   telefonPenjual: string;
   initialStatus: DronePilotStatusInfo;
+  isLoggedIn: boolean;
+  redirectPath: string;
 }) {
   const [open, setOpen] = useState(false);
   const [statusInfo, setStatusInfo] = useState(initialStatus);
@@ -61,10 +68,18 @@ export default function MohonDronePilotModal({
     }
   }
 
+  if (!isLoggedIn) {
+    return (
+      <Link href={`/geran/log-masuk?redirect=${encodeURIComponent(redirectPath)}`} className={TRIGGER_CHIP}>
+        🚁 Mohon Jadi Drone Pilot
+      </Link>
+    );
+  }
+
   if (statusInfo) {
     return (
       <div className="flex items-center gap-2 bg-white border border-black/5 rounded-xl px-3.5 py-2.5">
-        <span className="text-xs font-semibold text-[#0E3B2E]/70">Juruterbang Drone:</span>
+        <span className="text-xs font-semibold text-[#0E3B2E]/70">Drone Pilot:</span>
         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_BADGE[statusInfo.status]}`}>
           {STATUS_GERAN_LABEL[statusInfo.status]}
         </span>
@@ -85,18 +100,15 @@ export default function MohonDronePilotModal({
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="text-xs font-semibold text-[#0E3B2E] underline decoration-[#0E3B2E]/30 underline-offset-2"
-      >
-        🚁 Mohon Jadi Juruterbang Drone
+      <button onClick={() => setOpen(true)} className={TRIGGER_CHIP}>
+        🚁 Mohon Jadi Drone Pilot
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-bold text-[#0E3B2E]">Mohon Jadi Juruterbang Drone</h2>
+              <h2 className="font-bold text-[#0E3B2E]">Mohon Jadi Drone Pilot</h2>
               <button
                 onClick={() => setOpen(false)}
                 className="text-[#0E3B2E]/40 hover:text-[#0E3B2E] text-lg leading-none"
@@ -172,7 +184,7 @@ export default function MohonDronePilotModal({
                 <span>
                   <span className="font-semibold">Apa akan berlaku seterusnya?</span> Selepas anda hantar
                   permohonan, admin PLT akan semak maklumat anda dan hubungi terus untuk pengesahan sebelum
-                  anda diaktifkan sebagai Juruterbang Drone.
+                  anda diaktifkan sebagai Drone Pilot.
                 </span>
               </div>
 

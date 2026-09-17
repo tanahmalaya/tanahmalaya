@@ -44,7 +44,7 @@ export default function FavoriteButton({
         href={`/geran/log-masuk?redirect=${encodeURIComponent(redirectPath)}`}
         onClick={(e) => e.stopPropagation()}
         className={base}
-        aria-label="Log masuk untuk simpan kegemaran"
+        aria-label="Log masuk untuk simpan favorite"
       >
         <HeartIcon filled={false} />
       </Link>
@@ -75,7 +75,7 @@ export default function FavoriteButton({
       onClick={handleClick}
       disabled={loading}
       className={`${base} disabled:opacity-60`}
-      aria-label={favorited ? "Buang dari kegemaran" : "Simpan ke kegemaran"}
+      aria-label={favorited ? "Buang dari favorite" : "Simpan ke favorite"}
     >
       <HeartIcon filled={favorited} />
     </button>

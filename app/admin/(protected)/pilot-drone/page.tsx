@@ -26,7 +26,7 @@ export default async function AdminPilotDronePage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">Juruterbang Drone</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">Drone Pilot</h1>
       <DronePilotAdminTable rows={rows} />
     </div>
   );

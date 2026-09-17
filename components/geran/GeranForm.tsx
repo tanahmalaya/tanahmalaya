@@ -296,8 +296,8 @@ export default function GeranForm({
               <span className="font-semibold">Minta Drone Survey (pilihan)</span>
               <br />
               <span className="text-[#0E3B2E]/50 text-xs">
-                PLT akan hubungi anda untuk jadualkan juruterbang drone bagi tangkap gambar/footage udara
-                lot tanah ini.
+                PLT akan hubungi anda untuk jadualkan drone pilot bagi tangkap gambar/footage udara lot
+                tanah ini.
               </span>
             </span>
           </label>

@@ -1,9 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import { STATUS_GERAN_LABEL } from "@/lib/geran";
 import { GERAN_INPUT, GERAN_LABEL, GERAN_BTN_PRIMARY } from "@/components/geran/theme";
+
+const TRIGGER_CHIP = "text-xs font-semibold text-[#0E3B2E] underline decoration-[#0E3B2E]/30 underline-offset-2";
 
 type Status = keyof typeof STATUS_GERAN_LABEL;
 
@@ -22,10 +25,14 @@ export default function MohonRenModal({
   namaPenjual,
   telefonPenjual,
   initialStatus,
+  isLoggedIn,
+  redirectPath,
 }: {
   namaPenjual: string;
   telefonPenjual: string;
   initialStatus: RenStatusInfo;
+  isLoggedIn: boolean;
+  redirectPath: string;
 }) {
   const [open, setOpen] = useState(false);
   const [statusInfo, setStatusInfo] = useState(initialStatus);
@@ -61,6 +68,14 @@ export default function MohonRenModal({
     }
   }
 
+  if (!isLoggedIn) {
+    return (
+      <Link href={`/geran/log-masuk?redirect=${encodeURIComponent(redirectPath)}`} className={TRIGGER_CHIP}>
+        🏢 Mohon Jadi REN
+      </Link>
+    );
+  }
+
   if (statusInfo) {
     return (
       <div className="flex items-center gap-2 bg-white border border-black/5 rounded-xl px-3.5 py-2.5">
@@ -79,11 +94,8 @@ export default function MohonRenModal({
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="text-xs font-semibold text-[#0E3B2E] underline decoration-[#0E3B2E]/30 underline-offset-2"
-      >
-        🏢 Mohon Jadi REN Berdaftar PLT
+      <button onClick={() => setOpen(true)} className={TRIGGER_CHIP}>
+        🏢 Mohon Jadi REN
       </button>
 
       {open && (

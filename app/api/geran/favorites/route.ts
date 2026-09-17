@@ -7,8 +7,8 @@ import { getSellerSession } from "@/lib/sellerAuth";
 
 const schema = z.object({ geranId: z.string().min(1) });
 
-// Togol kegemaran (tambah jika belum simpan, buang jika dah simpan) - lihat
-// components/geran/FavoriteButton.tsx & app/geran/kegemaran/page.tsx.
+// Togol favorite (tambah jika belum simpan, buang jika dah simpan) - lihat
+// components/geran/FavoriteButton.tsx & app/geran/favorite/page.tsx.
 export async function POST(req: NextRequest) {
   const session = getSellerSession();
   if (!session) {
