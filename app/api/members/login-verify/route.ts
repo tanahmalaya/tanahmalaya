@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
     where: { id: member.id },
     data: { otpCodeHash: null, otpExpiresAt: null, otpAttempts: 0, otpSentAt: null },
   });
+  await prisma.loginEvent.create({ data: { actorType: "MEMBER", actorId: member.id } });
 
   setMemberCookie(signMemberSession(member.id));
   return NextResponse.json({ fullName: member.fullName, memberNo: member.memberNo });

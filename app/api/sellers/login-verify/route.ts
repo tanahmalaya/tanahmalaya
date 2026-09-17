@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     where: { id: seller.id },
     data: { otpCodeHash: null, otpExpiresAt: null, otpAttempts: 0, otpSentAt: null },
   });
+  await prisma.loginEvent.create({ data: { actorType: "SELLER", actorId: seller.id } });
 
   setSellerCookie(signSellerSession(seller.id));
   return NextResponse.json({ fullName: seller.fullName });

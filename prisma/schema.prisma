@@ -685,3 +685,21 @@ model RenApplication {
 
   @@index([status])
 }
+
+// ---------- ANALITIK DASHBOARD ADMIN ----------
+enum LoginActorType {
+  MEMBER // Ahli PLT/Bersekutu log masuk kawasan Keahlian
+  SELLER // Penjual log masuk kawasan GERAN
+}
+
+// Satu baris setiap kali log masuk berjaya - untuk graph "Log Masuk" di
+// Ringkasan Dashboard admin. Direkod mula dari bila ciri ni ditambah, jadi
+// graph hanya ada data dari tarikh tu ke depan.
+model LoginEvent {
+  id        String         @id @default(cuid())
+  actorType LoginActorType
+  actorId   String
+  createdAt DateTime       @default(now())
+
+  @@index([actorType, createdAt])
+}
