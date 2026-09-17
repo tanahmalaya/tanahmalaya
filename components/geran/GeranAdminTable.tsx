@@ -38,6 +38,8 @@ export type GeranAdminRow = {
   status: Status;
   catatanAdmin: string | null;
   createdAt: string;
+  sellerIsRen: boolean;
+  assignedRenNama: string | null;
 };
 
 const TAB_DEF: { key: Status; label: string }[] = [
@@ -68,16 +70,28 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
+export default function GeranAdminTable({
+  rows,
+  renOptions,
+}: {
+  rows: GeranAdminRow[];
+  renOptions: { id: string; fullName: string }[];
+}) {
   const router = useRouter();
   const [tab, setTab] = useState<Status>("MENUNGGU_SEMAKAN");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [assigningId, setAssigningId] = useState<string | null>(null);
+  const [selectedRenId, setSelectedRenId] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
 
   const visible = rows.filter((r) => r.status === tab);
+  // Bulk approve hanya untuk penyenaraian REN sendiri (tak perlu pilih REN
+  // pilihan PLT) - penjual biasa kena lalu alur approve satu-satu supaya
+  // admin pilih REN dahulu.
+  const bulkSelectable = visible.filter((r) => r.sellerIsRen);
   const counts = TAB_DEF.reduce<Record<Status, number>>((acc, t) => {
     acc[t.key] = rows.filter((r) => r.status === t.key).length;
     return acc;
@@ -97,25 +111,27 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
   }
 
   function toggleSelectAll() {
-    setSelected((prev) => (prev.size === visible.length ? new Set() : new Set(visible.map((r) => r.id))));
+    setSelected((prev) => (prev.size === bulkSelectable.length ? new Set() : new Set(bulkSelectable.map((r) => r.id))));
   }
 
-  async function updateStatus(geranId: string, status: "DISAHKAN" | "DITOLAK", catatanAdmin?: string) {
+  async function updateStatus(geranId: string, status: "DISAHKAN" | "DITOLAK", opts?: { catatanAdmin?: string; renId?: string }) {
     const res = await fetch("/api/admin/geran/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ geranId, status, catatanAdmin }),
+      body: JSON.stringify({ geranId, status, catatanAdmin: opts?.catatanAdmin, renId: opts?.renId }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Gagal kemaskini status");
   }
 
-  async function handleSingleAction(geranId: string, status: "DISAHKAN" | "DITOLAK", catatanAdmin?: string) {
+  async function handleSingleAction(geranId: string, status: "DISAHKAN" | "DITOLAK", opts?: { catatanAdmin?: string; renId?: string }) {
     setLoadingId(geranId);
     try {
-      await updateStatus(geranId, status, catatanAdmin);
+      await updateStatus(geranId, status, opts);
       setRejectingId(null);
       setRejectReason("");
+      setAssigningId(null);
+      setSelectedRenId("");
       router.refresh();
     } catch (err) {
       alert((err as Error).message);
@@ -158,7 +174,7 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
     }
   }
 
-  const allSelected = visible.length > 0 && selected.size === visible.length;
+  const allSelected = bulkSelectable.length > 0 && selected.size === bulkSelectable.length;
 
   return (
     <div>
@@ -176,11 +192,11 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
         ))}
       </div>
 
-      {tab === "MENUNGGU_SEMAKAN" && visible.length > 0 && (
+      {tab === "MENUNGGU_SEMAKAN" && bulkSelectable.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-4 bg-brand-cream/50 border border-brand-dark/10 rounded-md px-4 py-3">
           <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
             <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-            Select All
+            Select All (REN sahaja)
           </label>
           <button
             onClick={handleBulkApprove}
@@ -200,7 +216,7 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
             <div key={g.id} className="bg-white border border-brand-dark/10 rounded-md p-5">
               <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
                 <div className="flex items-start gap-3">
-                  {tab === "MENUNGGU_SEMAKAN" && (
+                  {tab === "MENUNGGU_SEMAKAN" && g.sellerIsRen && (
                     <input type="checkbox" className="mt-1" checked={selected.has(g.id)} onChange={() => toggleSelected(g.id)} />
                   )}
                   <div>
@@ -211,6 +227,15 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                       {g.daerahMukim}, {g.negeri} · {JENIS_TANAH_LABEL[g.jenisTanah]} · {JENIS_HAKMILIK_LABEL[g.jenisHakmilik]} ·{" "}
                       {formatDate(g.createdAt)}
                     </p>
+                    {g.sellerIsRen ? (
+                      <span className="inline-block mt-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                        🏢 Penjual REN sendiri
+                      </span>
+                    ) : g.assignedRenNama ? (
+                      <span className="inline-block mt-1 text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5">
+                        REN pilihan PLT: {g.assignedRenNama}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${STATUS_BADGE[g.status]}`}>
@@ -272,7 +297,11 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
               {g.status === "MENUNGGU_SEMAKAN" && (
                 <div className="flex gap-2 mt-4 pt-4 border-t border-brand-dark/10">
                   <button
-                    onClick={() => handleSingleAction(g.id, "DISAHKAN")}
+                    onClick={() =>
+                      g.sellerIsRen
+                        ? handleSingleAction(g.id, "DISAHKAN")
+                        : setAssigningId(assigningId === g.id ? null : g.id)
+                    }
                     disabled={loadingId === g.id}
                     className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
@@ -288,6 +317,38 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                 </div>
               )}
 
+              {assigningId === g.id && (
+                <div className="mt-3 pt-3 border-t border-brand-dark/10">
+                  <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">
+                    Pilih REN pilihan PLT untuk uruskan penyenaraian ni
+                  </label>
+                  <select
+                    value={selectedRenId}
+                    onChange={(e) => setSelectedRenId(e.target.value)}
+                    className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
+                  >
+                    <option value="">Pilih REN...</option>
+                    {renOptions.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.fullName}
+                      </option>
+                    ))}
+                  </select>
+                  {renOptions.length === 0 && (
+                    <p className="text-xs text-red-600 mb-2">
+                      Tiada REN disahkan lagi - sahkan sekurang-kurangnya satu permohonan di /admin/ren dahulu.
+                    </p>
+                  )}
+                  <button
+                    onClick={() => handleSingleAction(g.id, "DISAHKAN", { renId: selectedRenId })}
+                    disabled={loadingId === g.id || !selectedRenId}
+                    className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+                  >
+                    SAHKAN & TETAPKAN REN
+                  </button>
+                </div>
+              )}
+
               {rejectingId === g.id && (
                 <div className="mt-3 pt-3 border-t border-brand-dark/10">
                   <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">Sebab ditolak</label>
@@ -299,7 +360,7 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                     placeholder="Contoh: Maklumat lot tidak lengkap"
                   />
                   <button
-                    onClick={() => handleSingleAction(g.id, "DITOLAK", rejectReason)}
+                    onClick={() => handleSingleAction(g.id, "DITOLAK", { catatanAdmin: rejectReason })}
                     disabled={loadingId === g.id || !rejectReason.trim()}
                     className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >

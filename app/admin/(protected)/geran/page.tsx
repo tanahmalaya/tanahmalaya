@@ -4,10 +4,13 @@ import { prisma } from "@/lib/prisma";
 import GeranAdminTable, { type GeranAdminRow } from "@/components/geran/GeranAdminTable";
 
 export default async function AdminGeranPage() {
-  const [menunggu, disahkan, ditolak] = await Promise.all([
-    prisma.geran.findMany({ where: { status: "MENUNGGU_SEMAKAN" }, orderBy: { createdAt: "asc" } }),
-    prisma.geran.findMany({ where: { status: "DISAHKAN" }, orderBy: { createdAt: "desc" }, take: 100 }),
-    prisma.geran.findMany({ where: { status: "DITOLAK" }, orderBy: { createdAt: "desc" }, take: 50 }),
+  const include = { seller: { select: { renDisahkan: true } }, assignedRen: { select: { fullName: true } } } as const;
+
+  const [menunggu, disahkan, ditolak, renOptionsRaw] = await Promise.all([
+    prisma.geran.findMany({ where: { status: "MENUNGGU_SEMAKAN" }, orderBy: { createdAt: "asc" }, include }),
+    prisma.geran.findMany({ where: { status: "DISAHKAN" }, orderBy: { createdAt: "desc" }, take: 100, include }),
+    prisma.geran.findMany({ where: { status: "DITOLAK" }, orderBy: { createdAt: "desc" }, take: 50, include }),
+    prisma.seller.findMany({ where: { renDisahkan: true }, select: { id: true, fullName: true }, orderBy: { fullName: "asc" } }),
   ]);
 
   const toRow = (g: (typeof menunggu)[number]): GeranAdminRow => ({
@@ -33,6 +36,8 @@ export default async function AdminGeranPage() {
     status: g.status,
     catatanAdmin: g.catatanAdmin,
     createdAt: g.createdAt.toISOString(),
+    sellerIsRen: g.seller.renDisahkan,
+    assignedRenNama: g.assignedRen?.fullName ?? null,
   });
 
   const rows: GeranAdminRow[] = [...menunggu.map(toRow), ...disahkan.map(toRow), ...ditolak.map(toRow)];
@@ -40,7 +45,7 @@ export default async function AdminGeranPage() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Geran (Marketplace Jual Tanah)</h1>
-      <GeranAdminTable rows={rows} />
+      <GeranAdminTable rows={rows} renOptions={renOptionsRaw} />
     </div>
   );
 }

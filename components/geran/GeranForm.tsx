@@ -48,9 +48,11 @@ export type GeranHistoryItem = {
 export default function GeranForm({
   namaPenjual,
   initialHistory,
+  isRen,
 }: {
   namaPenjual: string;
   initialHistory: GeranHistoryItem[];
+  isRen: boolean;
 }) {
   const [tajuk, setTajuk] = useState("");
   const [negeri, setNegeri] = useState(NEGERI_LIST[0]);
@@ -70,6 +72,7 @@ export default function GeranForm({
   const [error, setError] = useState("");
   const [history, setHistory] = useState(initialHistory);
   const [justSubmittedSeq, setJustSubmittedSeq] = useState<number | null>(null);
+  const [justSubmittedStatus, setJustSubmittedStatus] = useState<StatusGeran>("MENUNGGU_SEMAKAN");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -99,7 +102,9 @@ export default function GeranForm({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal hantar penyenaraian");
 
+      const status: StatusGeran = data.status ?? "MENUNGGU_SEMAKAN";
       setJustSubmittedSeq(data.seq);
+      setJustSubmittedStatus(status);
       setHistory((prev) => [
         {
           id: data.id,
@@ -112,7 +117,7 @@ export default function GeranForm({
           unitKeluasan,
           hargaSen: Math.round(Number(hargaRM) * 100),
           mintaDroneSurvey,
-          status: "MENUNGGU_SEMAKAN",
+          status,
           catatanAdmin: null,
           createdAt: new Date().toISOString(),
         },
@@ -142,13 +147,15 @@ export default function GeranForm({
           <span className="text-xs text-[#0E3B2E]/50">{namaPenjual}</span>
         </div>
         <p className="text-[#0E3B2E]/60 text-sm mb-5">
-          Isi butiran tanah bergeran anda. Penyenaraian akan disemak &amp; disahkan PLT dahulu sebelum
-          dipaparkan dalam direktori Geran.
+          {isRen
+            ? "Anda REN berdaftar PLT - penyenaraian anda disahkan automatik & terus dipaparkan dalam direktori Geran."
+            : "Isi butiran tanah bergeran anda. Penyenaraian akan disemak & diletakkan di bawah REN pilihan PLT sebelum dipaparkan dalam direktori Geran."}
         </p>
 
         {justSubmittedSeq !== null && (
           <div className="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl p-3">
-            Penyenaraian #{justSubmittedSeq} berjaya dihantar. Status: Menunggu semakan PLT.
+            Penyenaraian #{justSubmittedSeq} berjaya dihantar. Status:{" "}
+            {justSubmittedStatus === "DISAHKAN" ? "Disahkan (auto-approve REN)" : "Menunggu semakan PLT"}.
           </div>
         )}
 

@@ -41,6 +41,10 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
   const mintaDrone = data.mintaDroneSurvey ?? false;
 
+  // Penjual REN berdaftar PLT: penyenaraian terus DISAHKAN (auto-approve),
+  // REN itu sendiri jadi assignedRen. Penjual biasa kekal MENUNGGU_SEMAKAN -
+  // admin wajib pilih REN pilihan PLT semasa kelulusan (lihat
+  // app/api/admin/geran/update-status).
   const geran = await prisma.geran.create({
     data: {
       sellerId: seller.id,
@@ -61,8 +65,10 @@ export async function POST(req: NextRequest) {
       gambarUrls: data.gambarUrls ?? [],
       mintaDroneSurvey: mintaDrone,
       statusDroneSurvey: mintaDrone ? "MENUNGGU_PILOT" : "TIDAK_BERKAITAN",
+      status: seller.renDisahkan ? "DISAHKAN" : "MENUNGGU_SEMAKAN",
+      assignedRenId: seller.renDisahkan ? seller.id : null,
     },
   });
 
-  return NextResponse.json({ id: geran.id, seq: geran.seq });
+  return NextResponse.json({ id: geran.id, seq: geran.seq, status: geran.status });
 }
