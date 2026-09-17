@@ -4,7 +4,6 @@ import { getAdminSession } from "@/lib/auth";
 import AdminMobileNav from "@/components/admin/AdminMobileNav";
 
 const adminNavItems = [
-  { href: "/admin", label: "Ringkasan" },
   { href: "/admin/members", label: "Senarai Ahli" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/classes", label: "Kelas dan Program" },
@@ -15,8 +14,6 @@ const adminNavItems = [
   { href: "/admin/activities", label: "Aktiviti" },
   { href: "/admin/aduan-tanah", label: "Aduan Tanah" },
   { href: "/admin/products", label: "Merchandise" },
-  { href: "/admin/ads", label: "Iklan Komuniti" },
-  { href: "/admin/settings", label: "Tetapan" },
 ];
 
 const staffNavItems = [{ href: "/admin/orders", label: "Pesanan" }];
