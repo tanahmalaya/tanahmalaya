@@ -28,9 +28,6 @@ export default function Hero() {
             >
               SERTAI PLT
             </Link>
-            <Link href="/kelas-tanah" className="font-semibold text-sm hover:text-brand-gold transition-colors">
-              Lihat Program &rarr;
-            </Link>
           </div>
 
           <MemberCount />
