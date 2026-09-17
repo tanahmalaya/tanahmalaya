@@ -6,6 +6,7 @@ import { getSellerSession } from "@/lib/sellerAuth";
 import GeranDirectory, { type GeranListing } from "@/components/geran/GeranDirectory";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
+import BackButton from "@/components/BackButton";
 import MohonRenModal, { type RenStatusInfo } from "@/components/geran/MohonRenModal";
 import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/geran/MohonDronePilotModal";
 import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
@@ -63,6 +64,7 @@ export default async function GeranPage() {
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
       <GeranBrandHeader
+        back={<BackButton href="/" label="Home" variant="light" />}
         action={
           <div className="flex items-center gap-4">
             {session && (

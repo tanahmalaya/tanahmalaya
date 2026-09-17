@@ -71,7 +71,7 @@ export default function MohonRenModal({
   if (!isLoggedIn) {
     return (
       <Link href={`/geran/log-masuk?redirect=${encodeURIComponent(redirectPath)}`} className={TRIGGER_CHIP}>
-        🏢 Apply to be a REN
+        🏢 Select Role: REN Agent
       </Link>
     );
   }
@@ -85,7 +85,7 @@ export default function MohonRenModal({
         </span>
         {statusInfo.status === "DITOLAK" && (
           <button onClick={() => setStatusInfo(null)} className="text-xs underline text-[#0E3B2E]/60 ml-auto">
-            Apply again
+            Select role again
           </button>
         )}
       </div>
@@ -95,14 +95,14 @@ export default function MohonRenModal({
   return (
     <>
       <button onClick={() => setOpen(true)} className={TRIGGER_CHIP}>
-        🏢 Apply to be a REN
+        🏢 Select Role: REN Agent
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-bold text-[#0E3B2E]">Apply to be a PLT-Registered REN</h2>
+              <h2 className="font-bold text-[#0E3B2E]">Select Role: PLT-Registered REN</h2>
               <button
                 onClick={() => setOpen(false)}
                 className="text-[#0E3B2E]/40 hover:text-[#0E3B2E] text-lg leading-none"
