@@ -15,5 +15,5 @@ export async function POST(req: NextRequest) {
 
   const role = admin.role === "STAFF" ? "STAFF" : "ADMIN";
   setAdminCookie(signAdminSession(admin.id, role));
-  return NextResponse.redirect(new URL(role === "STAFF" ? "/admin/orders" : "/admin/members", req.url), 303);
+  return NextResponse.redirect(new URL(role === "STAFF" ? "/admin/orders" : "/admin", req.url), 303);
 }
