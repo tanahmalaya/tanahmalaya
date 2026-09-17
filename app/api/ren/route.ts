@@ -15,25 +15,25 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const session = getSellerSession();
   if (!session) {
-    return NextResponse.json({ error: "Sila log masuk semula" }, { status: 401 });
+    return NextResponse.json({ error: "Please log in again" }, { status: 401 });
   }
 
   const seller = await prisma.seller.findUnique({ where: { id: session.sellerId } });
   if (!seller) {
-    return NextResponse.json({ error: "Tidak dibenarkan" }, { status: 403 });
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
 
   const existing = await prisma.renApplication.findFirst({
     where: { sellerId: seller.id, status: { in: ["MENUNGGU_SEMAKAN", "DISAHKAN"] } },
   });
   if (existing) {
-    return NextResponse.json({ error: "Anda sudah ada permohonan/status REN." }, { status: 400 });
+    return NextResponse.json({ error: "You already have a REN application/status." }, { status: 400 });
   }
 
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Data tidak sah" }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid data" }, { status: 400 });
   }
 
   const permohonan = await prisma.renApplication.create({

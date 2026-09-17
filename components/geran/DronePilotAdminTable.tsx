@@ -19,9 +19,9 @@ export type DronePilotAdminRow = {
 };
 
 const TAB_DEF: { key: Status; label: string }[] = [
-  { key: "MENUNGGU_SEMAKAN", label: "Menunggu" },
-  { key: "DISAHKAN", label: "Disahkan" },
-  { key: "DITOLAK", label: "Ditolak" },
+  { key: "MENUNGGU_SEMAKAN", label: "Pending" },
+  { key: "DISAHKAN", label: "Approved" },
+  { key: "DITOLAK", label: "Rejected" },
 ];
 
 const STATUS_BADGE: Record<Status, string> = {
@@ -54,7 +54,7 @@ export default function DronePilotAdminTable({ rows }: { rows: DronePilotAdminRo
       body: JSON.stringify({ permohonanId, status, catatanAdmin }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Gagal kemaskini status");
+    if (!res.ok) throw new Error(data.error || "Failed to update status");
   }
 
   async function handleAction(permohonanId: string, status: "DISAHKAN" | "DITOLAK", catatanAdmin?: string) {
@@ -88,7 +88,7 @@ export default function DronePilotAdminTable({ rows }: { rows: DronePilotAdminRo
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-brand-dark/50 text-sm">Tiada permohonan dalam kategori ini.</p>
+        <p className="text-brand-dark/50 text-sm">No applications in this category.</p>
       ) : (
         <div className="space-y-3">
           {visible.map((p) => (
@@ -109,15 +109,15 @@ export default function DronePilotAdminTable({ rows }: { rows: DronePilotAdminRo
 
               <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-brand-dark/60 mb-1">
                 <p>
-                  <span className="text-brand-dark/40">Telefon:</span> {p.telefon}
+                  <span className="text-brand-dark/40">Phone:</span> {p.telefon}
                 </p>
                 <p>
-                  <span className="text-brand-dark/40">Model Drone:</span> {p.modelDrone}
+                  <span className="text-brand-dark/40">Drone Model:</span> {p.modelDrone}
                 </p>
               </div>
 
               {p.status === "DITOLAK" && p.catatanAdmin && (
-                <p className="text-xs text-red-600 mt-2">Sebab ditolak: {p.catatanAdmin}</p>
+                <p className="text-xs text-red-600 mt-2">Rejection reason: {p.catatanAdmin}</p>
               )}
 
               {p.status === "MENUNGGU_SEMAKAN" && (
@@ -127,34 +127,34 @@ export default function DronePilotAdminTable({ rows }: { rows: DronePilotAdminRo
                     disabled={loadingId === p.id}
                     className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    SAHKAN
+                    APPROVE
                   </button>
                   <button
                     onClick={() => setRejectingId(rejectingId === p.id ? null : p.id)}
                     disabled={loadingId === p.id}
                     className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    TOLAK
+                    REJECT
                   </button>
                 </div>
               )}
 
               {rejectingId === p.id && (
                 <div className="mt-3 pt-3 border-t border-brand-dark/10">
-                  <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">Sebab ditolak</label>
+                  <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">Rejection reason</label>
                   <textarea
                     rows={2}
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
-                    placeholder="Contoh: No. telefon tidak boleh dihubungi"
+                    placeholder="e.g. Phone number is unreachable"
                   />
                   <button
                     onClick={() => handleAction(p.id, "DITOLAK", rejectReason)}
                     disabled={loadingId === p.id || !rejectReason.trim()}
                     className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    SAHKAN TOLAK
+                    CONFIRM REJECT
                   </button>
                 </div>
               )}

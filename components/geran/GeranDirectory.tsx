@@ -26,7 +26,7 @@ export type GeranListing = {
   gambarUrls: string[];
 };
 
-const JENIS_CHIPS: ("SEMUA" | JenisTanah)[] = ["SEMUA", "PERTANIAN", "KOSONG", "PERUMAHAN", "KOMERSIAL", "PERINDUSTRIAN", "PEMBANGUNAN"];
+const JENIS_CHIPS: ("ALL" | JenisTanah)[] = ["ALL", "PERTANIAN", "KOSONG", "PERUMAHAN", "KOMERSIAL", "PERINDUSTRIAN", "PEMBANGUNAN"];
 
 function SearchIcon() {
   return (
@@ -66,8 +66,8 @@ export default function GeranDirectory({
   favoritedIds: string[];
 }) {
   const [query, setQuery] = useState("");
-  const [jenisAktif, setJenisAktif] = useState<"SEMUA" | JenisTanah>("SEMUA");
-  const [negeriAktif, setNegeriAktif] = useState("SEMUA");
+  const [jenisAktif, setJenisAktif] = useState<"ALL" | JenisTanah>("ALL");
+  const [negeriAktif, setNegeriAktif] = useState("ALL");
   const [hargaMin, setHargaMin] = useState("");
   const [hargaMaks, setHargaMaks] = useState("");
   const [favSet, setFavSet] = useState<Set<string>>(new Set(favoritedIds));
@@ -77,8 +77,8 @@ export default function GeranDirectory({
     const min = hargaMin.trim() ? Number(hargaMin) : null;
     const maks = hargaMaks.trim() ? Number(hargaMaks) : null;
     return listings.filter((l) => {
-      if (jenisAktif !== "SEMUA" && l.jenisTanah !== jenisAktif) return false;
-      if (negeriAktif !== "SEMUA" && l.negeri !== negeriAktif) return false;
+      if (jenisAktif !== "ALL" && l.jenisTanah !== jenisAktif) return false;
+      if (negeriAktif !== "ALL" && l.negeri !== negeriAktif) return false;
       const rm = l.hargaSen / 100;
       if (min !== null && rm < min) return false;
       if (maks !== null && rm > maks) return false;
@@ -101,7 +101,7 @@ export default function GeranDirectory({
 
   return (
     <div>
-      {/* Bar carian gaya iOS */}
+      {/* iOS-style search bar */}
       <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-[#F6F4EE]/85 backdrop-blur-xl border-b border-black/5">
         <div className="relative mb-3">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0E3B2E]/35">
@@ -110,7 +110,7 @@ export default function GeranDirectory({
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari tajuk, negeri, daerah atau no. lot"
+            placeholder="Search by title, state, district or lot no."
             className="w-full bg-black/[0.05] focus:bg-white border border-transparent focus:border-[#0E3B2E]/40 rounded-2xl pl-11 pr-4 py-3 text-sm placeholder-[#0E3B2E]/35 outline-none focus:ring-4 focus:ring-[#0E3B2E]/10 transition-all"
           />
         </div>
@@ -127,7 +127,7 @@ export default function GeranDirectory({
                   : "bg-black/[0.05] text-[#0E3B2E]/60 hover:bg-black/[0.08]"
               }`}
             >
-              {j === "SEMUA" ? "Semua Jenis" : JENIS_TANAH_LABEL[j]}
+              {j === "ALL" ? "All Types" : JENIS_TANAH_LABEL[j]}
             </button>
           ))}
         </div>
@@ -138,7 +138,7 @@ export default function GeranDirectory({
             onChange={(e) => setNegeriAktif(e.target.value)}
             className="shrink-0 px-3.5 py-2 rounded-full text-[13px] font-semibold bg-black/[0.05] text-[#0E3B2E]/60 outline-none border-none"
           >
-            <option value="SEMUA">Semua Negeri</option>
+            <option value="ALL">All States</option>
             {NEGERI_LIST.map((n) => (
               <option key={n} value={n}>
                 {n}
@@ -169,7 +169,7 @@ export default function GeranDirectory({
               inputMode="numeric"
               value={hargaMaks}
               onChange={(e) => setHargaMaks(e.target.value)}
-              placeholder="Maks"
+              placeholder="Max"
               className="w-16 bg-transparent text-[13px] font-semibold text-[#0E3B2E] placeholder-[#0E3B2E]/35 outline-none py-1"
             />
           </div>
@@ -177,14 +177,14 @@ export default function GeranDirectory({
       </div>
 
       <p className="text-xs font-semibold text-[#0E3B2E]/40 uppercase tracking-wide mt-4 mb-3">
-        {filtered.length} keputusan
+        {filtered.length} results
       </p>
 
       {filtered.length === 0 ? (
         <div className="text-center py-16 px-6">
           <p className="text-4xl mb-3">🗺️</p>
-          <p className="font-semibold text-[#0E3B2E]/70">Tiada geran dijumpai</p>
-          <p className="text-sm text-[#0E3B2E]/45 mt-1">Cuba tapisan lain atau kata kunci berbeza.</p>
+          <p className="font-semibold text-[#0E3B2E]/70">No listings found</p>
+          <p className="text-sm text-[#0E3B2E]/45 mt-1">Try different filters or search keywords.</p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -212,7 +212,7 @@ export default function GeranDirectory({
                     </div>
                   )}
                   <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                    ✓ Disahkan
+                    ✓ Approved
                   </span>
                 </div>
 

@@ -1,32 +1,33 @@
-// Pilihan & label kongsi untuk Direktori Geran Tanah - diguna oleh borang ahli
-// (components/geran/GeranForm.tsx), direktori carian (components/geran/GeranDirectory.tsx)
-// dan jadual semakan admin (components/geran/GeranAdminTable.tsx).
+// Shared options & labels for the Geran Land Directory - used by the seller
+// form (components/geran/GeranForm.tsx), the search directory
+// (components/geran/GeranDirectory.tsx) and the admin review table
+// (components/geran/GeranAdminTable.tsx).
 
 export const JENIS_TANAH_LABEL: Record<string, string> = {
-  KOSONG: "Tanah Kosong",
-  PERTANIAN: "Pertanian",
-  PEMBANGUNAN: "Pembangunan",
-  PERUMAHAN: "Perumahan",
-  PERINDUSTRIAN: "Perindustrian",
-  KOMERSIAL: "Komersial",
+  KOSONG: "Vacant Land",
+  PERTANIAN: "Agricultural",
+  PEMBANGUNAN: "Development",
+  PERUMAHAN: "Residential",
+  PERINDUSTRIAN: "Industrial",
+  KOMERSIAL: "Commercial",
 };
 
 export const JENIS_HAKMILIK_LABEL: Record<string, string> = {
   FREEHOLD: "Freehold",
   LEASEHOLD: "Leasehold",
-  TIDAK_PASTI: "Tidak Pasti",
+  TIDAK_PASTI: "Uncertain",
 };
 
 export const UNIT_KELUASAN_LABEL: Record<string, string> = {
-  SQFT: "kaki persegi",
-  EKAR: "ekar",
-  HEKTAR: "hektar",
+  SQFT: "sq ft",
+  EKAR: "acre",
+  HEKTAR: "hectare",
 };
 
 export const STATUS_GERAN_LABEL: Record<string, string> = {
-  MENUNGGU_SEMAKAN: "Menunggu Semakan",
-  DISAHKAN: "Disahkan",
-  DITOLAK: "Ditolak",
+  MENUNGGU_SEMAKAN: "Pending Review",
+  DISAHKAN: "Approved",
+  DITOLAK: "Rejected",
 };
 
 export function formatRM(sen: number) {

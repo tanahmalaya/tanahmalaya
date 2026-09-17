@@ -43,9 +43,9 @@ export type GeranAdminRow = {
 };
 
 const TAB_DEF: { key: Status; label: string }[] = [
-  { key: "MENUNGGU_SEMAKAN", label: "Menunggu" },
-  { key: "DISAHKAN", label: "Disahkan" },
-  { key: "DITOLAK", label: "Ditolak" },
+  { key: "MENUNGGU_SEMAKAN", label: "Pending" },
+  { key: "DISAHKAN", label: "Approved" },
+  { key: "DITOLAK", label: "Rejected" },
 ];
 
 const STATUS_BADGE: Record<Status, string> = {
@@ -56,9 +56,9 @@ const STATUS_BADGE: Record<Status, string> = {
 
 const DRONE_LABEL: Record<StatusDrone, string> = {
   TIDAK_BERKAITAN: "-",
-  MENUNGGU_PILOT: "Menunggu Pilot",
-  DIJADUALKAN: "Dijadualkan",
-  SELESAI: "Selesai",
+  MENUNGGU_PILOT: "Awaiting Pilot",
+  DIJADUALKAN: "Scheduled",
+  SELESAI: "Done",
 };
 
 const DRONE_NEXT: Partial<Record<StatusDrone, StatusDrone>> = {
@@ -88,9 +88,9 @@ export default function GeranAdminTable({
   const [bulkLoading, setBulkLoading] = useState(false);
 
   const visible = rows.filter((r) => r.status === tab);
-  // Bulk approve hanya untuk penyenaraian REN sendiri (tak perlu pilih REN
-  // pilihan PLT) - penjual biasa kena lalu alur approve satu-satu supaya
-  // admin pilih REN dahulu.
+  // Bulk approve is only for a REN's own listings (no need to pick a
+  // PLT-assigned REN) - regular sellers must go through the single-approve
+  // flow so admin can pick a REN first.
   const bulkSelectable = visible.filter((r) => r.sellerIsRen);
   const counts = TAB_DEF.reduce<Record<Status, number>>((acc, t) => {
     acc[t.key] = rows.filter((r) => r.status === t.key).length;
@@ -121,7 +121,7 @@ export default function GeranAdminTable({
       body: JSON.stringify({ geranId, status, catatanAdmin: opts?.catatanAdmin, renId: opts?.renId }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Gagal kemaskini status");
+    if (!res.ok) throw new Error(data.error || "Failed to update status");
   }
 
   async function handleSingleAction(geranId: string, status: "DISAHKAN" | "DITOLAK", opts?: { catatanAdmin?: string; renId?: string }) {
@@ -165,7 +165,7 @@ export default function GeranAdminTable({
         body: JSON.stringify({ geranId, statusDroneSurvey: next }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal kemaskini status drone");
+      if (!res.ok) throw new Error(data.error || "Failed to update drone status");
       router.refresh();
     } catch (err) {
       alert((err as Error).message);
@@ -196,20 +196,20 @@ export default function GeranAdminTable({
         <div className="flex flex-wrap items-center gap-2 mb-4 bg-brand-cream/50 border border-brand-dark/10 rounded-md px-4 py-3">
           <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
             <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-            Select All (REN sahaja)
+            Select All (REN only)
           </label>
           <button
             onClick={handleBulkApprove}
             disabled={bulkLoading || selected.size === 0}
             className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
           >
-            {bulkLoading ? "MEMPROSES..." : `SAHKAN (${selected.size})`}
+            {bulkLoading ? "PROCESSING..." : `APPROVE (${selected.size})`}
           </button>
         </div>
       )}
 
       {visible.length === 0 ? (
-        <p className="text-brand-dark/50 text-sm">Tiada penyenaraian dalam kategori ini.</p>
+        <p className="text-brand-dark/50 text-sm">No listings in this category.</p>
       ) : (
         <div className="space-y-3">
           {visible.map((g) => (
@@ -229,11 +229,11 @@ export default function GeranAdminTable({
                     </p>
                     {g.sellerIsRen ? (
                       <span className="inline-block mt-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
-                        🏢 Penjual REN sendiri
+                        🏢 REN's own listing
                       </span>
                     ) : g.assignedRenNama ? (
                       <span className="inline-block mt-1 text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5">
-                        REN pilihan PLT: {g.assignedRenNama}
+                        PLT-assigned REN: {g.assignedRenNama}
                       </span>
                     ) : null}
                   </div>
@@ -248,17 +248,17 @@ export default function GeranAdminTable({
 
               <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-brand-dark/60 mb-3">
                 <p>
-                  <span className="text-brand-dark/40">Penjual:</span> {g.namaPenjual}
+                  <span className="text-brand-dark/40">Seller:</span> {g.namaPenjual}
                 </p>
                 <p>
-                  <span className="text-brand-dark/40">Telefon:</span> {g.telefonPenjual}
+                  <span className="text-brand-dark/40">Phone:</span> {g.telefonPenjual}
                 </p>
                 <p className="sm:col-span-2">
-                  <span className="text-brand-dark/40">E-mel:</span> {g.emelPenjual}
+                  <span className="text-brand-dark/40">Email:</span> {g.emelPenjual}
                 </p>
                 {(g.nomborLot || g.nomborGeran) && (
                   <p className="sm:col-span-2">
-                    <span className="text-brand-dark/40">Lot/Geran:</span> {g.nomborLot || "-"} / {g.nomborGeran || "-"}
+                    <span className="text-brand-dark/40">Lot/Grant:</span> {g.nomborLot || "-"} / {g.nomborGeran || "-"}
                   </p>
                 )}
               </div>
@@ -269,7 +269,7 @@ export default function GeranAdminTable({
                 <div className="flex gap-2 mb-3 flex-wrap">
                   {g.gambarUrls.map((url) => (
                     <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="text-xs underline text-brand-gold">
-                      Gambar →
+                      Photo →
                     </a>
                   ))}
                 </div>
@@ -284,14 +284,14 @@ export default function GeranAdminTable({
                       disabled={loadingId === g.id}
                       className="ml-auto bg-blue-600 text-white text-[11px] font-semibold rounded-sm px-2.5 py-1 disabled:opacity-50"
                     >
-                      Tanda: {DRONE_LABEL[DRONE_NEXT[g.statusDroneSurvey]!]}
+                      Mark: {DRONE_LABEL[DRONE_NEXT[g.statusDroneSurvey]!]}
                     </button>
                   )}
                 </div>
               )}
 
               {g.status === "DITOLAK" && g.catatanAdmin && (
-                <p className="text-xs text-red-600 mt-2">Sebab ditolak: {g.catatanAdmin}</p>
+                <p className="text-xs text-red-600 mt-2">Rejection reason: {g.catatanAdmin}</p>
               )}
 
               {g.status === "MENUNGGU_SEMAKAN" && (
@@ -305,14 +305,14 @@ export default function GeranAdminTable({
                     disabled={loadingId === g.id}
                     className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    SAHKAN
+                    APPROVE
                   </button>
                   <button
                     onClick={() => setRejectingId(rejectingId === g.id ? null : g.id)}
                     disabled={loadingId === g.id}
                     className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    TOLAK
+                    REJECT
                   </button>
                 </div>
               )}
@@ -320,14 +320,14 @@ export default function GeranAdminTable({
               {assigningId === g.id && (
                 <div className="mt-3 pt-3 border-t border-brand-dark/10">
                   <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">
-                    Pilih REN pilihan PLT untuk uruskan penyenaraian ni
+                    Choose a PLT-assigned REN to manage this listing
                   </label>
                   <select
                     value={selectedRenId}
                     onChange={(e) => setSelectedRenId(e.target.value)}
                     className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
                   >
-                    <option value="">Pilih REN...</option>
+                    <option value="">Select REN...</option>
                     {renOptions.map((r) => (
                       <option key={r.id} value={r.id}>
                         {r.fullName}
@@ -336,7 +336,7 @@ export default function GeranAdminTable({
                   </select>
                   {renOptions.length === 0 && (
                     <p className="text-xs text-red-600 mb-2">
-                      Tiada REN disahkan lagi - sahkan sekurang-kurangnya satu permohonan di /admin/ren dahulu.
+                      No approved REN yet - approve at least one application at /admin/ren first.
                     </p>
                   )}
                   <button
@@ -344,27 +344,27 @@ export default function GeranAdminTable({
                     disabled={loadingId === g.id || !selectedRenId}
                     className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    SAHKAN & TETAPKAN REN
+                    APPROVE & ASSIGN REN
                   </button>
                 </div>
               )}
 
               {rejectingId === g.id && (
                 <div className="mt-3 pt-3 border-t border-brand-dark/10">
-                  <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">Sebab ditolak</label>
+                  <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">Rejection reason</label>
                   <textarea
                     rows={2}
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
-                    placeholder="Contoh: Maklumat lot tidak lengkap"
+                    placeholder="e.g. Lot details incomplete"
                   />
                   <button
                     onClick={() => handleSingleAction(g.id, "DITOLAK", { catatanAdmin: rejectReason })}
                     disabled={loadingId === g.id || !rejectReason.trim()}
                     className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    SAHKAN TOLAK
+                    CONFIRM REJECT
                   </button>
                 </div>
               )}

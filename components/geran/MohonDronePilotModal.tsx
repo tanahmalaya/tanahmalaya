@@ -57,7 +57,7 @@ export default function MohonDronePilotModal({
         body: JSON.stringify({ namaPenuh, telefon, negeri, modelDrone }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal hantar permohonan");
+      if (!res.ok) throw new Error(data.error || "Failed to submit application");
 
       setStatusInfo({ status: "MENUNGGU_SEMAKAN", catatanAdmin: null });
       setOpen(false);
@@ -71,7 +71,7 @@ export default function MohonDronePilotModal({
   if (!isLoggedIn) {
     return (
       <Link href={`/geran/log-masuk?redirect=${encodeURIComponent(redirectPath)}`} className={TRIGGER_CHIP}>
-        🚁 Mohon Jadi Drone Pilot
+        🚁 Apply to be a Drone Pilot
       </Link>
     );
   }
@@ -88,11 +88,11 @@ export default function MohonDronePilotModal({
             onClick={() => setStatusInfo(null)}
             className="text-xs underline text-[#0E3B2E]/60 ml-auto"
           >
-            Mohon semula
+            Apply again
           </button>
         )}
         {statusInfo.status === "DITOLAK" && statusInfo.catatanAdmin && (
-          <span className="sr-only">Sebab: {statusInfo.catatanAdmin}</span>
+          <span className="sr-only">Reason: {statusInfo.catatanAdmin}</span>
         )}
       </div>
     );
@@ -101,30 +101,30 @@ export default function MohonDronePilotModal({
   return (
     <>
       <button onClick={() => setOpen(true)} className={TRIGGER_CHIP}>
-        🚁 Mohon Jadi Drone Pilot
+        🚁 Apply to be a Drone Pilot
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-bold text-[#0E3B2E]">Mohon Jadi Drone Pilot</h2>
+              <h2 className="font-bold text-[#0E3B2E]">Apply to be a Drone Pilot</h2>
               <button
                 onClick={() => setOpen(false)}
                 className="text-[#0E3B2E]/40 hover:text-[#0E3B2E] text-lg leading-none"
-                aria-label="Tutup"
+                aria-label="Close"
               >
                 ✕
               </button>
             </div>
             <p className="text-[#0E3B2E]/60 text-sm mb-5">
-              Bantu PLT tangkap gambar/footage udara untuk penyenaraian yang minta drone survey. Isi
-              maklumat diri &amp; model drone anda di bawah.
+              Help PLT capture aerial photos/footage for listings that request a drone survey. Fill in your
+              details &amp; drone model below.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className={GERAN_LABEL}>Nama Penuh</label>
+                <label className={GERAN_LABEL}>Full Name</label>
                 <input
                   required
                   value={namaPenuh}
@@ -134,7 +134,7 @@ export default function MohonDronePilotModal({
               </div>
 
               <div>
-                <label className={GERAN_LABEL}>No. Telefon</label>
+                <label className={GERAN_LABEL}>Phone No.</label>
                 <input
                   required
                   value={telefon}
@@ -144,7 +144,7 @@ export default function MohonDronePilotModal({
               </div>
 
               <div>
-                <label className={GERAN_LABEL}>Negeri Berkhidmat</label>
+                <label className={GERAN_LABEL}>State of Service</label>
                 <select value={negeri} onChange={(e) => setNegeri(e.target.value)} className={GERAN_INPUT}>
                   {NEGERI_LIST.map((n) => (
                     <option key={n} value={n}>
@@ -155,12 +155,12 @@ export default function MohonDronePilotModal({
               </div>
 
               <div>
-                <label className={GERAN_LABEL}>Model Drone</label>
+                <label className={GERAN_LABEL}>Drone Model</label>
                 <input
                   required
                   value={modelDrone}
                   onChange={(e) => setModelDrone(e.target.value)}
-                  placeholder="Contoh: DJI Mavic 3"
+                  placeholder="e.g. DJI Mavic 3"
                   className={GERAN_INPUT}
                 />
               </div>
@@ -174,17 +174,17 @@ export default function MohonDronePilotModal({
                   className="mt-0.5"
                 />
                 <span className="text-sm text-[#0E3B2E]/80">
-                  Saya sahkan maklumat di atas adalah benar dan tepat. Maklumat palsu boleh menyebabkan
-                  akaun digantung.
+                  I confirm the information above is true and accurate. False information may result in
+                  account suspension.
                 </span>
               </label>
 
               <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
                 <span>ℹ️</span>
                 <span>
-                  <span className="font-semibold">Apa akan berlaku seterusnya?</span> Selepas anda hantar
-                  permohonan, admin PLT akan semak maklumat anda dan hubungi terus untuk pengesahan sebelum
-                  anda diaktifkan sebagai Drone Pilot.
+                  <span className="font-semibold">What happens next?</span> After you submit, PLT admin will
+                  review your details and contact you directly to confirm before you're activated as a
+                  Drone Pilot.
                 </span>
               </div>
 
@@ -196,10 +196,10 @@ export default function MohonDronePilotModal({
                   onClick={() => setOpen(false)}
                   className="flex-1 border border-black/10 text-[#0E3B2E] font-semibold py-3 rounded-full"
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button type="submit" disabled={loading || !akuan} className={`flex-1 ${GERAN_BTN_PRIMARY}`}>
-                  {loading ? "MENGHANTAR..." : "Hantar Permohonan"}
+                  {loading ? "SUBMITTING..." : "Submit Application"}
                 </button>
               </div>
             </form>

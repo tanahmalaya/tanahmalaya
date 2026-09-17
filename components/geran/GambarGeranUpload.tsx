@@ -23,7 +23,7 @@ export default function GambarGeranUpload({
     const baki = MAX_GAMBAR - value.length;
     const senarai = Array.from(files).slice(0, baki);
     if (senarai.length === 0) {
-      setError(`Had maksimum ${MAX_GAMBAR} gambar.`);
+      setError(`Maximum limit of ${MAX_GAMBAR} photos.`);
       return;
     }
 
@@ -32,7 +32,7 @@ export default function GambarGeranUpload({
       const urlBaru: string[] = [];
       for (const file of senarai) {
         if (file.size > 10 * 1024 * 1024) {
-          setError(`"${file.name}" melebihi had 10MB, dilangkau.`);
+          setError(`"${file.name}" exceeds the 10MB limit, skipped.`);
           continue;
         }
         // eslint-disable-next-line no-await-in-loop
@@ -44,7 +44,7 @@ export default function GambarGeranUpload({
       }
       onChange([...value, ...urlBaru]);
     } catch {
-      setError("Gagal memuat naik gambar. Sila cuba lagi.");
+      setError("Failed to upload photo. Please try again.");
     } finally {
       setStatus("idle");
       if (inputRef.current) inputRef.current.value = "";
@@ -62,12 +62,12 @@ export default function GambarGeranUpload({
           {value.map((url) => (
             <div key={url} className="relative aspect-square rounded-xl overflow-hidden border border-black/10 group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="Gambar tanah" className="w-full h-full object-cover" />
+              <img src={url} alt="Land photo" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => buang(url)}
                 className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs leading-none active:bg-black/80"
-                aria-label="Buang gambar"
+                aria-label="Remove photo"
               >
                 ✕
               </button>
@@ -87,9 +87,9 @@ export default function GambarGeranUpload({
           className="w-full text-sm border border-brand-dark/20 rounded-xl p-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-gold file:text-brand-dark file:font-semibold file:text-xs disabled:opacity-60"
         />
       )}
-      {status === "memuatnaik" && <p className="mt-1 text-xs text-brand-dark/50">Memuat naik...</p>}
+      {status === "memuatnaik" && <p className="mt-1 text-xs text-brand-dark/50">Uploading...</p>}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      <p className="mt-1 text-xs text-brand-dark/40">Maksimum {MAX_GAMBAR} gambar (pilihan, tidak wajib).</p>
+      <p className="mt-1 text-xs text-brand-dark/40">Maximum {MAX_GAMBAR} photos (optional).</p>
     </div>
   );
 }

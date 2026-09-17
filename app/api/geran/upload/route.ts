@@ -4,12 +4,12 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getSellerSession } from "@/lib/sellerAuth";
 
-// Token upload terus dari browser ke Vercel Blob untuk gambar Geran - lihat
-// components/geran/GambarGeranUpload.tsx. Sama pattern macam
+// Upload token straight from the browser to Vercel Blob for Geran photos -
+// see components/geran/GambarGeranUpload.tsx. Same pattern as
 // app/api/petty-cash/upload/route.ts.
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!getSellerSession()) {
-    return NextResponse.json({ error: "Tidak dibenarkan" }, { status: 401 });
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
   const body = (await request.json()) as HandleUploadBody;
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request,
       onBeforeGenerateToken: async (pathname) => {
         if (!pathname.startsWith("geran/gambar/")) {
-          throw new Error("Laluan muat naik tidak sah.");
+          throw new Error("Invalid upload path.");
         }
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],

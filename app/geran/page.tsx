@@ -11,9 +11,9 @@ import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/ge
 import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
 
 export const metadata = {
-  title: "Geran - Direktori Tanah Bergeran Untuk Dijual",
+  title: "Geran - Titled Land Directory For Sale",
   description:
-    "Cari & tapis tanah bergeran (hakmilik jelas) yang disenaraikan untuk dijual di seluruh Malaysia. Setiap penyenaraian disemak & disahkan PLT dahulu.",
+    "Search & filter titled land (clear ownership) listed for sale across Malaysia. Every listing is reviewed & verified by PLT first.",
   alternates: { canonical: "/geran" },
 };
 
@@ -71,7 +71,7 @@ export default async function GeranPage() {
               </Link>
             )}
             <Link href="/geran/jual" className={GERAN_BTN_PRIMARY_INLINE}>
-              + Jual Tanah Anda
+              + List Your Land
             </Link>
           </div>
         }
@@ -80,11 +80,11 @@ export default async function GeranPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-5">
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0E3B2E]">
-            Cari Tanah Bergeran
+            Find Titled Land
           </h1>
           <p className="text-[#0E3B2E]/55 text-[15px] mt-1 max-w-xl">
-            Direktori tanah bergeran (hakmilik jelas) untuk dijual — setiap penyenaraian disemak &amp;
-            disahkan dahulu.
+            Directory of titled land (clear ownership) for sale — every listing is reviewed &amp; verified
+            first.
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
             <MohonRenModal

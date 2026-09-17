@@ -2,10 +2,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import GeranLogo from "@/components/geran/GeranLogo";
 
-// Navbar putih ringkas & bersih (gaya broka.com.my) - logo+wordmark kiri,
-// tindakan (CTA/log keluar) kanan, sticky, sempadan halus bawah. Diguna di
-// /geran, /geran/jual dan /geran/log-masuk. Berasingan daripada Header.tsx
-// utama (yang kekal untuk navigasi keseluruhan laman tanahmalaya.org).
+// Clean, minimal white navbar (broka.com.my style) - logo+wordmark on the
+// left, actions (CTA/log out) on the right, sticky, subtle bottom border.
+// Used on /geran, /geran/jual and /geran/log-masuk. Kept separate from the
+// main Header.tsx (which stays for tanahmalaya.org's overall navigation).
 export default function GeranBrandHeader({
   action,
   back,

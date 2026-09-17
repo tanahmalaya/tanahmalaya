@@ -24,27 +24,27 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const session = getSellerSession();
   if (!session) {
-    return NextResponse.json({ error: "Sila log masuk semula" }, { status: 401 });
+    return NextResponse.json({ error: "Please log in again" }, { status: 401 });
   }
 
   const seller = await prisma.seller.findUnique({ where: { id: session.sellerId } });
   if (!seller) {
-    return NextResponse.json({ error: "Tidak dibenarkan" }, { status: 403 });
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
 
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Data tidak sah" }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid data" }, { status: 400 });
   }
 
   const data = parsed.data;
   const mintaDrone = data.mintaDroneSurvey ?? false;
 
-  // Penjual REN berdaftar PLT: penyenaraian terus DISAHKAN (auto-approve),
-  // REN itu sendiri jadi assignedRen. Penjual biasa kekal MENUNGGU_SEMAKAN -
-  // admin wajib pilih REN pilihan PLT semasa kelulusan (lihat
-  // app/api/admin/geran/update-status).
+  // PLT-registered REN seller: listing goes straight to DISAHKAN
+  // (auto-approve), with the REN themselves as assignedRen. Regular sellers
+  // stay at MENUNGGU_SEMAKAN - admin must pick a PLT-assigned REN on
+  // approval (see app/api/admin/geran/update-status).
   const geran = await prisma.geran.create({
     data: {
       sellerId: seller.id,

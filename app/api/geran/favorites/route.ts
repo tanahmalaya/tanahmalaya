@@ -7,18 +7,18 @@ import { getSellerSession } from "@/lib/sellerAuth";
 
 const schema = z.object({ geranId: z.string().min(1) });
 
-// Togol favorite (tambah jika belum simpan, buang jika dah simpan) - lihat
+// Toggle favorite (add if not saved, remove if already saved) - see
 // components/geran/FavoriteButton.tsx & app/geran/favorite/page.tsx.
 export async function POST(req: NextRequest) {
   const session = getSellerSession();
   if (!session) {
-    return NextResponse.json({ error: "Sila log masuk semula" }, { status: 401 });
+    return NextResponse.json({ error: "Please log in again" }, { status: 401 });
   }
 
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Data tidak sah" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   }
 
   const { geranId } = parsed.data;
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   const geran = await prisma.geran.findUnique({ where: { id: geranId } });
   if (!geran) {
-    return NextResponse.json({ error: "Geran tidak dijumpai" }, { status: 404 });
+    return NextResponse.json({ error: "Geran not found" }, { status: 404 });
   }
 
   await prisma.geranFavorite.create({ data: { sellerId: session.sellerId, geranId } });

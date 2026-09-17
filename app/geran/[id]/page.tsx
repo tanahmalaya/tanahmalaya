@@ -47,7 +47,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
 
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
-      <GeranBrandHeader back={<BackButton href="/geran" label="Direktori" variant="light" />} />
+      <GeranBrandHeader back={<BackButton href="/geran" label="Directory" variant="light" />} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} />
@@ -66,27 +66,27 @@ export default async function GeranDetailPage({ params }: { params: { id: string
 
             {geran.keterangan && (
               <div className="bg-white border border-black/[0.06] rounded-2xl p-5">
-                <h2 className="font-bold text-[#0E3B2E] mb-2">Keterangan</h2>
+                <h2 className="font-bold text-[#0E3B2E] mb-2">Description</h2>
                 <p className="text-sm text-[#0E3B2E]/70 whitespace-pre-line leading-relaxed">{geran.keterangan}</p>
               </div>
             )}
 
             <div className="bg-white border border-black/[0.06] rounded-2xl p-5">
-              <h2 className="font-bold text-[#0E3B2E] mb-3">Butiran Tanah</h2>
+              <h2 className="font-bold text-[#0E3B2E] mb-3">Land Details</h2>
               <dl className="grid grid-cols-2 gap-y-3 text-sm">
-                <dt className="text-[#0E3B2E]/45">Keluasan</dt>
+                <dt className="text-[#0E3B2E]/45">Land Size</dt>
                 <dd className="text-[#0E3B2E] font-semibold">{formatKeluasan(geran.keluasan, geran.unitKeluasan)}</dd>
-                <dt className="text-[#0E3B2E]/45">Jenis Tanah</dt>
+                <dt className="text-[#0E3B2E]/45">Land Type</dt>
                 <dd className="text-[#0E3B2E] font-semibold">{JENIS_TANAH_LABEL[geran.jenisTanah]}</dd>
                 {geran.nomborLot && (
                   <>
-                    <dt className="text-[#0E3B2E]/45">No. Lot</dt>
+                    <dt className="text-[#0E3B2E]/45">Lot No.</dt>
                     <dd className="text-[#0E3B2E] font-semibold">{geran.nomborLot}</dd>
                   </>
                 )}
                 {geran.nomborGeran && (
                   <>
-                    <dt className="text-[#0E3B2E]/45">No. Geran</dt>
+                    <dt className="text-[#0E3B2E]/45">Grant No.</dt>
                     <dd className="text-[#0E3B2E] font-semibold">{geran.nomborGeran}</dd>
                   </>
                 )}
@@ -94,22 +94,22 @@ export default async function GeranDetailPage({ params }: { params: { id: string
             </div>
 
             <div className="bg-white border border-black/[0.06] rounded-2xl p-5">
-              <h2 className="font-bold text-[#0E3B2E] mb-3">Maklumat Perundangan</h2>
+              <h2 className="font-bold text-[#0E3B2E] mb-3">Legal Information</h2>
               <dl className="grid grid-cols-2 gap-y-3 text-sm">
-                <dt className="text-[#0E3B2E]/45">Jenis Hakmilik</dt>
+                <dt className="text-[#0E3B2E]/45">Title Type</dt>
                 <dd className="text-[#0E3B2E] font-semibold">{JENIS_HAKMILIK_LABEL[geran.jenisHakmilik]}</dd>
-                <dt className="text-[#0E3B2E]/45">Kegunaan Tanah</dt>
+                <dt className="text-[#0E3B2E]/45">Land Use</dt>
                 <dd className="text-[#0E3B2E] font-semibold">{JENIS_TANAH_LABEL[geran.jenisTanah]}</dd>
               </dl>
               <p className="text-xs text-[#0E3B2E]/40 mt-3">
-                Maklumat berdasarkan penyenaraian penjual, disemak PLT sebelum diterbitkan. Sila sahkan butiran
-                geran sebenar sebelum transaksi.
+                Information is based on the seller's listing, reviewed by PLT before publishing. Please
+                verify the actual title details before any transaction.
               </p>
             </div>
 
             {serupa.length > 0 && (
               <div>
-                <h2 className="font-bold text-[#0E3B2E] mb-3">Tanah Serupa</h2>
+                <h2 className="font-bold text-[#0E3B2E] mb-3">Similar Land</h2>
                 <div className="grid sm:grid-cols-3 gap-3">
                   {serupa.map((s) => (
                     <Link

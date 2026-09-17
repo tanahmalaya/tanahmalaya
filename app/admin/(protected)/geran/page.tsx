@@ -44,7 +44,7 @@ export default async function AdminGeranPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">Geran (Marketplace Jual Tanah)</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">Geran (Land Sale Marketplace)</h1>
       <GeranAdminTable rows={rows} renOptions={renOptionsRaw} />
     </div>
   );

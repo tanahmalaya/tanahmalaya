@@ -22,15 +22,15 @@ export default function GeranDetailActions({
 
   return (
     <div className="bg-white border border-black/[0.06] rounded-2xl p-5 shadow-sm shadow-black/[0.04]">
-      <p className="font-bold text-[#0E3B2E] mb-1">Berminat dengan tanah ini?</p>
+      <p className="font-bold text-[#0E3B2E] mb-1">Interested in this land?</p>
       <p className="text-sm text-[#0E3B2E]/55 mb-4">
-        Hubungi PLT untuk soalan lanjut atau susulan dengan penjual.
+        Contact PLT for further questions or to follow up with the seller.
       </p>
 
       {isLoggedIn ? (
         <div className="flex items-center gap-3">
           <a href={`/hubungi-kami?ref=geran-${seq}`} className={GERAN_BTN_PRIMARY}>
-            Hubungi PLT
+            Contact PLT
           </a>
           <FavoriteButton
             geranId={geranId}
@@ -44,10 +44,10 @@ export default function GeranDetailActions({
       ) : (
         <div>
           <Link href={`/geran/log-masuk?redirect=${encodeURIComponent(detailPath)}`} className={GERAN_BTN_PRIMARY}>
-            Log Masuk untuk Hubungi
+            Log In to Contact
           </Link>
           <p className="text-xs text-[#0E3B2E]/45 mt-2">
-            Daftar akaun percuma untuk hubungi PLT &amp; simpan tanah ke favorite.
+            Sign up for a free account to contact PLT &amp; save land to favorite.
           </p>
         </div>
       )}

@@ -8,11 +8,11 @@ import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 
 export const metadata = {
-  title: "Jual Tanah - Senaraikan Geran",
+  title: "Sell Land - List on Geran",
   robots: { index: false },
 };
 
-// Kawasan akaun Penjual sahaja - lihat lib/sellerAuth.ts.
+// Seller account area only - see lib/sellerAuth.ts.
 export default async function JualTanahPage() {
   const seller = await requireSeller("/geran/jual");
 
@@ -40,18 +40,18 @@ export default async function JualTanahPage() {
   return (
     <div className="bg-[#F6F4EE] min-h-screen text-[#0E3B2E]">
       <GeranBrandHeader
-        back={<BackButton href="/geran" label="Direktori" variant="light" />}
+        back={<BackButton href="/geran" label="Directory" variant="light" />}
         action={
           <form action="/api/sellers/logout" method="POST">
             <button type="submit" className="text-[#0E3B2E]/50 hover:text-[#0E3B2E] underline text-sm">
-              Log Keluar
+              Log Out
             </button>
           </form>
         }
       />
 
       <div className="max-w-2xl mx-auto px-6 py-8">
-        <p className="text-sm text-[#0E3B2E]/55 mb-6">Ahli: {seller.fullName}</p>
+        <p className="text-sm text-[#0E3B2E]/55 mb-6">Member: {seller.fullName}</p>
         <GeranForm namaPenjual={seller.fullName} initialHistory={history} isRen={seller.renDisahkan} />
       </div>
 

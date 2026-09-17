@@ -26,7 +26,7 @@ export default async function AdminRenPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">REN Berdaftar PLT</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">PLT-Registered REN</h1>
       <RenAdminTable rows={rows} />
     </div>
   );

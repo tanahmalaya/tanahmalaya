@@ -100,7 +100,7 @@ export default function GeranForm({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal hantar penyenaraian");
+      if (!res.ok) throw new Error(data.error || "Failed to submit listing");
 
       const status: StatusGeran = data.status ?? "MENUNGGU_SEMAKAN";
       setJustSubmittedSeq(data.seq);
@@ -143,37 +143,37 @@ export default function GeranForm({
     <div className="space-y-6">
       <div className={CARD}>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[#0E3B2E] font-bold">SENARAIKAN TANAH ANDA</h2>
+          <h2 className="text-[#0E3B2E] font-bold">LIST YOUR LAND</h2>
           <span className="text-xs text-[#0E3B2E]/50">{namaPenjual}</span>
         </div>
         <p className="text-[#0E3B2E]/60 text-sm mb-5">
           {isRen
-            ? "Anda REN berdaftar PLT - penyenaraian anda disahkan automatik & terus dipaparkan dalam direktori Geran."
-            : "Isi butiran tanah bergeran anda. Penyenaraian akan disemak & diletakkan di bawah REN pilihan PLT sebelum dipaparkan dalam direktori Geran."}
+            ? "You're a PLT-registered REN - your listing is approved automatically and goes straight to the Geran directory."
+            : "Fill in your titled land details. Your listing will be reviewed and placed under a PLT-chosen REN before it appears in the Geran directory."}
         </p>
 
         {justSubmittedSeq !== null && (
           <div className="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl p-3">
-            Penyenaraian #{justSubmittedSeq} berjaya dihantar. Status:{" "}
-            {justSubmittedStatus === "DISAHKAN" ? "Disahkan (auto-approve REN)" : "Menunggu semakan PLT"}.
+            Listing #{justSubmittedSeq} submitted successfully. Status:{" "}
+            {justSubmittedStatus === "DISAHKAN" ? "Approved (REN auto-approve)" : "Pending PLT review"}.
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={LABEL}>Tajuk Penyenaraian</label>
+            <label className={LABEL}>Listing Title</label>
             <input
               required
               value={tajuk}
               onChange={(e) => setTajuk(e.target.value)}
-              placeholder="Contoh: 3 Ekar Tanah Pertanian, Jeram Pasu"
+              placeholder="e.g. 3 Acres Agricultural Land, Jeram Pasu"
               className={INPUT}
             />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>Negeri</label>
+              <label className={LABEL}>State</label>
               <select value={negeri} onChange={(e) => setNegeri(e.target.value)} className={INPUT}>
                 {NEGERI_LIST.map((n) => (
                   <option key={n} value={n}>
@@ -183,12 +183,12 @@ export default function GeranForm({
               </select>
             </div>
             <div>
-              <label className={LABEL}>Daerah / Mukim</label>
+              <label className={LABEL}>District / Mukim</label>
               <input
                 required
                 value={daerahMukim}
                 onChange={(e) => setDaerahMukim(e.target.value)}
-                placeholder="Contoh: Pasir Puteh"
+                placeholder="e.g. Pasir Puteh"
                 className={INPUT}
               />
             </div>
@@ -196,18 +196,18 @@ export default function GeranForm({
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>No. Lot (pilihan)</label>
+              <label className={LABEL}>Lot No. (optional)</label>
               <input value={nomborLot} onChange={(e) => setNomborLot(e.target.value)} className={INPUT} />
             </div>
             <div>
-              <label className={LABEL}>No. Geran (pilihan)</label>
+              <label className={LABEL}>Grant No. (optional)</label>
               <input value={nomborGeran} onChange={(e) => setNomborGeran(e.target.value)} className={INPUT} />
             </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>Jenis Tanah</label>
+              <label className={LABEL}>Land Type</label>
               <select value={jenisTanah} onChange={(e) => setJenisTanah(e.target.value as JenisTanah)} className={INPUT}>
                 {(Object.keys(JENIS_TANAH_LABEL) as JenisTanah[]).map((k) => (
                   <option key={k} value={k}>
@@ -217,7 +217,7 @@ export default function GeranForm({
               </select>
             </div>
             <div>
-              <label className={LABEL}>Jenis Hakmilik</label>
+              <label className={LABEL}>Title Type</label>
               <select
                 value={jenisHakmilik}
                 onChange={(e) => setJenisHakmilik(e.target.value as JenisHakmilik)}
@@ -234,7 +234,7 @@ export default function GeranForm({
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <label className={LABEL}>Keluasan</label>
+              <label className={LABEL}>Land Size</label>
               <input
                 type="number"
                 min="0.01"
@@ -256,7 +256,7 @@ export default function GeranForm({
               </select>
             </div>
             <div>
-              <label className={LABEL}>Harga Tawaran (RM)</label>
+              <label className={LABEL}>Asking Price (RM)</label>
               <input
                 type="number"
                 min="1"
@@ -270,18 +270,18 @@ export default function GeranForm({
           </div>
 
           <div>
-            <label className={LABEL}>Keterangan Tambahan (pilihan)</label>
+            <label className={LABEL}>Additional Description (optional)</label>
             <textarea
               rows={3}
               value={keterangan}
               onChange={(e) => setKeterangan(e.target.value)}
-              placeholder="Contoh: Akses jalan tar, berhampiran sungai, sesuai untuk kebun durian"
+              placeholder="e.g. Paved road access, near a river, suitable for a durian orchard"
               className={INPUT}
             />
           </div>
 
           <div>
-            <label className={LABEL}>Gambar Tanah (pilihan)</label>
+            <label className={LABEL}>Land Photos (optional)</label>
             <GambarGeranUpload value={gambarUrls} onChange={setGambarUrls} />
           </div>
 
@@ -293,11 +293,11 @@ export default function GeranForm({
               className="mt-0.5"
             />
             <span className="text-sm">
-              <span className="font-semibold">Minta Drone Survey (pilihan)</span>
+              <span className="font-semibold">Request Drone Survey (optional)</span>
               <br />
               <span className="text-[#0E3B2E]/50 text-xs">
-                PLT akan hubungi anda untuk jadualkan drone pilot bagi tangkap gambar/footage udara lot
-                tanah ini.
+                PLT will contact you to schedule a drone pilot to capture aerial photos/footage of this
+                land lot.
               </span>
             </span>
           </label>
@@ -305,15 +305,15 @@ export default function GeranForm({
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-            {loading ? "MENGHANTAR..." : "HANTAR PENYENARAIAN"}
+            {loading ? "SUBMITTING..." : "SUBMIT LISTING"}
           </button>
         </form>
       </div>
 
       <div className={CARD}>
-        <h2 className="text-[#0E3B2E] font-bold mb-4">SENARAI GERAN SAYA</h2>
+        <h2 className="text-[#0E3B2E] font-bold mb-4">MY LISTINGS</h2>
         {history.length === 0 ? (
-          <p className="text-[#0E3B2E]/50 text-sm">Belum ada tanah disenaraikan.</p>
+          <p className="text-[#0E3B2E]/50 text-sm">No land listed yet.</p>
         ) : (
           <div className="space-y-3">
             {history.map((g) => (
@@ -334,10 +334,10 @@ export default function GeranForm({
                 <p className="text-sm text-[#0E3B2E]/70 mb-1">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
                 <p className="font-bold text-[#0E3B2E] text-sm">{formatRM(g.hargaSen)}</p>
                 {g.mintaDroneSurvey && (
-                  <p className="text-xs text-blue-600 mt-1.5">📹 Permintaan drone survey dihantar</p>
+                  <p className="text-xs text-blue-600 mt-1.5">📹 Drone survey request sent</p>
                 )}
                 {g.status === "DITOLAK" && g.catatanAdmin && (
-                  <p className="text-xs text-red-600 mt-1.5">Sebab: {g.catatanAdmin}</p>
+                  <p className="text-xs text-red-600 mt-1.5">Reason: {g.catatanAdmin}</p>
                 )}
               </div>
             ))}

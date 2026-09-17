@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import LoginJualTanahForm from "@/components/geran/LoginJualTanahForm";
 
 export const metadata = {
-  title: "Log Masuk Jual Tanah",
+  title: "Log In to Sell Land",
   robots: { index: false },
 };
 

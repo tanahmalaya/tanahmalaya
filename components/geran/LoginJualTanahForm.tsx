@@ -37,7 +37,7 @@ export default function LoginJualTanahForm() {
       body: JSON.stringify({ fullName, phone, email }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Gagal hantar kod");
+    if (!res.ok) throw new Error(data.error || "Failed to send code");
     setMaskedEmail(data.maskedEmail);
   }
 
@@ -61,7 +61,7 @@ export default function LoginJualTanahForm() {
     setInfo("");
     try {
       await requestOtp();
-      setInfo("Kod baharu telah dihantar.");
+      setInfo("A new code has been sent.");
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -80,7 +80,7 @@ export default function LoginJualTanahForm() {
         body: JSON.stringify({ email, code }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal sahkan kod");
+      if (!res.ok) throw new Error(data.error || "Failed to verify code");
       router.push(redirectTo);
       router.refresh();
     } catch (err) {
@@ -92,50 +92,50 @@ export default function LoginJualTanahForm() {
 
   return (
     <div className="bg-[#F6F4EE] min-h-screen text-[#0E3B2E]">
-      <GeranBrandHeader back={<BackButton href="/geran" label="Direktori" variant="light" />} />
+      <GeranBrandHeader back={<BackButton href="/geran" label="Directory" variant="light" />} />
 
       <div className="max-w-lg mx-auto px-6 py-10">
-        <p className="text-sm text-[#0E3B2E]/55 mb-6">Daftar akaun ringkas untuk senaraikan tanah anda di Geran.</p>
+        <p className="text-sm text-[#0E3B2E]/55 mb-6">Sign up for a quick account to list your land on Geran.</p>
         <div className={CARD}>
           {step === "daftar" ? (
             <>
-              <h2 className="text-[#0E3B2E] font-bold mb-1">DAFTAR / LOG MASUK</h2>
+              <h2 className="text-[#0E3B2E] font-bold mb-1">SIGN UP / LOG IN</h2>
               <p className="text-[#0E3B2E]/60 text-sm mb-5">
-                Isi maklumat anda di bawah. Kod pengesahan 6-digit akan dihantar ke e-mel yang didaftarkan
-                (ahli sedia ada boleh guna borang sama untuk log masuk semula).
+                Fill in your details below. A 6-digit verification code will be sent to your registered
+                email (existing members can use the same form to log back in).
               </p>
 
               <form onSubmit={handleDaftarSubmit} className="space-y-4">
                 <div>
-                  <label className={LABEL}>Nama Penuh</label>
-                  <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Contoh: Ahmad bin Ali" className={INPUT} />
+                  <label className={LABEL}>Full Name</label>
+                  <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="e.g. Ahmad bin Ali" className={INPUT} />
                 </div>
                 <div>
-                  <label className={LABEL}>No. Telefon</label>
-                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Contoh: 0123456789" className={INPUT} />
+                  <label className={LABEL}>Phone No.</label>
+                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 0123456789" className={INPUT} />
                 </div>
                 <div>
-                  <label className={LABEL}>E-mel</label>
-                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@emel.com" className={INPUT} />
+                  <label className={LABEL}>Email</label>
+                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@email.com" className={INPUT} />
                 </div>
 
                 {error && <p className="text-red-600 text-sm">{error}</p>}
 
                 <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-                  {loading ? "MENGHANTAR KOD..." : "HANTAR KOD"}
+                  {loading ? "SENDING CODE..." : "SEND CODE"}
                 </button>
               </form>
             </>
           ) : (
             <>
-              <h2 className="text-[#0E3B2E] font-bold mb-1">SAHKAN KOD</h2>
+              <h2 className="text-[#0E3B2E] font-bold mb-1">VERIFY CODE</h2>
               <p className="text-[#0E3B2E]/60 text-sm mb-5">
-                Kod 6-digit telah dihantar ke <strong>{maskedEmail}</strong>. Sah selama 10 minit.
+                A 6-digit code has been sent to <strong>{maskedEmail}</strong>. Valid for 10 minutes.
               </p>
 
               <form onSubmit={handleOtpSubmit} className="space-y-4">
                 <div>
-                  <label className={LABEL}>Kod Pengesahan</label>
+                  <label className={LABEL}>Verification Code</label>
                   <input
                     required
                     inputMode="numeric"
@@ -153,7 +153,7 @@ export default function LoginJualTanahForm() {
                 {info && <p className="text-emerald-600 text-sm">{info}</p>}
 
                 <button type="submit" disabled={loading || code.length !== 6} className={BTN_PRIMARY}>
-                  {loading ? "MENYAHKAN..." : "SAHKAN & LOG MASUK"}
+                  {loading ? "VERIFYING..." : "VERIFY & LOG IN"}
                 </button>
               </form>
 
@@ -167,10 +167,10 @@ export default function LoginJualTanahForm() {
                   }}
                   className="underline hover:text-[#0E3B2E]"
                 >
-                  ‹ Tukar maklumat
+                  ‹ Change details
                 </button>
                 <button type="button" onClick={handleResend} disabled={resending} className="underline hover:text-[#0E3B2E] disabled:opacity-50">
-                  {resending ? "Menghantar..." : "Hantar semula kod"}
+                  {resending ? "Sending..." : "Resend code"}
                 </button>
               </div>
             </>

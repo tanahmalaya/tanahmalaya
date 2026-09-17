@@ -9,43 +9,43 @@ import { OTP_MAX_ATTEMPTS } from "@/lib/memberAuth";
 
 const schema = z.object({
   email: z.string().email(),
-  code: z.string().regex(/^\d{6}$/, "Kod mesti 6 digit"),
+  code: z.string().regex(/^\d{6}$/, "Code must be 6 digits"),
 });
 
-// Langkah 2 log masuk akaun Penjual: sahkan kod OTP yang dihantar oleh
-// login-request, terus cipta sesi (cookie) kalau berjaya.
+// Step 2 of Seller account login: verify the OTP code sent by
+// login-request, then create a session (cookie) if valid.
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Data tidak sah" }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid data" }, { status: 400 });
   }
 
   const { email, code } = parsed.data;
 
   const seller = await prisma.seller.findUnique({ where: { email } });
   if (!seller) {
-    return NextResponse.json({ error: "Akaun tidak dijumpai." }, { status: 404 });
+    return NextResponse.json({ error: "Account not found." }, { status: 404 });
   }
 
   if (!seller.otpCodeHash || !seller.otpExpiresAt) {
-    return NextResponse.json({ error: "Tiada kod aktif. Sila mohon kod baharu." }, { status: 400 });
+    return NextResponse.json({ error: "No active code. Please request a new one." }, { status: 400 });
   }
   if (seller.otpExpiresAt.getTime() < Date.now()) {
     await prisma.seller.update({ where: { id: seller.id }, data: { otpCodeHash: null, otpExpiresAt: null } });
-    return NextResponse.json({ error: "Kod telah tamat tempoh. Sila mohon kod baharu." }, { status: 400 });
+    return NextResponse.json({ error: "Code has expired. Please request a new one." }, { status: 400 });
   }
   if (seller.otpAttempts >= OTP_MAX_ATTEMPTS) {
     await prisma.seller.update({ where: { id: seller.id }, data: { otpCodeHash: null, otpExpiresAt: null } });
-    return NextResponse.json({ error: "Terlalu banyak percubaan gagal. Sila mohon kod baharu." }, { status: 400 });
+    return NextResponse.json({ error: "Too many failed attempts. Please request a new code." }, { status: 400 });
   }
 
   const valid = await bcrypt.compare(code, seller.otpCodeHash);
   if (!valid) {
     await prisma.seller.update({ where: { id: seller.id }, data: { otpAttempts: { increment: 1 } } });
-    const baki = OTP_MAX_ATTEMPTS - (seller.otpAttempts + 1);
+    const remaining = OTP_MAX_ATTEMPTS - (seller.otpAttempts + 1);
     return NextResponse.json(
-      { error: baki > 0 ? `Kod tidak sah. Baki percubaan: ${baki}.` : "Kod tidak sah. Sila mohon kod baharu." },
+      { error: remaining > 0 ? `Invalid code. Attempts remaining: ${remaining}.` : "Invalid code. Please request a new one." },
       { status: 400 }
     );
   }

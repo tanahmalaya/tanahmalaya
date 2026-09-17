@@ -14,7 +14,7 @@ export const metadata = {
   robots: { index: false },
 };
 
-// Kawasan akaun Penjual sahaja - lihat lib/sellerAuth.ts.
+// Seller account area only - see lib/sellerAuth.ts.
 export default async function FavoritePage() {
   const seller = await requireSeller("/geran/favorite");
 
@@ -28,23 +28,23 @@ export default async function FavoritePage() {
 
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
-      <GeranBrandHeader back={<BackButton href="/geran" label="Direktori" variant="light" />} />
+      <GeranBrandHeader back={<BackButton href="/geran" label="Directory" variant="light" />} />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0E3B2E] mb-1">
-          ❤ Favorite Saya
+          ❤ My Favorite
         </h1>
-        <p className="text-[#0E3B2E]/55 text-[15px] mb-6">Tanah bergeran yang anda simpan untuk rujukan.</p>
+        <p className="text-[#0E3B2E]/55 text-[15px] mb-6">Titled land you've saved for reference.</p>
 
         {listings.length === 0 ? (
           <div className="text-center py-16 px-6">
             <p className="text-4xl mb-3">🤍</p>
-            <p className="font-semibold text-[#0E3B2E]/70">Belum ada favorite disimpan</p>
+            <p className="font-semibold text-[#0E3B2E]/70">No favorite saved yet</p>
             <p className="text-sm text-[#0E3B2E]/45 mt-1 mb-4">
-              Klik ikon hati pada mana-mana penyenaraian untuk simpan di sini.
+              Click the heart icon on any listing to save it here.
             </p>
             <Link href="/geran" className="text-sm font-semibold text-[#0E3B2E] underline">
-              Lihat Direktori Geran
+              View Geran Directory
             </Link>
           </div>
         ) : (

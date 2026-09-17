@@ -10,7 +10,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 
 export async function POST(req: NextRequest) {
   if (!getAdminSession()) {
-    return NextResponse.json({ error: "Tidak dibenarkan" }, { status: 401 });
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
   const body = await req.json();
@@ -20,11 +20,11 @@ export async function POST(req: NextRequest) {
 
   const permohonan = await prisma.renApplication.findUnique({ where: { id: permohonanId } });
   if (!permohonan) {
-    return NextResponse.json({ error: "Permohonan tidak dijumpai" }, { status: 404 });
+    return NextResponse.json({ error: "Application not found" }, { status: 404 });
   }
   if (!VALID_TRANSITIONS[permohonan.status]?.includes(status)) {
     return NextResponse.json(
-      { error: `Tidak boleh tukar status daripada ${permohonan.status} ke ${status}` },
+      { error: `Cannot change status from ${permohonan.status} to ${status}` },
       { status: 400 }
     );
   }
