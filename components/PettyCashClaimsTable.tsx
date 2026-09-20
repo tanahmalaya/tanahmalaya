@@ -70,7 +70,7 @@ function ResitPreview({ url }: { url: string }) {
   const isImej = IMEJ_EXT.test(url.split("?")[0]);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       {isImej && (
         <a href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -78,7 +78,7 @@ function ResitPreview({ url }: { url: string }) {
             src={url}
             alt="Resit"
             loading="lazy"
-            className="h-20 w-20 object-cover rounded-sm border border-brand-dark/15 hover:opacity-80 transition-opacity"
+            className="h-14 w-14 object-cover rounded-sm border border-brand-dark/15 hover:opacity-80 transition-opacity"
           />
         </a>
       )}
@@ -86,7 +86,7 @@ function ResitPreview({ url }: { url: string }) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark border border-brand-dark/20 rounded-sm px-3 py-1.5 hover:bg-brand-cream"
+        className="inline-flex items-center gap-1 text-[11px] font-semibold whitespace-nowrap text-brand-dark border border-brand-dark/20 rounded-sm px-2 py-1 hover:bg-brand-cream"
       >
         {isImej ? "Lihat Resit" : "Lihat Resit (PDF)"} →
       </a>
@@ -241,176 +241,192 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
         ))}
       </div>
 
-      {actionable && visible.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mb-4 bg-brand-cream/50 border border-brand-dark/10 rounded-md px-4 py-3">
-          <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
-            <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-            Select All
-          </label>
+      {/*
+        Susun atur jadual sama macam dashboard Orders: satu bekas putih,
+        toolbar bulk di atas, dan jadual yang slide ke tepi bila lajur tak
+        muat (skrin kecil) - bukan lagi kad berasingan setiap tuntutan.
+      */}
+      <div className="w-full bg-white rounded-lg shadow-sm border border-brand-dark/10 overflow-hidden">
+        {actionable && visible.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b border-brand-dark/10 bg-brand-cream/40">
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
+              <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+              Select All
+            </label>
 
-          {tab === "MENUNGGU" && (
-            <button
-              onClick={() => handleBulkAction("DILULUSKAN")}
-              disabled={bulkLoading || selected.size === 0}
-              className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-            >
-              {bulkLoading ? "MEMPROSES..." : `LULUSKAN (${selected.size})`}
-            </button>
-          )}
-          {tab === "DILULUSKAN" && (
-            <button
-              onClick={() => handleBulkAction("DIBAYAR")}
-              disabled={bulkLoading || selected.size === 0}
-              className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-            >
-              {bulkLoading ? "MEMPROSES..." : `TANDA DIBAYAR (${selected.size})`}
-            </button>
-          )}
-          <button
-            onClick={() => setBulkRejecting((v) => !v)}
-            disabled={bulkLoading || selected.size === 0}
-            className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-          >
-            {`TOLAK (${selected.size})`}
-          </button>
-
-          {bulkRejecting && (
-            <div className="w-full mt-1">
-              <textarea
-                rows={2}
-                value={bulkRejectReason}
-                onChange={(e) => setBulkRejectReason(e.target.value)}
-                className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
-                placeholder="Sebab ditolak (akan dihantar ke setiap ahli yang dipilih)"
-              />
+            {tab === "MENUNGGU" && (
               <button
-                onClick={() => handleBulkAction("DITOLAK", bulkRejectReason)}
-                disabled={bulkLoading || !bulkRejectReason.trim()}
-                className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+                onClick={() => handleBulkAction("DILULUSKAN")}
+                disabled={bulkLoading || selected.size === 0}
+                className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
               >
-                SAHKAN TOLAK ({selected.size})
+                {bulkLoading ? "MEMPROSES..." : `LULUSKAN (${selected.size})`}
               </button>
-            </div>
+            )}
+            {tab === "DILULUSKAN" && (
+              <button
+                onClick={() => handleBulkAction("DIBAYAR")}
+                disabled={bulkLoading || selected.size === 0}
+                className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+              >
+                {bulkLoading ? "MEMPROSES..." : `TANDA DIBAYAR (${selected.size})`}
+              </button>
+            )}
+            <button
+              onClick={() => setBulkRejecting((v) => !v)}
+              disabled={bulkLoading || selected.size === 0}
+              className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+            >
+              {`TOLAK (${selected.size})`}
+            </button>
+
+            {bulkRejecting && (
+              <div className="w-full mt-1">
+                <textarea
+                  rows={2}
+                  value={bulkRejectReason}
+                  onChange={(e) => setBulkRejectReason(e.target.value)}
+                  className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
+                  placeholder="Sebab ditolak (akan dihantar ke setiap ahli yang dipilih)"
+                />
+                <button
+                  onClick={() => handleBulkAction("DITOLAK", bulkRejectReason)}
+                  disabled={bulkLoading || !bulkRejectReason.trim()}
+                  className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+                >
+                  SAHKAN TOLAK ({selected.size})
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-brand-dark/70">
+            <thead className="bg-white border-b border-brand-dark/10 text-brand-dark/50 font-medium">
+              <tr>
+                <th className="p-4 w-10"></th>
+                <th className="p-4">Tuntutan</th>
+                <th className="p-4">Tarikh</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Kategori</th>
+                <th className="p-4">Tujuan</th>
+                <th className="p-4">Akaun Bank</th>
+                <th className="p-4">Resit</th>
+                <th className="p-4">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-brand-dark/5">
+              {visible.map((c) => (
+                <tr key={c.id} className="hover:bg-brand-cream/20 transition-colors align-top">
+                  <td className="p-4">
+                    {actionable && (
+                      <input
+                        type="checkbox"
+                        checked={selected.has(c.id)}
+                        onChange={() => toggleSelected(c.id)}
+                        className="rounded border-brand-dark/30"
+                      />
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <p className="font-semibold text-brand-dark whitespace-nowrap">
+                      #{c.seq} {c.namaPemohon}
+                    </p>
+                    <p className="text-brand-dark/40">{c.memberNo}</p>
+                    <p className="font-semibold text-brand-gold mt-0.5">{formatRM(c.jumlahSen)}</p>
+                  </td>
+                  <td className="p-4 whitespace-nowrap">{formatDate(c.tarikhPerbelanjaan)}</td>
+                  <td className="p-4">
+                    <span className={`inline-block px-2.5 py-1 rounded text-[11px] font-semibold ${STATUS_BADGE[c.status]}`}>
+                      {TAB_DEF.find((t) => t.key === c.status)?.label}
+                    </span>
+                  </td>
+                  <td className="p-4 whitespace-nowrap">{KATEGORI_LABEL[c.kategori]}</td>
+                  <td className="p-4 min-w-[12rem] max-w-[16rem]">{c.tujuan}</td>
+                  <td className="p-4 max-w-[11rem]">
+                    <p className="text-brand-dark/80">{c.bankName}</p>
+                    <p>{c.accountNo}</p>
+                    <p className="text-brand-dark/50">{c.accountHolder}</p>
+                  </td>
+                  <td className="p-4">
+                    {c.resitUrl ? (
+                      <ResitPreview url={c.resitUrl} />
+                    ) : (
+                      <span className="text-brand-dark/40 whitespace-nowrap">Tiada resit</span>
+                    )}
+                  </td>
+                  <td className="p-4 max-w-[14rem]">
+                    {c.status === "MENUNGGU" && (
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          onClick={() => handleSingleAction(c.id, "DILULUSKAN")}
+                          disabled={loadingId === c.id}
+                          className="bg-brand-dark text-white text-[11px] font-semibold rounded-sm px-2.5 py-1.5 disabled:opacity-50"
+                        >
+                          LULUSKAN
+                        </button>
+                        <button
+                          onClick={() => setRejectingId(rejectingId === c.id ? null : c.id)}
+                          disabled={loadingId === c.id}
+                          className="border border-red-300 text-red-600 text-[11px] font-semibold rounded-sm px-2.5 py-1.5 disabled:opacity-50"
+                        >
+                          TOLAK
+                        </button>
+                      </div>
+                    )}
+
+                    {c.status === "DILULUSKAN" && (
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          onClick={() => handleSingleAction(c.id, "DIBAYAR")}
+                          disabled={loadingId === c.id}
+                          className="bg-brand-dark text-white text-[11px] font-semibold rounded-sm px-2.5 py-1.5 disabled:opacity-50"
+                        >
+                          TANDA DIBAYAR
+                        </button>
+                        <button
+                          onClick={() => setRejectingId(rejectingId === c.id ? null : c.id)}
+                          disabled={loadingId === c.id}
+                          className="border border-red-300 text-red-600 text-[11px] font-semibold rounded-sm px-2.5 py-1.5 disabled:opacity-50"
+                        >
+                          TOLAK
+                        </button>
+                      </div>
+                    )}
+
+                    {rejectingId === c.id && (
+                      <div className="mt-2">
+                        <textarea
+                          rows={2}
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          className="w-full min-w-[11rem] text-[11px] border border-brand-dark/20 rounded-sm p-2 mb-1.5"
+                          placeholder="Sebab ditolak (dihantar ke ahli)"
+                        />
+                        <button
+                          onClick={() => handleSingleAction(c.id, "DITOLAK", rejectReason)}
+                          disabled={loadingId === c.id || !rejectReason.trim()}
+                          className="bg-red-600 text-white text-[11px] font-semibold rounded-sm px-2.5 py-1.5 disabled:opacity-50"
+                        >
+                          SAHKAN TOLAK
+                        </button>
+                      </div>
+                    )}
+
+                    {c.status === "DITOLAK" && c.catatanAdmin && (
+                      <p className="text-red-600 text-[11px]">Sebab ditolak: {c.catatanAdmin}</p>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {visible.length === 0 && (
+            <p className="p-6 text-center text-brand-dark/40 text-sm">Tiada tuntutan dalam kategori ini.</p>
           )}
         </div>
-      )}
-
-      {visible.length === 0 ? (
-        <p className="text-brand-dark/50 text-sm">Tiada tuntutan dalam kategori ini.</p>
-      ) : (
-        <div className="space-y-3">
-          {visible.map((c) => (
-            <div key={c.id} className="bg-white border border-brand-dark/10 rounded-md p-5">
-              <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
-                <div className="flex items-start gap-3">
-                  {actionable && (
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={selected.has(c.id)}
-                      onChange={() => toggleSelected(c.id)}
-                    />
-                  )}
-                  <div>
-                    <p className="font-semibold">
-                      #{c.seq} — {c.namaPemohon} <span className="text-brand-dark/40 font-normal text-sm">({c.memberNo})</span>
-                    </p>
-                    <p className="text-xs text-brand-dark/50">
-                      {KATEGORI_LABEL[c.kategori]} · {formatDate(c.tarikhPerbelanjaan)}
-                    </p>
-                  </div>
-                </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${STATUS_BADGE[c.status]}`}>
-                  {TAB_DEF.find((t) => t.key === c.status)?.label}
-                </span>
-              </div>
-
-              <p className="text-sm text-brand-dark/80 mb-2">{c.tujuan}</p>
-              <p className="font-bold text-brand-gold mb-3">{formatRM(c.jumlahSen)}</p>
-
-              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-brand-dark/60 mb-3">
-                <p>
-                  <span className="text-brand-dark/40">Bank:</span> {c.bankName}
-                </p>
-                <p>
-                  <span className="text-brand-dark/40">No. Akaun:</span> {c.accountNo}
-                </p>
-                <p className="sm:col-span-2">
-                  <span className="text-brand-dark/40">Nama Pemegang Akaun:</span> {c.accountHolder}
-                </p>
-              </div>
-
-              {c.resitUrl ? (
-                <ResitPreview url={c.resitUrl} />
-              ) : (
-                <p className="text-xs text-brand-dark/40">Tiada resit dimuat naik.</p>
-              )}
-
-              {c.status === "DITOLAK" && c.catatanAdmin && (
-                <p className="text-xs text-red-600 mt-2">Sebab ditolak: {c.catatanAdmin}</p>
-              )}
-
-              {c.status === "MENUNGGU" && (
-                <div className="flex gap-2 mt-4 pt-4 border-t border-brand-dark/10">
-                  <button
-                    onClick={() => handleSingleAction(c.id, "DILULUSKAN")}
-                    disabled={loadingId === c.id}
-                    className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-                  >
-                    LULUSKAN
-                  </button>
-                  <button
-                    onClick={() => setRejectingId(rejectingId === c.id ? null : c.id)}
-                    disabled={loadingId === c.id}
-                    className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-                  >
-                    TOLAK
-                  </button>
-                </div>
-              )}
-
-              {c.status === "DILULUSKAN" && (
-                <div className="flex gap-2 mt-4 pt-4 border-t border-brand-dark/10">
-                  <button
-                    onClick={() => handleSingleAction(c.id, "DIBAYAR")}
-                    disabled={loadingId === c.id}
-                    className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-                  >
-                    TANDA DIBAYAR
-                  </button>
-                  <button
-                    onClick={() => setRejectingId(rejectingId === c.id ? null : c.id)}
-                    disabled={loadingId === c.id}
-                    className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-                  >
-                    TOLAK
-                  </button>
-                </div>
-              )}
-
-              {rejectingId === c.id && (
-                <div className="mt-3 pt-3 border-t border-brand-dark/10">
-                  <label className="block text-xs font-semibold text-brand-dark/70 mb-1.5">Sebab ditolak (akan dihantar ke ahli)</label>
-                  <textarea
-                    rows={2}
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    className="w-full text-sm border border-brand-dark/20 rounded-sm p-2 mb-2"
-                    placeholder="Contoh: Perbelanjaan tidak berkaitan aktiviti PLT"
-                  />
-                  <button
-                    onClick={() => handleSingleAction(c.id, "DITOLAK", rejectReason)}
-                    disabled={loadingId === c.id || !rejectReason.trim()}
-                    className="bg-red-600 text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-                  >
-                    SAHKAN TOLAK
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 }
