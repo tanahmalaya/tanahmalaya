@@ -14,6 +14,14 @@ export function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Pelayar/bot yang minta /favicon.ico terus (tanpa baca <link rel="icon">)
+  // patut dapat logo G, bukan logo PLT dalam public/favicon.ico.
+  if (pathname === "/favicon.ico") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/geran-favicon.ico";
+    return NextResponse.rewrite(url);
+  }
+
   if (pathname.startsWith("/geran")) {
     return NextResponse.next();
   }
@@ -27,7 +35,8 @@ export const config = {
   // google*.html - fail verification Google Search Console (public/) kena
   // boleh dicapai betul-betul di root gerantanah.com, bukan di-rewrite ke
   // /geran/google....html (yang tak wujud & bagi 404).
+  // favicon.ico TIDAK dikecualikan lagi kerana ia dikendali di atas.
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|apple-icon.png|icon.png|manifest.webmanifest|robots.txt|sitemap.xml|google.*\\.html).*)",
+    "/((?!api|_next/static|_next/image|apple-icon.png|icon.png|manifest.webmanifest|robots.txt|sitemap.xml|google.*\.html).*)",
   ],
 };
