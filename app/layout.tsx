@@ -101,30 +101,53 @@ const siteNavigationJsonLd = {
   ],
 };
 
+// GERAN (gerantanah.com) ialah produk berasingan - lihat ConditionalChrome.
+// Schema.org sendiri supaya Google tak anggap gerantanah.com sebahagian
+// laman PLT (organizationJsonLd/websiteJsonLd di atas guna nama & url
+// tanahmalaya.org).
+const geranWebsiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "GERAN",
+  alternateName: "GERAN - Titled Land Directory",
+  url: "https://gerantanah.com",
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const isGeranDomain = isGeranDomainRequest();
+
   return (
     <html lang="ms" className={inter.variable}>
       <body>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationJsonLd) }}
-        />
+        {isGeranDomain ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(geranWebsiteJsonLd) }}
+          />
+        ) : (
+          <>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+            />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+            />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationJsonLd) }}
+            />
+          </>
+        )}
         {/* 2. Wrap semua kandungan di dalam CartProvider */}
         <CartProvider>
           <CheckoutProvider>
-            <ConditionalChrome isGeranDomain={isGeranDomainRequest()}>{children}</ConditionalChrome>
+            <ConditionalChrome isGeranDomain={isGeranDomain}>{children}</ConditionalChrome>
           </CheckoutProvider>
         </CartProvider>
       </body>

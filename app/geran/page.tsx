@@ -19,7 +19,10 @@ const GERAN_DESCRIPTION =
 export const metadata = {
   title: GERAN_TITLE,
   description: GERAN_DESCRIPTION,
-  alternates: { canonical: "/geran" },
+  // Absolute (bukan relatif) sebab metadataBase root layout ialah
+  // tanahmalaya.org - GERAN kena canonical ke domain sendiri, gerantanah.com,
+  // supaya Google tak anggap /geran duplicate content bawah tanahmalaya.org.
+  alternates: { canonical: "https://gerantanah.com" },
   // openGraph/twitter tak diwarisi dari root layout secara automatik bila
   // ditakrifkan di sini - kalau tak set, WhatsApp/FB link preview untuk
   // gerantanah.com akan terus papar jenama tanahmalaya.org dari root layout.

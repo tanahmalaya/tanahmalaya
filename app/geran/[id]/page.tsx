@@ -17,15 +17,18 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   if (!geran || geran.status !== "DISAHKAN") return { title: "Geran" };
 
   const title = `${geran.tajuk} - GERAN`;
-  const description = geran.keterangan ?? `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`;
+  const description =
+    geran.keterangan?.slice(0, 160) || `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`;
   const image = geran.gambarUrls[0] || "https://gerantanah.com/geran-logo-g.jpeg";
+  const url = `https://gerantanah.com/${geran.id}`;
 
   return {
     title,
     description,
+    alternates: { canonical: url },
     openGraph: {
       type: "website",
-      url: `https://gerantanah.com/${geran.id}`,
+      url,
       siteName: "GERAN",
       title,
       description,
