@@ -18,6 +18,8 @@ export type OrderRow = {
   id: string;
   seq: number;
   namaPembeli: string;
+  emel: string;
+  telefon: string;
   createdAt: string;
   poskod: string;
   bandar: string;
@@ -63,7 +65,17 @@ const STATUS_BADGE: Record<Bucket, { label: string; className: string }> = {
 };
 
 const ACTIONABLE: Bucket[] = ["NEW_READY_STOCK", "NEW_PREORDER", "PROCESSING_FAILED", "IN_PROCESS", "PENDING_PAYMENT", "PAYMENT_FAILED"];
-const REFUNDABLE: Bucket[] = ["IN_PROCESS", "SHIPPED"];
+// Semua order yang duit customer memang dah masuk (status BERJAYA atau
+// SELESAI) - termasuk order baru yang belum diproses, supaya staff boleh terus
+// batal + refund tanpa kena tunggu order sampai peringkat In Process.
+const REFUNDABLE: Bucket[] = [
+  "MANUAL_COURIER",
+  "NEW_READY_STOCK",
+  "NEW_PREORDER",
+  "PROCESSING_FAILED",
+  "IN_PROCESS",
+  "SHIPPED",
+];
 
 function formatRM(sen: number | null | undefined) {
   if (sen == null) return "-";
@@ -78,8 +90,68 @@ function formatDate(iso?: string | null) {
   return new Date(iso).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-/** Single-order refund button + confirmation modal. */
-function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
+/**
+ * Emel + telefon pembeli terus dalam senarai order - staff selalu perlukan
+ * dua-dua ni untuk hubungi customer (sahkan alamat, uruskan refund/batal)
+ * tanpa kena buka packing slip satu-satu. Butang salin sebab nombor/emel ni
+ * biasanya kena paste dalam WhatsApp atau borang refund bank.
+ */
+function CustomerContact({ emel, telefon }: { emel: string; telefon: string }) {
+  const [copied, setCopied] = useState<"emel" | "telefon" | null>(null);
+
+  async function copy(value: string, which: "emel" | "telefon") {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(which);
+      setTimeout(() => setCopied(null), 1500);
+    } catch (e) {
+      // Clipboard boleh gagal (browser lama / bukan HTTPS) - link mailto/tel
+      // masih ada, jadi tak perlu ganggu staff dengan alert.
+    }
+  }
+
+  return (
+    <div className="space-y-1 text-[11px]">
+      <div className="flex items-center gap-1">
+        <a href={`mailto:${emel}`} className="underline break-all text-brand-dark/70" title={emel}>
+          {emel}
+        </a>
+        <button
+          type="button"
+          onClick={() => copy(emel, "emel")}
+          className="shrink-0 text-brand-dark/40 hover:text-brand-gold"
+          title="Salin emel"
+        >
+          {copied === "emel" ? "disalin" : "salin"}
+        </button>
+      </div>
+      <div className="flex items-center gap-1">
+        <a href={`tel:${telefon.replace(/\s+/g, "")}`} className="underline whitespace-nowrap text-brand-dark/70">
+          {telefon}
+        </a>
+        <button
+          type="button"
+          onClick={() => copy(telefon, "telefon")}
+          className="shrink-0 text-brand-dark/40 hover:text-brand-gold"
+          title="Salin nombor telefon"
+        >
+          {copied === "telefon" ? "disalin" : "salin"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Butang refund + modal pengesahan untuk satu order. Modal papar semula
+ * kontak pembeli supaya staff boleh terus hubungi dia (atau minta detail
+ * akaun untuk pemulangan duit) tanpa keluar dari skrin ni.
+ */
+function RefundButton({
+  order,
+}: {
+  order: { id: string; seq: number; namaPembeli: string; emel: string; telefon: string; jumlahSen: number };
+}) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState((order.jumlahSen / 100).toFixed(2));
   const [reason, setReason] = useState("");
@@ -119,9 +191,9 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
           e.preventDefault();
           setOpen(true);
         }}
-        className="text-[11px] underline text-red-600"
+        className="text-[11px] font-semibold text-red-600 border border-red-300 rounded-sm px-2 py-1 hover:bg-red-50"
       >
-        Refund
+        Refund / Batal
       </button>
       {open && (
         <div
@@ -129,7 +201,20 @@ function RefundButton({ order }: { order: { id: string; jumlahSen: number } }) {
           onClick={() => !loading && setOpen(false)}
         >
           <div className="bg-white rounded-md p-5 w-full max-w-sm text-sm" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-semibold mb-3">Refund Order</h3>
+            <h3 className="font-semibold mb-1">Refund / Batal Order #{order.seq}</h3>
+            <div className="text-[11px] text-brand-dark/60 mb-3 space-y-0.5">
+              <p className="font-semibold text-brand-dark/80">{order.namaPembeli}</p>
+              <p>
+                <a href={`mailto:${order.emel}`} className="underline">
+                  {order.emel}
+                </a>
+              </p>
+              <p>
+                <a href={`tel:${order.telefon.replace(/\s+/g, "")}`} className="underline">
+                  {order.telefon}
+                </a>
+              </p>
+            </div>
             <label className="block text-xs font-semibold text-brand-dark/60 mb-1">Refund Amount (RM)</label>
             <input
               type="number"
@@ -642,6 +727,7 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
             <tr>
               <th className="p-4 w-10"></th>
               <th className="p-4">Order</th>
+              <th className="p-4">Contact</th>
               <th className="p-4">Date</th>
               <th className="p-4">Status</th>
               <th className="p-4">Address</th>
@@ -670,6 +756,9 @@ export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
                       #{o.seq} {o.namaPembeli}
                     </p>
                     <p className="text-brand-dark/40">{formatRM(o.jumlahSen)}</p>
+                  </td>
+                  <td className="p-4 max-w-[13rem]">
+                    <CustomerContact emel={o.emel} telefon={o.telefon} />
                   </td>
                   <td className="p-4 whitespace-nowrap">{formatDate(o.createdAt)}</td>
                   <td className="p-4">

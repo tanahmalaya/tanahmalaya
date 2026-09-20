@@ -62,6 +62,8 @@ export default async function AdminOrdersPage() {
     id: o.id,
     seq: o.seq,
     namaPembeli: o.namaPembeli,
+    emel: o.emel,
+    telefon: o.telefon,
     createdAt: o.createdAt.toISOString(),
     poskod: o.poskod,
     bandar: o.bandar,
