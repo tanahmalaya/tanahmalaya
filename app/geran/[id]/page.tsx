@@ -15,9 +15,28 @@ import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, formatRM, formatKeluasan } fro
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
   if (!geran || geran.status !== "DISAHKAN") return { title: "Geran" };
+
+  const title = `${geran.tajuk} - GERAN`;
+  const description = geran.keterangan ?? `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`;
+  const image = geran.gambarUrls[0] || "https://gerantanah.com/geran-logo-g.jpeg";
+
   return {
-    title: `${geran.tajuk} - GERAN`,
-    description: geran.keterangan ?? `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`,
+    title,
+    description,
+    openGraph: {
+      type: "website",
+      url: `https://gerantanah.com/${geran.id}`,
+      siteName: "GERAN",
+      title,
+      description,
+      images: [{ url: image }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
   };
 }
 

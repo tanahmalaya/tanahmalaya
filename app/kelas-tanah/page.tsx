@@ -3,13 +3,14 @@ export const dynamic = "force-dynamic";
 import ClassTable from "@/components/ClassTable";
 import BackButton from "@/components/BackButton";
 import { requirePltMember } from "@/lib/memberAuth";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Program & Kelas",
   description:
     "Senarai penuh program dan kelas tanah akan datang anjuran Pertubuhan Literasi Tanah — belajar tentang geran hakmilik, pusaka, hibah dan pecah sempadan.",
-  alternates: { canonical: "/kelas-tanah" },
-};
+  path: "/kelas-tanah",
+});
 
 // Kawasan Ahli PLT sahaja - lihat lib/memberAuth.ts.
 export default async function KelasTanahPage() {

@@ -3,13 +3,14 @@ export const revalidate = 60;
 import Link from "next/link";
 import ProductGrid from "@/components/ProductGrid";
 import BackButton from "@/components/BackButton";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Merchandise",
   description:
     "Sokong Pertubuhan Literasi Tanah dengan membeli merchandise rasmi kami — pakaian dan aksesori bertema literasi tanah.",
-  alternates: { canonical: "/merchandise" },
-};
+  path: "/merchandise",
+});
 
 export default function MerchandisePage() {
   return (

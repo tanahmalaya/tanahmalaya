@@ -8,6 +8,7 @@ import BackButton from "@/components/BackButton";
 import ProductGallery from "@/components/ProductGallery";
 import CrossSellGrid from "@/components/CrossSellGrid";
 import { PRODUCT_STATUS_LABEL, SIZE_LABEL, isAvailableForOrder, totalStok } from "@/lib/productSize";
+import { pageMetadata } from "@/lib/seo";
 
 function formatHarga(sen: number) {
   return `RM${(sen / 100).toFixed(2)}`;
@@ -17,16 +18,14 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const product = await prisma.product.findUnique({ where: { id: params.id } });
   if (!product || !product.aktif) return { title: "Produk Tidak Dijumpai" };
 
-  return {
+  return pageMetadata({
     title: product.nama,
     description:
       product.penerangan?.slice(0, 160) ||
       `${product.nama} — ${formatHarga(product.hargaSen)}. Beli merchandise rasmi Pertubuhan Literasi Tanah.`,
-    alternates: { canonical: `/merchandise/${product.id}` },
-    openGraph: product.gambarDepan
-      ? { images: [{ url: product.gambarDepan }] }
-      : undefined,
-  };
+    path: `/merchandise/${product.id}`,
+    image: product.gambarDepan ?? undefined,
+  });
 }
 
 export default async function ProductDetailPage({ params }: { params: { id: string } }) {

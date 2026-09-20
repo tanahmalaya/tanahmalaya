@@ -2,13 +2,14 @@ export const revalidate = 60;
 
 import ActivityGrid from "@/components/ActivityGrid";
 import BackButton from "@/components/BackButton";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Aktiviti",
   description:
     "Ikuti program, seminar dan kembara ilmu terkini anjuran Pertubuhan Literasi Tanah.",
-  alternates: { canonical: "/aktiviti" },
-};
+  path: "/aktiviti",
+});
 
 export default function AktivitiPage() {
   return (

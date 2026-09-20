@@ -1,12 +1,13 @@
 import BackButton from "@/components/BackButton";
 import SumbanganCard from "@/components/SumbanganCard";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Sumbangan Ikhlas",
   description:
     "Sumbang kepada Pertubuhan Literasi Tanah untuk menyokong program pendidikan dan advokasi literasi tanah di Malaysia.",
-  alternates: { canonical: "/sumbangan" },
-};
+  path: "/sumbangan",
+});
 
 export default function SumbanganPage() {
   return (

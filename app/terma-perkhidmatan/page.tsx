@@ -1,8 +1,11 @@
 import BackButton from "@/components/BackButton";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Terma Perkhidmatan | Pertubuhan Literasi Tanah",
-};
+export const metadata = pageMetadata({
+  title: "Terma Perkhidmatan",
+  description: "Terma & syarat penggunaan laman dan perkhidmatan Pertubuhan Literasi Tanah.",
+  path: "/terma-perkhidmatan",
+});
 
 function Seksyen({ tajuk, children }: { tajuk: string; children: React.ReactNode }) {
   return (

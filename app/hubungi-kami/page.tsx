@@ -1,12 +1,13 @@
 import BackButton from "@/components/BackButton";
 import AduanTanahForm from "@/components/aduan/AduanTanahForm";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Hubungi Kami",
+export const metadata = pageMetadata({
+  title: "Hubungi Kami & Borang Aduan Tanah",
   description:
-    "Hubungi Pertubuhan Literasi Tanah melalui e-mel info@tanahmalaya.org, atau isi Borang Aduan Pencerobohan Tanah untuk melaporkan isu pencerobohan/penyalahgunaan tanah.",
-  alternates: { canonical: "/hubungi-kami" },
-};
+    "Hubungi Pertubuhan Literasi Tanah, atau isi Borang Aduan Pencerobohan Tanah untuk melaporkan isu pencerobohan/penyalahgunaan tanah.",
+  path: "/hubungi-kami",
+});
 
 export default function HubungiKamiPage() {
   return (

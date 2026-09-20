@@ -2,13 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
 import OrgInfoCard from "@/components/keahlian/OrgInfoCard";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Tentang Kami",
   description:
     "Kenali Pertubuhan Literasi Tanah (PPM-001-10-17042026) — misi kami mendidik masyarakat Malaysia tentang hak milik, undang-undang tanah, pusaka, hibah dan pecah sempadan.",
-  alternates: { canonical: "/tentang-kami" },
-};
+  path: "/tentang-kami",
+});
 
 function IconGraduationCap() {
   return (

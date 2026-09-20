@@ -10,12 +10,13 @@ import { CheckoutProvider } from "@/app/context/CheckoutContext";
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 
 const SITE_NAME = "Pertubuhan Literasi Tanah";
+const SITE_TAGLINE = "Memelihara Tanah Negara";
 const SITE_DESCRIPTION =
-  "Pertubuhan Literasi Tanah (PLT) komited untuk mendidik masyarakat Malaysia tentang hak milik, undang-undang tanah dan pengurusan harta secara sah dan berilmu. Sertai kelas, seminar dan program kembara ilmu kami.";
+  "PLT mendidik masyarakat Malaysia tentang hak milik dan undang-undang tanah, demi memelihara tanah negara untuk generasi akan datang.";
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE_NAME} | tanahmalaya.org`,
+    default: `${SITE_NAME} - ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -39,13 +40,13 @@ export const metadata: Metadata = {
     locale: "ms_MY",
     url: "https://tanahmalaya.org",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} | tanahmalaya.org`,
+    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     images: [{ url: "/logo.png", width: 1600, height: 1600, alt: SITE_NAME }],
   },
   twitter: {
     card: "summary",
-    title: `${SITE_NAME} | tanahmalaya.org`,
+    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     images: ["/logo.png"],
   },

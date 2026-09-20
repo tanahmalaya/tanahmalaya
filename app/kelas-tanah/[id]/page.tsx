@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import ProgramRegistrationForm from "@/components/ProgramRegistrationForm";
 import BackButton from "@/components/BackButton";
 import { requirePltMember } from "@/lib/memberAuth";
+import { pageMetadata } from "@/lib/seo";
 
 const jenisLabel: Record<string, string> = {
   ONLINE: "Online",
@@ -20,11 +21,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const kelas = await prisma.landClass.findUnique({ where: { id: params.id } });
   if (!kelas) return { title: "Kelas Tidak Dijumpai" };
 
-  return {
+  return pageMetadata({
     title: kelas.namaKelas,
     description: `${kelas.namaKelas} — ${kelas.topik}. Lokasi: ${kelas.lokasi}. Anjuran Pertubuhan Literasi Tanah.`,
-    alternates: { canonical: `/kelas-tanah/${kelas.id}` },
-  };
+    path: `/kelas-tanah/${kelas.id}`,
+  });
 }
 
 // Kawasan Ahli PLT sahaja - lihat lib/memberAuth.ts.

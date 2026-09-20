@@ -3,13 +3,14 @@ export const dynamic = "force-dynamic";
 import BackButton from "@/components/BackButton";
 import PetaTabs from "@/components/peta/PetaTabs";
 import { requirePltMember } from "@/lib/memberAuth";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Peta Banjir & Tanah Wakaf",
   description:
     "Semak kawasan banjir berhampiran alamat/lokasi anda atau lihat lokasi tanah wakaf ikut negeri, berdasarkan data rasmi JKM, JPS dan MyGeoportal (JUPEM).",
-  alternates: { canonical: "/peta" },
-};
+  path: "/peta",
+});
 
 // Kawasan Ahli PLT sahaja - lihat lib/memberAuth.ts.
 export default async function PetaPage() {
