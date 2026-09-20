@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAdminSession } from "@/lib/auth";
+import { getGeranAdminSession } from "@/lib/geran-admin-auth";
 
 const VALID_STATUS = ["MENUNGGU_PILOT", "DIJADUALKAN", "SELESAI"];
 
@@ -10,7 +10,7 @@ const VALID_STATUS = ["MENUNGGU_PILOT", "DIJADUALKAN", "SELESAI"];
 // no full pilot registration/scheduling system yet). See StatusDroneSurvey
 // in prisma/schema.prisma.
 export async function POST(req: NextRequest) {
-  if (!getAdminSession()) {
+  if (!getGeranAdminSession()) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 

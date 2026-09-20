@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import RenAdminTable, { type RenAdminRow } from "@/components/geran/RenAdminTable";
 
-export default async function AdminRenPage() {
+export default async function GeranAdminRenPage() {
   const [menunggu, disahkan, ditolak] = await Promise.all([
     prisma.renApplication.findMany({ where: { status: "MENUNGGU_SEMAKAN" }, orderBy: { createdAt: "asc" } }),
     prisma.renApplication.findMany({ where: { status: "DISAHKAN" }, orderBy: { createdAt: "desc" }, take: 100 }),

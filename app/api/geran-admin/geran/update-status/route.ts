@@ -2,14 +2,14 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAdminSession } from "@/lib/auth";
+import { getGeranAdminSession } from "@/lib/geran-admin-auth";
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   MENUNGGU_SEMAKAN: ["DISAHKAN", "DITOLAK"],
 };
 
 export async function POST(req: NextRequest) {
-  if (!getAdminSession()) {
+  if (!getGeranAdminSession()) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 

@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import GeranAdminTable, { type GeranAdminRow } from "@/components/geran/GeranAdminTable";
 
-export default async function AdminGeranPage() {
+export default async function GeranAdminGeranPage() {
   const include = { seller: { select: { renDisahkan: true } }, assignedRen: { select: { fullName: true } } } as const;
 
   const [menunggu, disahkan, ditolak, renOptionsRaw] = await Promise.all([

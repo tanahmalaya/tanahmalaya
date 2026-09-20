@@ -21,6 +21,16 @@ model AdminUser {
   createdAt    DateTime @default(now())
 }
 
+// Akaun admin berasingan khusus untuk gerantanah.com (GERAN, REN, Drone
+// Pilot) - entiti berasingan dari dashboard admin PLT (AdminUser di atas).
+model GeranAdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
 // ---------- Membership ----------
 // Dua jenis keahlian:
 // - PLT       = Ahli PLT (ahli penuh, wajib), yuran RM50/tahun, no ahli siri "TM-",

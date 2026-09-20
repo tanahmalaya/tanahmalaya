@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import DronePilotAdminTable, { type DronePilotAdminRow } from "@/components/geran/DronePilotAdminTable";
 
-export default async function AdminPilotDronePage() {
+export default async function GeranAdminPilotDronePage() {
   const [menunggu, disahkan, ditolak] = await Promise.all([
     prisma.dronePilotApplication.findMany({ where: { status: "MENUNGGU_SEMAKAN" }, orderBy: { createdAt: "asc" } }),
     prisma.dronePilotApplication.findMany({ where: { status: "DISAHKAN" }, orderBy: { createdAt: "desc" }, take: 100 }),

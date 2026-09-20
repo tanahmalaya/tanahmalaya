@@ -115,7 +115,7 @@ export default function GeranAdminTable({
   }
 
   async function updateStatus(geranId: string, status: "DISAHKAN" | "DITOLAK", opts?: { catatanAdmin?: string; renId?: string }) {
-    const res = await fetch("/api/admin/geran/update-status", {
+    const res = await fetch("/api/geran-admin/geran/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ geranId, status, catatanAdmin: opts?.catatanAdmin, renId: opts?.renId }),
@@ -159,7 +159,7 @@ export default function GeranAdminTable({
   async function handleDroneAdvance(geranId: string, next: StatusDrone) {
     setLoadingId(geranId);
     try {
-      const res = await fetch("/api/admin/geran/update-drone-status", {
+      const res = await fetch("/api/geran-admin/geran/update-drone-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ geranId, statusDroneSurvey: next }),
@@ -336,7 +336,7 @@ export default function GeranAdminTable({
                   </select>
                   {renOptions.length === 0 && (
                     <p className="text-xs text-red-600 mb-2">
-                      No approved REN yet - approve at least one application at /admin/ren first.
+                      No approved REN yet - approve at least one application at /geran/admin/ren first.
                     </p>
                   )}
                   <button

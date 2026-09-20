@@ -2,14 +2,14 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAdminSession } from "@/lib/auth";
+import { getGeranAdminSession } from "@/lib/geran-admin-auth";
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   MENUNGGU_SEMAKAN: ["DISAHKAN", "DITOLAK"],
 };
 
 export async function POST(req: NextRequest) {
-  if (!getAdminSession()) {
+  if (!getGeranAdminSession()) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const status: "DISAHKAN" | "DITOLAK" = body.status;
   const catatanAdmin: string | null = body.catatanAdmin || null;
 
-  const permohonan = await prisma.renApplication.findUnique({ where: { id: permohonanId } });
+  const permohonan = await prisma.dronePilotApplication.findUnique({ where: { id: permohonanId } });
   if (!permohonan) {
     return NextResponse.json({ error: "Application not found" }, { status: 404 });
   }
@@ -30,12 +30,12 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.$transaction([
-    prisma.renApplication.update({
+    prisma.dronePilotApplication.update({
       where: { id: permohonanId },
       data: { status, catatanAdmin: status === "DITOLAK" ? catatanAdmin : permohonan.catatanAdmin },
     }),
     ...(status === "DISAHKAN"
-      ? [prisma.seller.update({ where: { id: permohonan.sellerId }, data: { renDisahkan: true } })]
+      ? [prisma.seller.update({ where: { id: permohonan.sellerId }, data: { dronePilotDisahkan: true } })]
       : []),
   ]);
 

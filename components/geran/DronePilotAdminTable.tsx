@@ -48,7 +48,7 @@ export default function DronePilotAdminTable({ rows }: { rows: DronePilotAdminRo
   }, {} as Record<Status, number>);
 
   async function updateStatus(permohonanId: string, status: "DISAHKAN" | "DITOLAK", catatanAdmin?: string) {
-    const res = await fetch("/api/admin/drone-pilot/update-status", {
+    const res = await fetch("/api/geran-admin/drone-pilot/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ permohonanId, status, catatanAdmin }),

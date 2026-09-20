@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   // PLT-registered REN seller: listing goes straight to DISAHKAN
   // (auto-approve), with the REN themselves as assignedRen. Regular sellers
   // stay at MENUNGGU_SEMAKAN - admin must pick a PLT-assigned REN on
-  // approval (see app/api/admin/geran/update-status).
+  // approval (see app/api/geran-admin/geran/update-status).
   const geran = await prisma.geran.create({
     data: {
       sellerId: seller.id,
