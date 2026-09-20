@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen md:flex bg-brand-cream">
-      <aside className="w-64 bg-brand-dark text-white p-6 hidden md:block">
+      <aside className="w-64 bg-brand-dark text-white p-6 hidden md:block print:hidden">
         <p className="font-display font-bold text-lg mb-8">
           PLT Admin {session.role === "STAFF" && <span className="text-brand-gold text-xs block">(Staff)</span>}
         </p>

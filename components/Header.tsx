@@ -71,7 +71,7 @@ export default function Header() {
   const totalItems = cart ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
 
   return (
-    <header className="bg-brand-dark text-white relative">
+        <header className="bg-brand-dark text-white relative print:hidden">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <Image

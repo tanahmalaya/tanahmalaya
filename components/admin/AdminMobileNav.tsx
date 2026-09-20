@@ -30,7 +30,7 @@ export default function AdminMobileNav({ navItems, roleLabel }: { navItems: NavI
   const pathname = usePathname();
 
   return (
-    <div className="md:hidden bg-brand-dark text-white sticky top-0 z-40">
+    <div className="md:hidden bg-brand-dark text-white sticky top-0 z-40 print:hidden">
       <div className="flex items-center justify-between px-4 py-3">
         <p className="font-display font-bold">
           PLT Admin {roleLabel && <span className="text-brand-gold text-xs">({roleLabel})</span>}

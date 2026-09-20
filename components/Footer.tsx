@@ -20,7 +20,7 @@ function IconMail() {
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-dark text-white">
+    <footer className="bg-brand-dark text-white print:hidden">
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div>
           <div className="bg-white rounded-md p-2 w-fit mb-3">

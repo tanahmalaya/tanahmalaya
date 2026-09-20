@@ -44,6 +44,7 @@ export default function PackingSlipPage() {
   const [done, setDone] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkPrinting, setBulkPrinting] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     if (ids.length === 0) return;
@@ -135,6 +136,44 @@ export default function PackingSlipPage() {
     }
   }
 
+  /**
+   * Muat turun AWB sahaja sebagai satu fail PDF.
+   *
+   * Dulu butang ni panggil window.print() terus - hasilnya cetakan SELURUH
+   * page: header & footer laman awam, sidebar admin, senarai item, dan AWB
+   * cuma muncul sebagai preview kecil dalam viewer PDF (iframe cross-origin
+   * tak boleh dirender betul masa cetak). Staff cuma perlukan label AWB,
+   * jadi kita ambil PDF gabungan yang sama macam Bulk Print dan simpan ia
+   * sebagai fail - bersih, tiada apa-apa lain.
+   */
+  async function handleDownloadAwbPdf() {
+    const targets = orders.filter((o) => o.awbUrl && selected.has(o.id));
+    if (targets.length === 0) return;
+    setDownloadingPdf(true);
+    try {
+      const res = await fetch(`/api/admin/orders/awb-proxy?orderIds=${targets.map((o) => o.id).join(",")}`);
+      if (!res.ok) {
+        alert("Gagal ambil AWB daripada EasyParcel. Sila cuba lagi.");
+        return;
+      }
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      // Anchor download (bukan window.open) - popup blocker sekat tetingkap
+      // baru yang dibuka selepas await, muat turun tak disekat.
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `awb-${targets.map((o) => o.seq).join("-")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      alert("Ralat rangkaian semasa ambil AWB. Sila cuba lagi.");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
+
   if (loading) return <div className="p-8">Loading...</div>;
 
   const allSelected = orders.length > 0 && selected.size === orders.length;
@@ -162,8 +201,12 @@ export default function PackingSlipPage() {
           {done ? "SHIPPED ✓" : `MARK SELECTED AS SHIPPED (${selected.size})`}
         </button>
         <span className="w-px h-5 bg-brand-dark/15 mx-1" />
-        <button onClick={() => window.print()} className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5">
-          PRINT (PDF)
+        <button
+          onClick={handleDownloadAwbPdf}
+          disabled={downloadingPdf || selectedPrintableCount === 0}
+          className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+        >
+          {downloadingPdf ? "PREPARING..." : `DOWNLOAD AWB (PDF) (${selectedPrintableCount})`}
         </button>
       </div>
       <p className="text-xs text-brand-dark/50 mb-6 print:hidden max-w-xl">
