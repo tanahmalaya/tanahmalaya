@@ -6,8 +6,6 @@ import GeranAdminMobileNav from "@/components/geran/GeranAdminMobileNav";
 const navItems = [
   { href: "/geran/admin", label: "Ringkasan" },
   { href: "/geran/admin/geran", label: "Senarai Tanah" },
-  { href: "/geran/admin/ren", label: "Registered REN" },
-  { href: "/geran/admin/pilot-drone", label: "Drone Pilot" },
 ];
 
 export default function GeranAdminLayout({ children }: { children: React.ReactNode }) {

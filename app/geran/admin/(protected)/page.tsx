@@ -4,16 +4,10 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function GeranAdminRingkasanPage() {
-  const [geranMenunggu, renMenunggu, dronePilotMenunggu] = await Promise.all([
-    prisma.geran.count({ where: { status: "MENUNGGU_SEMAKAN" } }),
-    prisma.renApplication.count({ where: { status: "MENUNGGU_SEMAKAN" } }),
-    prisma.dronePilotApplication.count({ where: { status: "MENUNGGU_SEMAKAN" } }),
-  ]);
+  const geranMenunggu = await prisma.geran.count({ where: { status: "MENUNGGU_SEMAKAN" } });
 
   const cards = [
     { href: "/geran/admin/geran", label: "Senarai Tanah", menunggu: geranMenunggu },
-    { href: "/geran/admin/ren", label: "Registered REN", menunggu: renMenunggu },
-    { href: "/geran/admin/pilot-drone", label: "Drone Pilot", menunggu: dronePilotMenunggu },
   ];
 
   return (

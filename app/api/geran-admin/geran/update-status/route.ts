@@ -17,7 +17,6 @@ export async function POST(req: NextRequest) {
   const geranId: string = body.geranId;
   const status: "DISAHKAN" | "DITOLAK" = body.status;
   const catatanAdmin: string | null = body.catatanAdmin || null;
-  const renId: string | null = body.renId || null;
 
   const geran = await prisma.geran.findUnique({ where: { id: geranId } });
   if (!geran) {
@@ -27,26 +26,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Cannot change status from ${geran.status} to ${status}` }, { status: 400 });
   }
 
-  // A non-REN seller's listing must be placed under a PLT-assigned REN
-  // before approval - see Seller.renDisahkan & Geran.assignedRenId.
-  let assignedRenId = geran.assignedRenId;
-  if (status === "DISAHKAN" && !assignedRenId) {
-    if (!renId) {
-      return NextResponse.json({ error: "Please choose a PLT-assigned REN for this listing." }, { status: 400 });
-    }
-    const ren = await prisma.seller.findUnique({ where: { id: renId } });
-    if (!ren || !ren.renDisahkan) {
-      return NextResponse.json({ error: "The selected REN is invalid." }, { status: 400 });
-    }
-    assignedRenId = renId;
-  }
-
   await prisma.geran.update({
     where: { id: geranId },
     data: {
       status,
       catatanAdmin: status === "DITOLAK" ? catatanAdmin : geran.catatanAdmin,
-      assignedRenId,
     },
   });
 

@@ -31,7 +31,6 @@ export default async function JualTanahPage() {
     keluasan: g.keluasan,
     unitKeluasan: g.unitKeluasan,
     hargaSen: Number(g.hargaSen),
-    mintaDroneSurvey: g.mintaDroneSurvey,
     status: g.status,
     catatanAdmin: g.catatanAdmin,
     createdAt: g.createdAt.toISOString(),
@@ -52,7 +51,7 @@ export default async function JualTanahPage() {
 
       <div className="max-w-2xl mx-auto px-6 py-8">
         <p className="text-sm text-[#0E3B2E]/55 mb-6">Member: {seller.fullName}</p>
-        <GeranForm namaPenjual={seller.fullName} initialHistory={history} isRen={seller.renDisahkan} />
+        <GeranForm namaPenjual={seller.fullName} initialHistory={history} />
       </div>
 
       <GeranFooter />

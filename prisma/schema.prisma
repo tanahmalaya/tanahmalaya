@@ -21,8 +21,8 @@ model AdminUser {
   createdAt    DateTime @default(now())
 }
 
-// Akaun admin berasingan khusus untuk gerantanah.com (GERAN, REN, Drone
-// Pilot) - entiti berasingan dari dashboard admin PLT (AdminUser di atas).
+// Akaun admin berasingan khusus untuk gerantanah.com (GERAN) - entiti
+// berasingan dari dashboard admin PLT (AdminUser di atas).
 model GeranAdminUser {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -533,38 +533,17 @@ model Seller {
   otpAttempts  Int       @default(0)
   otpSentAt    DateTime?
 
-  // true bila permohonan Drone Pilot (DronePilotApplication) diluluskan admin
-  dronePilotDisahkan Boolean @default(false)
-  // true bila permohonan jadi REN Berdaftar PLT (RenApplication) diluluskan admin -
-  // penyenaraian Geran oleh penjual jenis ni terus DISAHKAN (auto-approve), lihat
-  // Geran.status di bawah.
-  renDisahkan        Boolean @default(false)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  gerans                 Geran[]
-  // Penyenaraian Geran penjual BUKAN REN yang diletakkan admin di bawah REN ni
-  // (REN pilihan PLT) semasa kelulusan - lihat Geran.assignedRenId.
-  geransSebagaiRen       Geran[]                 @relation("GeranAssignedRen")
-  favorites              GeranFavorite[]
-  dronePilotApplications DronePilotApplication[]
-  renApplications        RenApplication[]
+  gerans    Geran[]
+  favorites GeranFavorite[]
 }
 
 enum StatusGeran {
   MENUNGGU_SEMAKAN
   DISAHKAN
   DITOLAK
-}
-
-// Asas permintaan drone survey (footage/gambar udara) pada satu penyenaraian -
-// belum termasuk sistem pendaftaran/jadual pilot penuh, admin proses manual.
-enum StatusDroneSurvey {
-  TIDAK_BERKAITAN
-  MENUNGGU_PILOT
-  DIJADUALKAN
-  SELESAI
 }
 
 // Tanah bergeran (hakmilik jelas) disenaraikan sendiri oleh penjual untuk
@@ -595,16 +574,6 @@ model Geran {
   keterangan    String?       @db.Text
   gambarUrls    String[] // maksimum 5, URL fail di Vercel Blob
 
-  mintaDroneSurvey  Boolean           @default(false)
-  statusDroneSurvey StatusDroneSurvey @default(TIDAK_BERKAITAN)
-
-  // REN (Ejen Hartanah Berdaftar) yang menguruskan penyenaraian ni - kalau
-  // penjual sendiri REN disahkan, diisi terus dengan sellerId (auto-approve).
-  // Kalau penjual orang biasa, admin WAJIB pilih REN pilihan PLT semasa
-  // kelulusan (lihat app/api/admin/geran/update-status).
-  assignedRenId String?
-  assignedRen   Seller? @relation("GeranAssignedRen", fields: [assignedRenId], references: [id])
-
   status       StatusGeran @default(MENUNGGU_SEMAKAN)
   catatanAdmin String? // sebab tolak / nota admin lain
 
@@ -629,71 +598,6 @@ model GeranFavorite {
   createdAt DateTime @default(now())
 
   @@unique([sellerId, geranId])
-}
-
-// ---------- JURUTERBANG DRONE ----------
-enum StatusPermohonanDrone {
-  MENUNGGU_SEMAKAN
-  DISAHKAN
-  DITOLAK
-}
-
-// Permohonan ahli jadi Drone Pilot (untuk proses permintaan drone
-// survey pada penyenaraian Geran - lihat Geran.mintaDroneSurvey/statusDroneSurvey).
-// Sekadar maklumat diri & model drone sendiri, admin sahkan secara manual
-// (belum ada sijil/lesen pilot wajib), alur sama macam Geran.status di atas.
-model DronePilotApplication {
-  id  String @id @default(cuid())
-  seq Int    @default(autoincrement())
-
-  sellerId String
-  seller   Seller @relation(fields: [sellerId], references: [id])
-
-  namaPenuh  String
-  telefon    String
-  negeri     String
-  modelDrone String
-
-  status       StatusPermohonanDrone @default(MENUNGGU_SEMAKAN)
-  catatanAdmin String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([status])
-}
-
-// ---------- REN BERDAFTAR PLT ----------
-enum StatusPermohonanRen {
-  MENUNGGU_SEMAKAN
-  DISAHKAN
-  DITOLAK
-}
-
-// Permohonan ahli jadi REN (Ejen Hartanah Berdaftar) di bawah PLT - bila
-// diluluskan (Seller.renDisahkan = true), penyenaraian Geran ahli tersebut
-// terus DISAHKAN tanpa semakan manual (lihat app/api/geran POST). Penjual
-// BUKAN REN tetap kena melalui semakan admin & diletakkan di bawah REN
-// pilihan PLT (Geran.assignedRenId) - alur sama macam Geran.status di atas.
-model RenApplication {
-  id  String @id @default(cuid())
-  seq Int    @default(autoincrement())
-
-  sellerId String
-  seller   Seller @relation(fields: [sellerId], references: [id])
-
-  namaPenuh String
-  telefon   String
-  negeri    String
-  noRen     String // No. Pendaftaran REN/PEA (LPPEH)
-
-  status       StatusPermohonanRen @default(MENUNGGU_SEMAKAN)
-  catatanAdmin String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([status])
 }
 
 // ---------- ANALITIK DASHBOARD ADMIN ----------

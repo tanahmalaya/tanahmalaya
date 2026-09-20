@@ -18,7 +18,6 @@ const schema = z.object({
   hargaRM: z.number().positive(),
   keterangan: z.string().optional().nullable(),
   gambarUrls: z.array(z.string().url()).max(5).optional(),
-  mintaDroneSurvey: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,12 +38,9 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data;
-  const mintaDrone = data.mintaDroneSurvey ?? false;
 
-  // PLT-registered REN seller: listing goes straight to DISAHKAN
-  // (auto-approve), with the REN themselves as assignedRen. Regular sellers
-  // stay at MENUNGGU_SEMAKAN - admin must pick a PLT-assigned REN on
-  // approval (see app/api/geran-admin/geran/update-status).
+  // Every listing waits for admin review before it shows up in the public
+  // directory - see app/api/geran-admin/geran/update-status.
   const geran = await prisma.geran.create({
     data: {
       sellerId: seller.id,
@@ -63,10 +59,7 @@ export async function POST(req: NextRequest) {
       hargaSen: BigInt(Math.round(data.hargaRM * 100)),
       keterangan: data.keterangan || null,
       gambarUrls: data.gambarUrls ?? [],
-      mintaDroneSurvey: mintaDrone,
-      statusDroneSurvey: mintaDrone ? "MENUNGGU_PILOT" : "TIDAK_BERKAITAN",
-      status: seller.renDisahkan ? "DISAHKAN" : "MENUNGGU_SEMAKAN",
-      assignedRenId: seller.renDisahkan ? seller.id : null,
+      status: "MENUNGGU_SEMAKAN",
     },
   });
 

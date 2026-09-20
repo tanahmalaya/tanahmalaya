@@ -39,7 +39,6 @@ export type GeranHistoryItem = {
   keluasan: number;
   unitKeluasan: UnitKeluasan;
   hargaSen: number;
-  mintaDroneSurvey: boolean;
   status: StatusGeran;
   catatanAdmin: string | null;
   createdAt: string;
@@ -48,11 +47,9 @@ export type GeranHistoryItem = {
 export default function GeranForm({
   namaPenjual,
   initialHistory,
-  isRen,
 }: {
   namaPenjual: string;
   initialHistory: GeranHistoryItem[];
-  isRen: boolean;
 }) {
   const [tajuk, setTajuk] = useState("");
   const [negeri, setNegeri] = useState(NEGERI_LIST[0]);
@@ -66,13 +63,11 @@ export default function GeranForm({
   const [hargaRM, setHargaRM] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [gambarUrls, setGambarUrls] = useState<string[]>([]);
-  const [mintaDroneSurvey, setMintaDroneSurvey] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [history, setHistory] = useState(initialHistory);
   const [justSubmittedSeq, setJustSubmittedSeq] = useState<number | null>(null);
-  const [justSubmittedStatus, setJustSubmittedStatus] = useState<StatusGeran>("MENUNGGU_SEMAKAN");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -96,15 +91,12 @@ export default function GeranForm({
           hargaRM: Number(hargaRM),
           keterangan: keterangan || null,
           gambarUrls,
-          mintaDroneSurvey,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to submit listing");
 
-      const status: StatusGeran = data.status ?? "MENUNGGU_SEMAKAN";
       setJustSubmittedSeq(data.seq);
-      setJustSubmittedStatus(status);
       setHistory((prev) => [
         {
           id: data.id,
@@ -116,8 +108,7 @@ export default function GeranForm({
           keluasan: Number(keluasan),
           unitKeluasan,
           hargaSen: Math.round(Number(hargaRM) * 100),
-          mintaDroneSurvey,
-          status,
+          status: "MENUNGGU_SEMAKAN",
           catatanAdmin: null,
           createdAt: new Date().toISOString(),
         },
@@ -131,7 +122,6 @@ export default function GeranForm({
       setHargaRM("");
       setKeterangan("");
       setGambarUrls([]);
-      setMintaDroneSurvey(false);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -147,15 +137,13 @@ export default function GeranForm({
           <span className="text-xs text-[#0E3B2E]/50">{namaPenjual}</span>
         </div>
         <p className="text-[#0E3B2E]/60 text-sm mb-5">
-          {isRen
-            ? "You're a PLT-registered REN - your listing is approved automatically and goes straight to the Geran directory."
-            : "Fill in your titled land details. Your listing will be reviewed and placed under a PLT-chosen REN before it appears in the Geran directory."}
+          Fill in your titled land details. Your listing will be reviewed by PLT before it appears in the
+          Geran directory.
         </p>
 
         {justSubmittedSeq !== null && (
           <div className="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl p-3">
-            Listing #{justSubmittedSeq} submitted successfully. Status:{" "}
-            {justSubmittedStatus === "DISAHKAN" ? "Approved (REN auto-approve)" : "Pending PLT review"}.
+            Listing #{justSubmittedSeq} submitted successfully. Status: Pending PLT review.
           </div>
         )}
 
@@ -285,23 +273,6 @@ export default function GeranForm({
             <GambarGeranUpload value={gambarUrls} onChange={setGambarUrls} />
           </div>
 
-          <label className="flex items-start gap-3 bg-[#F7F5F1] rounded-xl p-3.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={mintaDroneSurvey}
-              onChange={(e) => setMintaDroneSurvey(e.target.checked)}
-              className="mt-0.5"
-            />
-            <span className="text-sm">
-              <span className="font-semibold">Request Drone Survey (optional)</span>
-              <br />
-              <span className="text-[#0E3B2E]/50 text-xs">
-                PLT will contact you to schedule a drone pilot to capture aerial photos/footage of this
-                land lot.
-              </span>
-            </span>
-          </label>
-
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
@@ -333,9 +304,6 @@ export default function GeranForm({
                 </div>
                 <p className="text-sm text-[#0E3B2E]/70 mb-1">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
                 <p className="font-bold text-[#0E3B2E] text-sm">{formatRM(g.hargaSen)}</p>
-                {g.mintaDroneSurvey && (
-                  <p className="text-xs text-blue-600 mt-1.5">📹 Drone survey request sent</p>
-                )}
                 {g.status === "DITOLAK" && g.catatanAdmin && (
                   <p className="text-xs text-red-600 mt-1.5">Reason: {g.catatanAdmin}</p>
                 )}

@@ -7,8 +7,6 @@ import GeranDirectory, { type GeranListing } from "@/components/geran/GeranDirec
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
-import MohonRenModal, { type RenStatusInfo } from "@/components/geran/MohonRenModal";
-import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/geran/MohonDronePilotModal";
 import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
 import { isGeranDomainRequest } from "@/lib/isGeranRequest";
 
@@ -48,7 +46,7 @@ export default async function GeranPage() {
   // tanahmalaya.org. Butang ni kekal untuk tanahmalaya.org/geran.
   const showHomeButton = !isGeranDomainRequest();
 
-  const [gerans, favorites, seller, dronePilotApplication, renApplication] = await Promise.all([
+  const [gerans, favorites] = await Promise.all([
     prisma.geran.findMany({
       where: { status: "DISAHKAN" },
       orderBy: { createdAt: "desc" },
@@ -56,21 +54,7 @@ export default async function GeranPage() {
     session
       ? prisma.geranFavorite.findMany({ where: { sellerId: session.sellerId }, select: { geranId: true } })
       : Promise.resolve([]),
-    session ? prisma.seller.findUnique({ where: { id: session.sellerId } }) : Promise.resolve(null),
-    session
-      ? prisma.dronePilotApplication.findFirst({ where: { sellerId: session.sellerId }, orderBy: { createdAt: "desc" } })
-      : Promise.resolve(null),
-    session
-      ? prisma.renApplication.findFirst({ where: { sellerId: session.sellerId }, orderBy: { createdAt: "desc" } })
-      : Promise.resolve(null),
   ]);
-
-  const renStatus: RenStatusInfo = renApplication
-    ? { status: renApplication.status, catatanAdmin: renApplication.catatanAdmin }
-    : null;
-  const dronePilotStatus: DronePilotStatusInfo = dronePilotApplication
-    ? { status: dronePilotApplication.status, catatanAdmin: dronePilotApplication.catatanAdmin }
-    : null;
 
   const listings: GeranListing[] = gerans.map((g) => ({
     id: g.id,
@@ -115,22 +99,6 @@ export default async function GeranPage() {
             Directory of titled land (clear ownership) for sale — every listing is reviewed &amp; verified
             first.
           </p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
-            <MohonRenModal
-              namaPenjual={seller?.fullName ?? ""}
-              telefonPenjual={seller?.phone ?? ""}
-              initialStatus={renStatus}
-              isLoggedIn={!!session}
-              redirectPath="/geran"
-            />
-            <MohonDronePilotModal
-              namaPenjual={seller?.fullName ?? ""}
-              telefonPenjual={seller?.phone ?? ""}
-              initialStatus={dronePilotStatus}
-              isLoggedIn={!!session}
-              redirectPath="/geran"
-            />
-          </div>
         </div>
         <GeranDirectory
           listings={listings}
