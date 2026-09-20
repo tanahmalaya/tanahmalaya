@@ -4,7 +4,13 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
-import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, formatRM, formatKeluasan } from "@/lib/geran";
+import {
+  JENIS_TANAH_LABEL,
+  JENIS_HAKMILIK_LABEL,
+  SUMBER_GERAN_PUBLIC_LABEL,
+  formatRM,
+  formatKeluasan,
+} from "@/lib/geran";
 import FavoriteButton from "@/components/geran/FavoriteButton";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
@@ -24,6 +30,7 @@ export type GeranListing = {
   hargaSen: number;
   keterangan: string | null;
   gambarUrls: string[];
+  sumber: keyof typeof SUMBER_GERAN_PUBLIC_LABEL;
 };
 
 const JENIS_CHIPS: ("ALL" | JenisTanah)[] = ["ALL", "PERTANIAN", "KOSONG", "PERUMAHAN", "KOMERSIAL", "PERINDUSTRIAN", "PEMBANGUNAN"];
@@ -229,6 +236,7 @@ export default function GeranDirectory({
                     {JENIS_TANAH_LABEL[l.jenisTanah]} · {formatKeluasan(l.keluasan, l.unitKeluasan)}
                   </p>
                   <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(l.hargaSen)}</p>
+                  <p className="text-[11px] text-[#0E3B2E]/40 mt-1.5">{SUMBER_GERAN_PUBLIC_LABEL[l.sumber]}</p>
                 </div>
               </Link>
             </div>

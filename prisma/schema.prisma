@@ -546,6 +546,13 @@ enum StatusGeran {
   DITOLAK
 }
 
+// Sumber penyenaraian tanah di gerantanah.com.
+enum SumberGeran {
+  PLT // stok tanah PLT sendiri
+  KJ_LAND // dari KJ Land consultant
+  PENGGUNA // dihantar pengguna laman web melalui /geran/jual
+}
+
 // Tanah bergeran (hakmilik jelas) disenaraikan sendiri oleh penjual untuk
 // dipaparkan dalam direktori carian awam /geran - disemak & disahkan admin
 // dulu sebelum kelihatan awam, alur sama macam HargaTanahSubmission di atas.
@@ -553,10 +560,17 @@ model Geran {
   id  String @id @default(cuid())
   seq Int    @default(autoincrement())
 
-  sellerId       String
-  seller         Seller @relation(fields: [sellerId], references: [id])
-  // Snapshot maklumat penjual masa disenaraikan (kekal konsisten dalam rekod
-  // walaupun profil penjual berubah selepas ni).
+  // Dari mana penyenaraian ni datang - PLT & KJ_LAND dimasukkan sendiri oleh
+  // admin di /geran/admin/tambah (tiada akaun Seller), PENGGUNA pula dihantar
+  // penjual melalui /geran/jual.
+  sumber SumberGeran @default(PENGGUNA)
+
+  // null untuk penyenaraian PLT/KJ Land yang dimasukkan admin.
+  sellerId       String?
+  seller         Seller? @relation(fields: [sellerId], references: [id])
+  // Maklumat hubungan yang dipapar pada rekod admin. Untuk PENGGUNA ia
+  // snapshot profil penjual masa disenaraikan (kekal konsisten walaupun profil
+  // berubah selepas ni); untuk PLT/KJ Land ia hubungan pejabat/perunding.
   namaPenjual    String
   telefonPenjual String
   emelPenjual    String

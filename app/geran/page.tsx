@@ -70,6 +70,7 @@ export default async function GeranPage() {
     hargaSen: Number(g.hargaSen),
     keterangan: g.keterangan,
     gambarUrls: g.gambarUrls,
+    sumber: g.sumber,
   }));
 
   return (

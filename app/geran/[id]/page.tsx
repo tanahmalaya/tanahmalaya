@@ -10,7 +10,13 @@ import GeranFooter from "@/components/geran/GeranFooter";
 import GeranImageGallery from "@/components/geran/GeranImageGallery";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
-import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, formatRM, formatKeluasan } from "@/lib/geran";
+import {
+  JENIS_TANAH_LABEL,
+  JENIS_HAKMILIK_LABEL,
+  SUMBER_GERAN_PUBLIC_LABEL,
+  formatRM,
+  formatKeluasan,
+} from "@/lib/geran";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
@@ -84,6 +90,9 @@ export default async function GeranDetailPage({ params }: { params: { id: string
                 {geran.tajuk}
               </h1>
               <p className="font-extrabold text-2xl text-[#0E3B2E] tabular-nums">{formatRM(Number(geran.hargaSen))}</p>
+              <span className="inline-block mt-2 text-[12px] font-semibold text-[#0E3B2E]/60 bg-[#0E3B2E]/[0.06] px-2.5 py-1 rounded-full">
+                {SUMBER_GERAN_PUBLIC_LABEL[geran.sumber]}
+              </span>
             </div>
 
             {geran.keterangan && (
@@ -124,8 +133,8 @@ export default async function GeranDetailPage({ params }: { params: { id: string
                 <dd className="text-[#0E3B2E] font-semibold">{JENIS_TANAH_LABEL[geran.jenisTanah]}</dd>
               </dl>
               <p className="text-xs text-[#0E3B2E]/40 mt-3">
-                Information is based on the seller's listing, reviewed by PLT before publishing. Please
-                verify the actual title details before any transaction.
+                Information is based on the details submitted for this listing, reviewed by PLT before
+                publishing. Please verify the actual title details before any transaction.
               </p>
             </div>
 

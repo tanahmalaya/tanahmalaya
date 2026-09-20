@@ -28,6 +28,7 @@ export default async function GeranAdminGeranPage() {
     hargaSen: Number(g.hargaSen),
     keterangan: g.keterangan,
     gambarUrls: g.gambarUrls,
+    sumber: g.sumber,
     status: g.status,
     catatanAdmin: g.catatanAdmin,
     createdAt: g.createdAt.toISOString(),

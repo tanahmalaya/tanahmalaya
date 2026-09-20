@@ -24,6 +24,25 @@ export const UNIT_KELUASAN_LABEL: Record<string, string> = {
   HEKTAR: "hectare",
 };
 
+// Sumber penyenaraian - lihat enum SumberGeran dalam prisma/schema.prisma.
+// SUMBER_GERAN_LABEL untuk dashboard admin, SUMBER_GERAN_PUBLIC_LABEL untuk
+// direktori awam (ayat penuh supaya pembeli faham siapa yang menyenaraikan).
+export const SUMBER_GERAN_LABEL: Record<string, string> = {
+  PLT: "PLT",
+  KJ_LAND: "KJ Land",
+  PENGGUNA: "Website User",
+};
+
+export const SUMBER_GERAN_PUBLIC_LABEL: Record<string, string> = {
+  PLT: "Listed by PLT",
+  KJ_LAND: "Listed by KJ Land Consultant",
+  PENGGUNA: "Listed by owner",
+};
+
+// Sumber yang admin boleh pilih bila masuk penyenaraian sendiri - PENGGUNA
+// hanya datang dari borang /geran/jual, bukan dari admin.
+export const SUMBER_ADMIN_OPTIONS = ["PLT", "KJ_LAND"] as const;
+
 export const STATUS_GERAN_LABEL: Record<string, string> = {
   MENUNGGU_SEMAKAN: "Pending Review",
   DISAHKAN: "Approved",

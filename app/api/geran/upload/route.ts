@@ -3,12 +3,15 @@ export const dynamic = "force-dynamic";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getSellerSession } from "@/lib/sellerAuth";
+import { getGeranAdminSession } from "@/lib/geran-admin-auth";
 
 // Upload token straight from the browser to Vercel Blob for Geran photos -
 // see components/geran/GambarGeranUpload.tsx. Same pattern as
 // app/api/petty-cash/upload/route.ts.
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!getSellerSession()) {
+  // Penjual muat naik dari /geran/jual, admin GERAN pula dari
+  // /geran/admin/tambah.
+  if (!getSellerSession() && !getGeranAdminSession()) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 

@@ -7,7 +7,13 @@ import { requireSeller } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
-import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, formatRM, formatKeluasan } from "@/lib/geran";
+import {
+  JENIS_TANAH_LABEL,
+  JENIS_HAKMILIK_LABEL,
+  SUMBER_GERAN_PUBLIC_LABEL,
+  formatRM,
+  formatKeluasan,
+} from "@/lib/geran";
 
 export const metadata = {
   title: "Favorite Saya - GERAN",
@@ -68,6 +74,7 @@ export default async function FavoritePage() {
                     {JENIS_HAKMILIK_LABEL[l.jenisHakmilik]}
                   </p>
                   <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(Number(l.hargaSen))}</p>
+                  <p className="text-[11px] text-[#0E3B2E]/40 mt-1.5">{SUMBER_GERAN_PUBLIC_LABEL[l.sumber]}</p>
                 </div>
               </Link>
             ))}

@@ -6,6 +6,7 @@ import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
   STATUS_GERAN_LABEL,
+  SUMBER_GERAN_LABEL,
   formatRM,
   formatKeluasan,
 } from "@/lib/geran";
@@ -13,6 +14,7 @@ import {
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
 type Status = keyof typeof STATUS_GERAN_LABEL;
+type Sumber = keyof typeof SUMBER_GERAN_LABEL;
 
 export type GeranAdminRow = {
   id: string;
@@ -32,6 +34,7 @@ export type GeranAdminRow = {
   hargaSen: number;
   keterangan: string | null;
   gambarUrls: string[];
+  sumber: Sumber;
   status: Status;
   catatanAdmin: string | null;
   createdAt: string;
@@ -49,6 +52,14 @@ const STATUS_BADGE: Record<Status, string> = {
   DITOLAK: "bg-red-50 text-red-600 border border-red-200",
 };
 
+const SUMBER_BADGE: Record<Sumber, string> = {
+  PLT: "bg-[#0E3B2E]/[0.07] text-[#0E3B2E] border border-[#0E3B2E]/15",
+  KJ_LAND: "bg-blue-50 text-blue-700 border border-blue-200",
+  PENGGUNA: "bg-black/[0.04] text-brand-dark/60 border border-black/10",
+};
+
+const SUMBER_FILTER: ("ALL" | Sumber)[] = ["ALL", "PLT", "KJ_LAND", "PENGGUNA"];
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" });
 }
@@ -56,21 +67,25 @@ function formatDate(iso: string) {
 export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
   const router = useRouter();
   const [tab, setTab] = useState<Status>("MENUNGGU_SEMAKAN");
+  const [sumberAktif, setSumberAktif] = useState<"ALL" | Sumber>("ALL");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
 
-  const visible = rows.filter((r) => r.status === tab);
+  // Penapis sumber dikira dulu supaya bilangan pada setiap tab padan dengan
+  // apa yang betul-betul dipapar.
+  const bySumber = rows.filter((r) => sumberAktif === "ALL" || r.sumber === sumberAktif);
+  const visible = bySumber.filter((r) => r.status === tab);
   const counts = TAB_DEF.reduce<Record<Status, number>>((acc, t) => {
-    acc[t.key] = rows.filter((r) => r.status === t.key).length;
+    acc[t.key] = bySumber.filter((r) => r.status === t.key).length;
     return acc;
   }, {} as Record<Status, number>);
 
   useEffect(() => {
     setSelected(new Set());
-  }, [tab]);
+  }, [tab, sumberAktif]);
 
   function toggleSelected(id: string) {
     setSelected((prev) => {
@@ -143,6 +158,25 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
         ))}
       </div>
 
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-xs font-semibold text-brand-dark/45 mr-1">Sumber:</span>
+        {SUMBER_FILTER.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setSumberAktif(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+              sumberAktif === s
+                ? "bg-brand-dark text-white"
+                : "bg-black/[0.05] text-brand-dark/60 hover:bg-black/[0.08]"
+            }`}
+          >
+            {s === "ALL" ? "Semua" : SUMBER_GERAN_LABEL[s]} (
+            {s === "ALL" ? rows.length : rows.filter((r) => r.sumber === s).length})
+          </button>
+        ))}
+      </div>
+
       {tab === "MENUNGGU_SEMAKAN" && visible.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-4 bg-brand-cream/50 border border-brand-dark/10 rounded-md px-4 py-3">
           <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
@@ -180,9 +214,14 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                     </p>
                   </div>
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${STATUS_BADGE[g.status]}`}>
-                  {STATUS_GERAN_LABEL[g.status]}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${SUMBER_BADGE[g.sumber]}`}>
+                    {SUMBER_GERAN_LABEL[g.sumber]}
+                  </span>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_BADGE[g.status]}`}>
+                    {STATUS_GERAN_LABEL[g.status]}
+                  </span>
+                </div>
               </div>
 
               <p className="text-sm text-brand-dark/80 mb-1">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
