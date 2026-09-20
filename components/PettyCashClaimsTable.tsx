@@ -57,6 +57,43 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+// Vercel Blob simpan nama fail asal, jadi sambungan fail cukup untuk bezakan
+// imej (boleh preview terus) dengan PDF (kena buka tab baru).
+const IMEJ_EXT = /\.(jpe?g|png|webp|gif)$/i;
+
+/**
+ * Resit yang ahli attach. Admin kena tengok bukti ni sebelum luluskan
+ * tuntutan, jadi imej dipapar terus sebagai thumbnail (klik = saiz penuh)
+ * dan bukan sekadar link kecil yang senang terlepas pandang.
+ */
+function ResitPreview({ url }: { url: string }) {
+  const isImej = IMEJ_EXT.test(url.split("?")[0]);
+
+  return (
+    <div className="flex items-center gap-3">
+      {isImej && (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt="Resit"
+            loading="lazy"
+            className="h-20 w-20 object-cover rounded-sm border border-brand-dark/15 hover:opacity-80 transition-opacity"
+          />
+        </a>
+      )}
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark border border-brand-dark/20 rounded-sm px-3 py-1.5 hover:bg-brand-cream"
+      >
+        {isImej ? "Lihat Resit" : "Lihat Resit (PDF)"} →
+      </a>
+    </div>
+  );
+}
+
 export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] }) {
   const router = useRouter();
   const [tab, setTab] = useState<Status>("MENUNGGU");
@@ -67,6 +104,7 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkRejecting, setBulkRejecting] = useState(false);
   const [bulkRejectReason, setBulkRejectReason] = useState("");
+  const [menuTabTerbuka, setMenuTabTerbuka] = useState(false);
 
   const visible = claims.filter((c) => c.status === tab);
   const counts = TAB_DEF.reduce<Record<Status, number>>((acc, t) => {
@@ -142,7 +180,54 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
 
   return (
     <div>
-      <div className="flex gap-1 mb-5 border-b border-brand-dark/10 overflow-x-auto">
+      {/*
+        Empat tab ni (~500px) lebih lebar dari skrin telefon (~340px), jadi
+        dulu tab terakhir "Dibayar" terkeluar skrin tanpa sebarang petunjuk.
+        Pada mobile ia jadi pemilih yang tertutup - tekan baru senarai penuh
+        semua status terbuka. Dari sm ke atas, baris tab biasa kekal.
+      */}
+      <div className="sm:hidden relative mb-5">
+        <button
+          type="button"
+          onClick={() => setMenuTabTerbuka((v) => !v)}
+          aria-expanded={menuTabTerbuka}
+          className="w-full flex items-center justify-between bg-white border border-brand-dark/15 rounded-md px-4 py-3 text-sm font-semibold text-brand-dark"
+        >
+          <span>
+            {TAB_DEF.find((t) => t.key === tab)?.label} ({counts[tab]})
+          </span>
+          <span className={`text-brand-dark/40 text-xs transition-transform ${menuTabTerbuka ? "rotate-180" : ""}`}>
+            ▼
+          </span>
+        </button>
+
+        {menuTabTerbuka && (
+          <>
+            {/* Tekan di luar senarai = tutup semula */}
+            <div className="fixed inset-0 z-10" onClick={() => setMenuTabTerbuka(false)} />
+            <div className="absolute z-20 mt-1 w-full bg-white border border-brand-dark/15 rounded-md shadow-lg overflow-hidden">
+              {TAB_DEF.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => {
+                    setTab(t.key);
+                    setMenuTabTerbuka(false);
+                  }}
+                  className={`w-full flex items-center justify-between text-left px-4 py-3 text-sm font-semibold border-b border-brand-dark/5 last:border-b-0 ${
+                    tab === t.key ? "bg-brand-cream text-brand-dark" : "text-brand-dark/60"
+                  }`}
+                >
+                  <span>{t.label}</span>
+                  <span className="text-brand-dark/40">{counts[t.key]}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="hidden sm:flex gap-1 mb-5 border-b border-brand-dark/10 overflow-x-auto">
         {TAB_DEF.map((t) => (
           <button
             key={t.key}
@@ -256,9 +341,7 @@ export default function PettyCashClaimsTable({ claims }: { claims: ClaimRow[] })
               </div>
 
               {c.resitUrl ? (
-                <a href={c.resitUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline text-brand-gold">
-                  Lihat resit →
-                </a>
+                <ResitPreview url={c.resitUrl} />
               ) : (
                 <p className="text-xs text-brand-dark/40">Tiada resit dimuat naik.</p>
               )}
