@@ -12,11 +12,31 @@ import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/ge
 import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
 import { isGeranDomainRequest } from "@/lib/isGeranRequest";
 
+const GERAN_TITLE = "Geran - Titled Land Directory For Sale";
+const GERAN_DESCRIPTION =
+  "Search & filter titled land (clear ownership) listed for sale across Malaysia. Every listing is reviewed & verified by PLT first.";
+
 export const metadata = {
-  title: "Geran - Titled Land Directory For Sale",
-  description:
-    "Search & filter titled land (clear ownership) listed for sale across Malaysia. Every listing is reviewed & verified by PLT first.",
+  title: GERAN_TITLE,
+  description: GERAN_DESCRIPTION,
   alternates: { canonical: "/geran" },
+  // openGraph/twitter tak diwarisi dari root layout secara automatik bila
+  // ditakrifkan di sini - kalau tak set, WhatsApp/FB link preview untuk
+  // gerantanah.com akan terus papar jenama tanahmalaya.org dari root layout.
+  openGraph: {
+    type: "website",
+    url: "https://gerantanah.com",
+    siteName: "GERAN",
+    title: GERAN_TITLE,
+    description: GERAN_DESCRIPTION,
+    images: [{ url: "https://gerantanah.com/geran-logo-g.jpeg", alt: "GERAN" }],
+  },
+  twitter: {
+    card: "summary",
+    title: GERAN_TITLE,
+    description: GERAN_DESCRIPTION,
+    images: ["https://gerantanah.com/geran-logo-g.jpeg"],
+  },
 };
 
 export default async function GeranPage() {
