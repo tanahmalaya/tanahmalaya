@@ -24,7 +24,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // google*.html - fail verification Google Search Console (public/) kena
+  // boleh dicapai betul-betul di root gerantanah.com, bukan di-rewrite ke
+  // /geran/google....html (yang tak wujud & bagi 404).
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|apple-icon.png|icon.png|manifest.webmanifest|robots.txt|sitemap.xml).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|apple-icon.png|icon.png|manifest.webmanifest|robots.txt|sitemap.xml|google.*\\.html).*)",
   ],
 };
