@@ -45,6 +45,10 @@ export default function PackingSlipPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkPrinting, setBulkPrinting] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  // Menarik AWB dari EasyParcel ambil masa beberapa saat (lagi banyak order,
+  // lagi lama). Tanpa sebarang tanda, butang nampak macam tergantung - jadi
+  // kita kira saat berlalu supaya staff tahu ia memang sedang berjalan.
+  const [saatBerlalu, setSaatBerlalu] = useState(0);
 
   useEffect(() => {
     if (ids.length === 0) return;
@@ -58,6 +62,18 @@ export default function PackingSlipPage() {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const sedangSibuk = bulkPrinting || downloadingPdf;
+
+  useEffect(() => {
+    if (!sedangSibuk) {
+      setSaatBerlalu(0);
+      return;
+    }
+    const mula = Date.now();
+    const timer = setInterval(() => setSaatBerlalu(Math.round((Date.now() - mula) / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, [sedangSibuk]);
 
   function toggleSelected(id: string) {
     setSelected((prev) => {
@@ -191,7 +207,9 @@ export default function PackingSlipPage() {
           disabled={bulkPrinting || selectedPrintableCount === 0}
           className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
-          {bulkPrinting ? "PRINTING..." : `BULK PRINT AWB (${selectedPrintableCount})`}
+          {bulkPrinting
+            ? `PREPARING ${selectedPrintableCount} AWB... ${saatBerlalu}s`
+            : `BULK PRINT AWB (${selectedPrintableCount})`}
         </button>
         <button
           onClick={() => markShipped(orders.filter((o) => selected.has(o.id)).map((o) => o.id))}
@@ -206,7 +224,9 @@ export default function PackingSlipPage() {
           disabled={downloadingPdf || selectedPrintableCount === 0}
           className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
-          {downloadingPdf ? "PREPARING..." : `DOWNLOAD AWB (PDF) (${selectedPrintableCount})`}
+          {downloadingPdf
+            ? `PREPARING ${selectedPrintableCount} AWB... ${saatBerlalu}s`
+            : `DOWNLOAD AWB (PDF) (${selectedPrintableCount})`}
         </button>
       </div>
       <p className="text-xs text-brand-dark/50 mb-6 print:hidden max-w-xl">
@@ -268,6 +288,9 @@ export default function PackingSlipPage() {
                 <iframe
                   src={o.awbUrl}
                   title={`AWB #${o.seq}`}
+                  // Lazy - preview di bawah skrin tak perlu berebut bandwidth
+                  // dengan muat turun AWB masa staff tekan Bulk Print.
+                  loading="lazy"
                   className="w-full h-[420px] border border-brand-dark/20 rounded-sm"
                 />
               ) : (
