@@ -43,8 +43,7 @@ export default function PackingSlipPage() {
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkPrinting, setBulkPrinting] = useState(false);
-  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [menyediakanPdf, setMenyediakanPdf] = useState(false);
   // Menarik AWB dari EasyParcel ambil masa beberapa saat (lagi banyak order,
   // lagi lama). Tanpa sebarang tanda, butang nampak macam tergantung - jadi
   // kita kira saat berlalu supaya staff tahu ia memang sedang berjalan.
@@ -63,7 +62,7 @@ export default function PackingSlipPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sedangSibuk = bulkPrinting || downloadingPdf;
+  const sedangSibuk = menyediakanPdf;
 
   useEffect(() => {
     if (!sedangSibuk) {
@@ -99,94 +98,56 @@ export default function PackingSlipPage() {
     setTimeout(() => router.push("/admin/orders"), 1500);
   }
 
-  // The AWB PDF is hosted cross-origin (EasyParcel), so a directly-embedded
-  // iframe can't be scripted (browsers block contentWindow.print() /
-  // afterprint across origins). The proxy also merges every selected AWB
-  // into ONE PDF server-side, so this opens a single print job/dialog that
-  // covers all of them at once instead of one dialog per AWB.
-  function printBlobUrl(blobUrl: string): Promise<void> {
-    return new Promise((resolve) => {
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.right = "0";
-      iframe.style.bottom = "0";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
-      iframe.style.border = "0";
-      let settled = false;
-      const finish = () => {
-        if (settled) return;
-        settled = true;
-        iframe.remove();
-        resolve();
-      };
-      iframe.onload = () => {
-        const win = iframe.contentWindow;
-        if (!win) return finish();
-        win.addEventListener("afterprint", finish);
-        win.focus();
-        win.print();
-        // Fallback in case afterprint never fires.
-        setTimeout(finish, 8000);
-      };
-      iframe.src = blobUrl;
-      document.body.appendChild(iframe);
-    });
-  }
-
-  async function handleBulkPrint() {
-    const targets = orders.filter((o) => o.awbUrl && selected.has(o.id));
-    if (targets.length === 0) return;
-    setBulkPrinting(true);
-    try {
-      const idsParam = targets.map((o) => o.id).join(",");
-      const res = await fetch(`/api/admin/orders/awb-proxy?orderIds=${idsParam}`);
-      if (res.ok) {
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        await printBlobUrl(blobUrl);
-        URL.revokeObjectURL(blobUrl);
-      }
-    } finally {
-      setBulkPrinting(false);
-    }
-  }
-
   /**
-   * Muat turun AWB sahaja sebagai satu fail PDF.
+   * Buka AWB yang dipilih sebagai SATU PDF dalam tab baru - staff cetak
+   * dari viewer PDF di situ (Ctrl+P, paper size A6).
    *
-   * Dulu butang ni panggil window.print() terus - hasilnya cetakan SELURUH
-   * page: header & footer laman awam, sidebar admin, senarai item, dan AWB
-   * cuma muncul sebagai preview kecil dalam viewer PDF (iframe cross-origin
-   * tak boleh dirender betul masa cetak). Staff cuma perlukan label AWB,
-   * jadi kita ambil PDF gabungan yang sama macam Bulk Print dan simpan ia
-   * sebagai fail - bersih, tiada apa-apa lain.
+   * Kenapa bukan window.print() terus: AWB ialah PDF yang dihoskan di
+   * server EasyParcel (cross-origin). Browser tak boleh render isi PDF
+   * cross-origin masa cetak, jadi window.print() pada page ni cuma
+   * menghasilkan preview kecil viewer + header/footer laman - bukan label
+   * yang boleh guna. Label sebenar mesti ditarik & digabung di server
+   * (lihat /api/admin/orders/awb-proxy) dahulu.
+   *
+   * Pendekatan iframe tersembunyi + contentWindow.print() pernah digunakan
+   * di sini, tapi ia rapuh (event afterprint selalu tak muncul, jadi butang
+   * tersekat sampai timeout 8s) dan tak bagi staff peluang semak label
+   * sebelum cetak. Tab baru lebih mudah diramal.
    */
-  async function handleDownloadAwbPdf() {
+  async function handleOpenAwbPdf() {
     const targets = orders.filter((o) => o.awbUrl && selected.has(o.id));
     if (targets.length === 0) return;
-    setDownloadingPdf(true);
+    // Tab dibuka SERENTAK dengan klik - kalau dibuka selepas await, popup
+    // blocker akan sekat ia.
+    const tab = window.open("", "_blank");
+    setMenyediakanPdf(true);
     try {
       const res = await fetch(`/api/admin/orders/awb-proxy?orderIds=${targets.map((o) => o.id).join(",")}`);
       if (!res.ok) {
+        tab?.close();
         alert("Gagal ambil AWB daripada EasyParcel. Sila cuba lagi.");
         return;
       }
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
-      // Anchor download (bukan window.open) - popup blocker sekat tetingkap
-      // baru yang dibuka selepas await, muat turun tak disekat.
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = `awb-${targets.map((o) => o.seq).join("-")}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(blobUrl);
+      if (tab) {
+        tab.location.href = blobUrl;
+      } else {
+        // Popup disekat - muat turun sebagai fail supaya staff tak buntu.
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = `awb-${targets.map((o) => o.seq).join("-")}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      // Jangan revoke serta-merta - tab baru tu masih perlukan blob URL.
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
     } catch (e) {
+      tab?.close();
       alert("Ralat rangkaian semasa ambil AWB. Sila cuba lagi.");
     } finally {
-      setDownloadingPdf(false);
+      setMenyediakanPdf(false);
     }
   }
 
@@ -203,13 +164,13 @@ export default function PackingSlipPage() {
           Select All
         </label>
         <button
-          onClick={handleBulkPrint}
-          disabled={bulkPrinting || selectedPrintableCount === 0}
+          onClick={handleOpenAwbPdf}
+          disabled={menyediakanPdf || selectedPrintableCount === 0}
           className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
-          {bulkPrinting
+          {menyediakanPdf
             ? `PREPARING ${selectedPrintableCount} AWB... ${saatBerlalu}s`
-            : `BULK PRINT AWB (${selectedPrintableCount})`}
+            : `PRINT AWB (${selectedPrintableCount})`}
         </button>
         <button
           onClick={() => markShipped(orders.filter((o) => selected.has(o.id)).map((o) => o.id))}
@@ -217,16 +178,6 @@ export default function PackingSlipPage() {
           className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
         >
           {done ? "SHIPPED ✓" : `MARK SELECTED AS SHIPPED (${selected.size})`}
-        </button>
-        <span className="w-px h-5 bg-brand-dark/15 mx-1" />
-        <button
-          onClick={handleDownloadAwbPdf}
-          disabled={downloadingPdf || selectedPrintableCount === 0}
-          className="bg-brand-gold text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-        >
-          {downloadingPdf
-            ? `PREPARING ${selectedPrintableCount} AWB... ${saatBerlalu}s`
-            : `DOWNLOAD AWB (PDF) (${selectedPrintableCount})`}
         </button>
       </div>
       <p className="text-xs text-brand-dark/50 mb-6 print:hidden max-w-xl">
