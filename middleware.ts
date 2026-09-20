@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isGeranHostname } from "@/lib/geran-domain";
 
 // gerantanah.com adalah domain berasingan untuk laman GERAN sahaja.
 // Semua request ke domain ini di-rewrite supaya "/" memaparkan /geran
 // dan sub-path lain memaparkan /geran/<path> yang sepadan.
-const GERAN_DOMAINS = ["gerantanah.com", "www.gerantanah.com"];
-
 export function middleware(request: NextRequest) {
   const hostname = (request.headers.get("host") || "").split(":")[0];
 
-  if (!GERAN_DOMAINS.includes(hostname)) {
+  if (!isGeranHostname(hostname)) {
     return NextResponse.next();
   }
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConditionalChrome from "@/components/ConditionalChrome";
+import { isGeranDomainRequest } from "@/lib/isGeranRequest";
 // 1. Import CartProvider (sesuai path fail context anda)
 import { CartProvider } from "@/app/context/CartContext";
 import { CheckoutProvider } from "@/app/context/CheckoutContext";
@@ -122,7 +123,7 @@ export default function RootLayout({
         {/* 2. Wrap semua kandungan di dalam CartProvider */}
         <CartProvider>
           <CheckoutProvider>
-            <ConditionalChrome>{children}</ConditionalChrome>
+            <ConditionalChrome isGeranDomain={isGeranDomainRequest()}>{children}</ConditionalChrome>
           </CheckoutProvider>
         </CartProvider>
       </body>

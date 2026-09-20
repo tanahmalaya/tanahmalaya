@@ -10,6 +10,7 @@ import BackButton from "@/components/BackButton";
 import MohonRenModal, { type RenStatusInfo } from "@/components/geran/MohonRenModal";
 import MohonDronePilotModal, { type DronePilotStatusInfo } from "@/components/geran/MohonDronePilotModal";
 import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
+import { isGeranDomainRequest } from "@/lib/isGeranRequest";
 
 export const metadata = {
   title: "Geran - Titled Land Directory For Sale",
@@ -20,6 +21,9 @@ export const metadata = {
 
 export default async function GeranPage() {
   const session = getSellerSession();
+  // gerantanah.com ialah laman berasingan - tiada "Home" balik ke
+  // tanahmalaya.org. Butang ni kekal untuk tanahmalaya.org/geran.
+  const showHomeButton = !isGeranDomainRequest();
 
   const [gerans, favorites, seller, dronePilotApplication, renApplication] = await Promise.all([
     prisma.geran.findMany({
@@ -64,7 +68,7 @@ export default async function GeranPage() {
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
       <GeranBrandHeader
-        back={<BackButton href="/" label="Home" variant="light" />}
+        back={showHomeButton ? <BackButton href="/" label="Home" variant="light" /> : undefined}
         action={
           <div className="flex items-center gap-4">
             {session && (

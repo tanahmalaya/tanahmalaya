@@ -8,9 +8,19 @@ import Footer from "@/components/Footer";
 // identiti & nav sendiri (lihat components/geran/GeranBrandHeader.tsx &
 // GeranFooter.tsx) supaya rasa macam produk berasingan, bukan sebahagian
 // tampak laman utama tanahmalaya.org.
-export default function ConditionalChrome({ children }: { children: React.ReactNode }) {
+//
+// `isGeranDomain` datang dari root layout (Server Component, baca host
+// header) sebab middleware rewrite gerantanah.com/ -> /geran tak ubah
+// usePathname() client-side (ia kekal "/", ikut path asal browser).
+export default function ConditionalChrome({
+  children,
+  isGeranDomain,
+}: {
+  children: React.ReactNode;
+  isGeranDomain?: boolean;
+}) {
   const pathname = usePathname();
-  const isGeran = pathname?.startsWith("/geran");
+  const isGeran = isGeranDomain || pathname?.startsWith("/geran");
 
   if (isGeran) {
     return <main>{children}</main>;
