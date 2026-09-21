@@ -21,7 +21,7 @@ export default function GeranAccountNav({
           Log In
         </Link>
         <Link href="/geran/jual" className={GERAN_BTN_PRIMARY_INLINE}>
-          <span className="sm:hidden">Sign Up</span>
+          <span className="sm:hidden">+ List</span>
           <span className="hidden sm:inline">+ List Your Land</span>
         </Link>
       </div>

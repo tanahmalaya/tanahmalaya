@@ -61,21 +61,39 @@ export async function sendMemberLoginOtpEmail(member: { fullName: string; email:
   });
 }
 
-// Dihantar untuk log masuk akaun Penjual marketplace Geran (lihat
-// app/api/sellers/login-request) - kod OTP 6-digit, sah selama
-// OTP_EXPIRY_MINUTES (lib/memberAuth.ts, dikongsi dengan lib/sellerAuth.ts).
-export async function sendSellerLoginOtpEmail(seller: { fullName: string; email: string; code: string }) {
+// Kod sahkan e-mel semasa daftar akaun GERAN (app/api/sellers/daftar) -
+// 6 digit, sah selama OTP_EXPIRY_MINUTES (lib/memberAuth.ts).
+export async function sendSellerSahEmelEmail(seller: { fullName: string; email: string; code: string }) {
   await sendEmail({
     to: seller.email,
-    subject: `Kod Log Masuk Geran: ${seller.code} - Pertubuhan Literasi Tanah`,
+    subject: `Kod Pengesahan Akaun GERAN: ${seller.code} - Pertubuhan Literasi Tanah`,
     html: wrap(
       seller.fullName,
-      `<p>Guna kod di bawah untuk sahkan log masuk ke akaun Penjual Geran (senaraikan tanah untuk dijual):</p>
+      `<p>Terima kasih kerana mendaftar akaun GERAN. Guna kod di bawah untuk sahkan alamat e-mel anda:</p>
        <div style="text-align:center;margin:24px 0;">
          <span style="display:inline-block;font-size:32px;font-weight:800;letter-spacing:8px;color:#C68A2E;">${seller.code}</span>
        </div>
        <p>Kod ini sah selama 10 minit. Jangan kongsi kod ini dengan sesiapa.</p>
        <p style="color:#8B5A2B;font-size:13px;">Bukan anda yang mohon kod ini? Abaikan sahaja e-mel ini.</p>`
+    ),
+  });
+}
+
+// Kod untuk set atau reset kata laluan akaun GERAN
+// (app/api/sellers/lupa-kata-laluan). Aliran sama dipakai oleh akaun lama
+// yang belum ada kata laluan langsung.
+export async function sendSellerResetKataLaluanEmail(seller: { fullName: string; email: string; code: string }) {
+  await sendEmail({
+    to: seller.email,
+    subject: `Kod Set Kata Laluan GERAN: ${seller.code} - Pertubuhan Literasi Tanah`,
+    html: wrap(
+      seller.fullName,
+      `<p>Guna kod di bawah untuk set kata laluan baharu bagi akaun GERAN anda:</p>
+       <div style="text-align:center;margin:24px 0;">
+         <span style="display:inline-block;font-size:32px;font-weight:800;letter-spacing:8px;color:#C68A2E;">${seller.code}</span>
+       </div>
+       <p>Kod ini sah selama 10 minit. Jangan kongsi kod ini dengan sesiapa.</p>
+       <p style="color:#8B5A2B;font-size:13px;">Bukan anda yang mohon kod ini? Abaikan e-mel ini - kata laluan anda tidak berubah.</p>`
     ),
   });
 }

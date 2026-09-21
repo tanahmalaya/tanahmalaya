@@ -21,6 +21,9 @@ export default function GeranFooter() {
           </Link>
           . Every listing is reviewed &amp; verified before publishing.
         </p>
+        <Link href="/geran/privasi" className="text-xs underline hover:text-white">
+          Privacy Notice
+        </Link>
         <p className="text-[11px] text-white/40">© {new Date().getFullYear()} GERAN</p>
       </div>
     </footer>

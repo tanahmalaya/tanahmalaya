@@ -2,14 +2,14 @@ import { Suspense } from "react";
 import AuthGeranForm from "@/components/geran/AuthGeranForm";
 
 export const metadata = {
-  title: "Log In",
+  title: "Sign Up",
   robots: { index: false },
 };
 
-export default function LogMasukGeranPage() {
+export default function DaftarGeranPage() {
   return (
     <Suspense fallback={null}>
-      <AuthGeranForm modAwal="log-masuk" />
+      <AuthGeranForm modAwal="daftar" />
     </Suspense>
   );
 }

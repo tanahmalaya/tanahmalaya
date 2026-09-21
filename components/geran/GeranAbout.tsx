@@ -87,7 +87,7 @@ export default function GeranAbout({ isLoggedIn }: { isLoggedIn: boolean }) {
             </p>
           </div>
           <Link
-            href="/geran/log-masuk?redirect=%2Fgeran"
+            href="/geran/daftar?redirect=%2Fgeran"
             className="inline-flex shrink-0 bg-white text-[#0E3B2E] font-bold px-5 py-2.5 rounded-full text-sm hover:-translate-y-0.5 transition"
           >
             Sign Up / Log In

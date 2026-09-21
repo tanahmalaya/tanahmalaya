@@ -22,7 +22,11 @@ async function geranSitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [{ url: `${GERAN_BASE_URL}/`, changeFrequency: "daily", priority: 1 }, ...listingRoutes];
+  return [
+    { url: `${GERAN_BASE_URL}/`, changeFrequency: "daily", priority: 1 },
+    { url: `${GERAN_BASE_URL}/geran/privasi`, changeFrequency: "yearly", priority: 0.3 },
+    ...listingRoutes,
+  ];
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

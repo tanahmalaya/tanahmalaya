@@ -528,6 +528,21 @@ model Seller {
   phone    String
   email    String @unique
 
+  // null = akaun lama dari zaman log masuk OTP sahaja. Pengguna macam ni
+  // kena lalui aliran "set kata laluan" (app/api/sellers/lupa-kata-laluan)
+  // sekali sebelum boleh log masuk semula.
+  passwordHash String?
+
+  // Bila pengguna tanda setuju notis privasi semasa daftar - lihat
+  // app/geran/privasi. null untuk akaun yang wujud sebelum notis itu ada.
+  persetujuanPdpaPada DateTime?
+
+  // Had cubaan log masuk supaya kata laluan tak boleh dicuba secara pukal.
+  cubaanLogMasuk  Int       @default(0)
+  dikunciSehingga DateTime?
+
+  // Kod sekali guna untuk set/reset kata laluan. Pendaftaran baharu TIDAK
+  // guna medan ni - ia duduk dalam PendaftaranTertunda sehingga emel disahkan.
   otpCodeHash  String?
   otpExpiresAt DateTime?
   otpAttempts  Int       @default(0)
@@ -538,6 +553,30 @@ model Seller {
 
   gerans    Geran[]
   favorites GeranFavorite[]
+}
+
+// Pendaftaran yang belum sah emel. Sengaja BUKAN dalam jadual Seller: dulu
+// borang daftar terus tulis nama/telefon/emel ke Seller sebelum kod
+// disahkan, jadi sesiapa yang tutup tab di tengah jalan - atau taip emel
+// orang lain - tinggalkan rekod kekal. Baris di sini luput sendiri dan
+// dibersihkan pada permintaan daftar berikutnya.
+model PendaftaranTertunda {
+  id       String @id @default(cuid())
+  fullName String
+  phone    String
+  email    String @unique
+
+  passwordHash        String
+  persetujuanPdpaPada DateTime
+
+  kodHash         String
+  kodLuputPada    DateTime
+  cubaan          Int      @default(0)
+  kodDihantarPada DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([kodLuputPada])
 }
 
 enum StatusGeran {
