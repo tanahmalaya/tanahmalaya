@@ -22,14 +22,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        if (!pathname.startsWith("geran/gambar/")) {
-          throw new Error("Invalid upload path.");
+        // Dua jenis fail: gambar tanah untuk paparan awam, dan salinan penuh
+        // geran (PDF) yang hanya dipapar dalam dashboard admin.
+        if (pathname.startsWith("geran/gambar/")) {
+          return {
+            allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
+            maximumSizeInBytes: 10 * 1024 * 1024,
+            addRandomSuffix: true,
+          };
         }
-        return {
-          allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
-          maximumSizeInBytes: 10 * 1024 * 1024,
-          addRandomSuffix: true,
-        };
+        if (pathname.startsWith("geran/salinan/")) {
+          return {
+            allowedContentTypes: ["application/pdf"],
+            maximumSizeInBytes: 15 * 1024 * 1024,
+            addRandomSuffix: true,
+          };
+        }
+        throw new Error("Invalid upload path.");
       },
       onUploadCompleted: async () => {},
     });

@@ -588,6 +588,13 @@ model Geran {
   keterangan    String?       @db.Text
   gambarUrls    String[] // maksimum 5, URL fail di Vercel Blob
 
+  // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
+  // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat
+  // app/api/geran POST), pilihan untuk PLT/KJ Land yang admin masuk sendiri.
+  // JANGAN dedahkan URL ni pada halaman awam: ia mengandungi nama, no. KP &
+  // alamat tuan tanah, dan blob Vercel boleh dibuka sesiapa yang ada pautan.
+  salinanGeranUrl String?
+
   status       StatusGeran @default(MENUNGGU_SEMAKAN)
   catatanAdmin String? // sebab tolak / nota admin lain
 

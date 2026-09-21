@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
+import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
   JENIS_TANAH_LABEL,
@@ -63,6 +64,7 @@ export default function GeranForm({
   const [hargaRM, setHargaRM] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [gambarUrls, setGambarUrls] = useState<string[]>([]);
+  const [salinanGeranUrl, setSalinanGeranUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -91,6 +93,7 @@ export default function GeranForm({
           hargaRM: Number(hargaRM),
           keterangan: keterangan || null,
           gambarUrls,
+          salinanGeranUrl,
         }),
       });
       const data = await res.json();
@@ -122,6 +125,7 @@ export default function GeranForm({
       setHargaRM("");
       setKeterangan("");
       setGambarUrls([]);
+      setSalinanGeranUrl(null);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -273,11 +277,26 @@ export default function GeranForm({
             <GambarGeranUpload value={gambarUrls} onChange={setGambarUrls} />
           </div>
 
+          <div>
+            <label className={LABEL}>Full Title Copy — PDF (required)</label>
+            <p className="text-xs text-[#0E3B2E]/50 mb-2">
+              Upload the complete copy of the land title so PLT can verify the lot details, caveats,
+              charges and any restriction in interest. Seen by PLT only — it is never shown on the
+              public listing.
+            </p>
+            <SalinanGeranUpload value={salinanGeranUrl} onChange={setSalinanGeranUrl} />
+          </div>
+
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <button type="submit" disabled={loading} className={BTN_PRIMARY}>
+          <button type="submit" disabled={loading || !salinanGeranUrl} className={BTN_PRIMARY}>
             {loading ? "SUBMITTING..." : "SUBMIT LISTING"}
           </button>
+          {!salinanGeranUrl && (
+            <p className="text-xs text-[#0E3B2E]/45">
+              Attach the full title copy (PDF) to enable submission.
+            </p>
+          )}
         </form>
       </div>
 

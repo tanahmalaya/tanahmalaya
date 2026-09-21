@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
+import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
   JENIS_TANAH_LABEL,
@@ -39,6 +40,7 @@ export default function GeranAdminCreateForm() {
   const [hargaRM, setHargaRM] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [gambarUrls, setGambarUrls] = useState<string[]>([]);
+  const [salinanGeranUrl, setSalinanGeranUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -70,6 +72,7 @@ export default function GeranAdminCreateForm() {
           hargaRM: Number(hargaRM),
           keterangan: keterangan || null,
           gambarUrls,
+          salinanGeranUrl,
         }),
       });
       const data = await res.json();
@@ -84,6 +87,7 @@ export default function GeranAdminCreateForm() {
       setHargaRM("");
       setKeterangan("");
       setGambarUrls([]);
+      setSalinanGeranUrl(null);
       router.refresh();
     } catch (err) {
       setError((err as Error).message);
@@ -291,6 +295,15 @@ export default function GeranAdminCreateForm() {
         <div>
           <label className={LABEL}>Gambar tanah (pilihan)</label>
           <GambarGeranUpload value={gambarUrls} onChange={setGambarUrls} />
+        </div>
+
+        <div>
+          <label className={LABEL}>Salinan penuh geran - PDF (pilihan)</label>
+          <p className="text-xs text-brand-dark/45 mb-2">
+            Untuk rujukan kaveat, gadaian & sekatan kepentingan. Dipapar dalam dashboard admin
+            sahaja, tidak pernah muncul pada penyenaraian awam.
+          </p>
+          <SalinanGeranUpload value={salinanGeranUrl} onChange={setSalinanGeranUrl} />
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}

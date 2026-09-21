@@ -18,6 +18,9 @@ const schema = z.object({
   hargaRM: z.number().positive(),
   keterangan: z.string().optional().nullable(),
   gambarUrls: z.array(z.string().url()).max(5).optional(),
+  // Salinan penuh geran WAJIB untuk penyenaraian pengguna - PLT perlu semak
+  // kaveat, gadaian & sekatan kepentingan sebelum luluskan.
+  salinanGeranUrl: z.string().url("Please attach the full title copy (PDF)."),
 });
 
 export async function POST(req: NextRequest) {
@@ -59,6 +62,7 @@ export async function POST(req: NextRequest) {
       hargaSen: BigInt(Math.round(data.hargaRM * 100)),
       keterangan: data.keterangan || null,
       gambarUrls: data.gambarUrls ?? [],
+      salinanGeranUrl: data.salinanGeranUrl,
       status: "MENUNGGU_SEMAKAN",
     },
   });

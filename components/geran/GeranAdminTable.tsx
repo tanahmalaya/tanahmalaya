@@ -34,6 +34,7 @@ export type GeranAdminRow = {
   hargaSen: number;
   keterangan: string | null;
   gambarUrls: string[];
+  salinanGeranUrl: string | null;
   sumber: Sumber;
   status: Status;
   catatanAdmin: string | null;
@@ -254,6 +255,19 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                     </a>
                   ))}
                 </div>
+              )}
+
+              {g.salinanGeranUrl ? (
+                <a
+                  href={g.salinanGeranUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark bg-brand-cream/70 border border-brand-dark/15 rounded-sm px-2.5 py-1.5 mb-3"
+                >
+                  📄 Salinan penuh geran (PDF) →
+                </a>
+              ) : (
+                <p className="text-xs text-brand-dark/40 mb-3">Tiada salinan geran dilampirkan.</p>
               )}
 
               {g.status === "DITOLAK" && g.catatanAdmin && (
