@@ -45,9 +45,25 @@ export const SUMBER_ADMIN_OPTIONS = ["PLT", "KJ_LAND"] as const;
 
 export const STATUS_GERAN_LABEL: Record<string, string> = {
   MENUNGGU_SEMAKAN: "Pending Review",
+  DALAM_RUNDINGAN: "In Negotiation",
   DISAHKAN: "Approved",
   DITOLAK: "Rejected",
 };
+
+export const MAX_GAMBAR_GERAN = 8;
+
+// Terima pautan youtube.com/watch?v=, youtu.be/ dan youtube.com/embed/,
+// pulangkan ID video sahaja supaya halaman butiran boleh bina URL embed
+// sendiri. null bermakna pautan itu bukan YouTube yang sah.
+export function idVideoYoutube(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const padanan =
+    url.match(/[?&]v=([A-Za-z0-9_-]{11})/) ||
+    url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/) ||
+    url.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/) ||
+    url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/);
+  return padanan ? padanan[1] : null;
+}
 
 export function formatRM(sen: number) {
   const rm = sen / 100;

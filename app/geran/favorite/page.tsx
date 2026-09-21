@@ -31,7 +31,9 @@ export default async function FavoritePage() {
     include: { geran: true },
   });
 
-  const listings = favorites.filter((f) => f.geran.status === "DISAHKAN").map((f) => f.geran);
+  const listings = favorites
+    .filter((f) => f.geran.status === "DISAHKAN" && f.geran.hargaSiaranSen !== null)
+    .map((f) => f.geran);
 
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
@@ -77,7 +79,7 @@ export default async function FavoritePage() {
                     {JENIS_TANAH_LABEL[l.jenisTanah]} · {formatKeluasan(l.keluasan, l.unitKeluasan)} ·{" "}
                     {JENIS_HAKMILIK_LABEL[l.jenisHakmilik]}
                   </p>
-                  <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(Number(l.hargaSen))}</p>
+                  <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(Number(l.hargaSiaranSen ?? 0))}</p>
                   <p className="text-[11px] text-[#0E3B2E]/40 mt-1.5">{SUMBER_GERAN_PUBLIC_LABEL[l.sumber]}</p>
                 </div>
               </Link>

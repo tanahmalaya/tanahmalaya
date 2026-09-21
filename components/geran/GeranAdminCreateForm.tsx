@@ -11,6 +11,8 @@ import {
   UNIT_KELUASAN_LABEL,
   SUMBER_GERAN_LABEL,
   SUMBER_ADMIN_OPTIONS,
+  formatRM,
+  idVideoYoutube,
 } from "@/lib/geran";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
@@ -37,7 +39,9 @@ export default function GeranAdminCreateForm() {
   const [jenisHakmilik, setJenisHakmilik] = useState<JenisHakmilik>("TIDAK_PASTI");
   const [keluasan, setKeluasan] = useState("");
   const [unitKeluasan, setUnitKeluasan] = useState<UnitKeluasan>("EKAR");
-  const [hargaRM, setHargaRM] = useState("");
+  const [hargaAmbilRM, setHargaAmbilRM] = useState("");
+  const [hargaSiaranRM, setHargaSiaranRM] = useState("");
+  const [videoYoutubeUrl, setVideoYoutubeUrl] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [gambarUrls, setGambarUrls] = useState<string[]>([]);
   const [salinanGeranUrl, setSalinanGeranUrl] = useState<string | null>(null);
@@ -45,6 +49,12 @@ export default function GeranAdminCreateForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [berjayaSeq, setBerjayaSeq] = useState<number | null>(null);
+
+  const ambil = Number(hargaAmbilRM);
+  const siaran = Number(hargaSiaranRM);
+  const marginSen = ambil > 0 && siaran > 0 ? Math.round((siaran - ambil) * 100) : null;
+  const videoId = idVideoYoutube(videoYoutubeUrl);
+  const videoTakSah = videoYoutubeUrl.trim().length > 0 && !videoId;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -69,7 +79,9 @@ export default function GeranAdminCreateForm() {
           jenisHakmilik,
           keluasan: Number(keluasan),
           unitKeluasan,
-          hargaRM: Number(hargaRM),
+          hargaAmbilRM: hargaAmbilRM ? Number(hargaAmbilRM) : null,
+          hargaSiaranRM: Number(hargaSiaranRM),
+          videoYoutubeUrl: videoYoutubeUrl || null,
           keterangan: keterangan || null,
           gambarUrls,
           salinanGeranUrl,
@@ -84,7 +96,9 @@ export default function GeranAdminCreateForm() {
       setNomborLot("");
       setNomborGeran("");
       setKeluasan("");
-      setHargaRM("");
+      setHargaAmbilRM("");
+      setHargaSiaranRM("");
+      setVideoYoutubeUrl("");
       setKeterangan("");
       setGambarUrls([]);
       setSalinanGeranUrl(null);
@@ -269,18 +283,41 @@ export default function GeranAdminCreateForm() {
           </div>
         </div>
 
-        <div>
-          <label className={LABEL}>Harga tawaran (RM)</label>
-          <input
-            required
-            type="number"
-            min="0"
-            step="any"
-            value={hargaRM}
-            onChange={(e) => setHargaRM(e.target.value)}
-            className={INPUT}
-          />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={LABEL}>Harga kita ambil (RM) — pilihan</label>
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={hargaAmbilRM}
+              onChange={(e) => setHargaAmbilRM(e.target.value)}
+              className={INPUT}
+            />
+            <p className="text-xs text-brand-dark/40 mt-1">Kos PLT/KJ Land. Tak dipapar kepada pembeli.</p>
+          </div>
+          <div>
+            <label className={LABEL}>Harga siaran (RM)</label>
+            <input
+              required
+              type="number"
+              min="0"
+              step="any"
+              value={hargaSiaranRM}
+              onChange={(e) => setHargaSiaranRM(e.target.value)}
+              className={INPUT}
+            />
+            <p className="text-xs text-brand-dark/40 mt-1">Harga yang pembeli nampak di direktori.</p>
+          </div>
         </div>
+
+        {marginSen !== null && (
+          <p
+            className={`text-sm font-semibold ${marginSen >= 0 ? "text-emerald-700" : "text-red-600"}`}
+          >
+            Margin: {formatRM(marginSen)}
+          </p>
+        )}
 
         <div>
           <label className={LABEL}>Keterangan (pilihan)</label>
@@ -298,6 +335,19 @@ export default function GeranAdminCreateForm() {
         </div>
 
         <div>
+          <label className={LABEL}>Video drone - pautan YouTube (pilihan)</label>
+          <input
+            value={videoYoutubeUrl}
+            onChange={(e) => setVideoYoutubeUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className={INPUT}
+          />
+          {videoTakSah && (
+            <p className="text-xs text-red-600 mt-1">Bukan pautan YouTube yang sah.</p>
+          )}
+        </div>
+
+        <div>
           <label className={LABEL}>Salinan penuh geran - PDF (pilihan)</label>
           <p className="text-xs text-brand-dark/45 mb-2">
             Untuk rujukan kaveat, gadaian & sekatan kepentingan. Dipapar dalam dashboard admin
@@ -310,7 +360,7 @@ export default function GeranAdminCreateForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || videoTakSah}
           className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-4 py-2.5 disabled:opacity-50"
         >
           {loading ? "MENYIMPAN..." : "TAMBAH PENYENARAIAN"}

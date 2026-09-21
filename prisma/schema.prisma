@@ -580,8 +580,9 @@ model PendaftaranTertunda {
 }
 
 enum StatusGeran {
-  MENUNGGU_SEMAKAN
-  DISAHKAN
+  MENUNGGU_SEMAKAN // baru dihantar penjual, admin belum semak
+  DALAM_RUNDINGAN // admin sedang runding harga dengan penjual
+  DISAHKAN // harga dipersetujui & tersiar di direktori awam
   DITOLAK
 }
 
@@ -623,9 +624,28 @@ model Geran {
   jenisHakmilik JenisHakmilik @default(TIDAK_PASTI)
   keluasan      Float
   unitKeluasan  UnitKeluasan  @default(SQFT)
-  hargaSen      BigInt // harga tawaran, dalam sen
   keterangan    String?       @db.Text
-  gambarUrls    String[] // maksimum 5, URL fail di Vercel Blob
+
+  // ---- Harga (semua dalam sen) ----
+  // Alur: penjual minta hargaDiminta -> admin semak hargaPasaran -> runding
+  // sampai hargaAmbil -> siarkan pada hargaSiaran. Margin PLT/KJ Land ialah
+  // hargaSiaran - hargaAmbil.
+  //
+  // HANYA hargaSiaranSen boleh sampai ke halaman awam. Tiga yang lain adalah
+  // maklumat perniagaan dalaman - jangan masukkan dalam GeranListing atau
+  // apa-apa prop yang dihantar ke komponen direktori awam.
+  hargaDimintaSen BigInt? // apa penjual minta (null untuk stok PLT/KJ Land)
+  hargaPasaranSen BigInt? // anggaran harga pasaran oleh PLT
+  hargaAmbilSen   BigInt? // harga yang PLT/KJ Land setuju ambil dari penjual
+  hargaSiaranSen  BigInt? // harga di direktori awam - WAJIB sebelum DISAHKAN
+
+  // Nota rundingan harga dengan penjual - dalaman, admin sahaja.
+  catatanRundingan String? @db.Text
+
+  // Media dirakam oleh PLT/KJ Land sendiri, bukan penjual - ditambah melalui
+  // skrin edit admin selepas penyenaraian dihantar.
+  gambarUrls      String[] // maksimum 8, URL fail di Vercel Blob (awam)
+  videoYoutubeUrl String? // video drone di YouTube (unlisted), dibenamkan di halaman butiran
 
   // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
   // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat

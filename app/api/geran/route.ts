@@ -15,9 +15,8 @@ const schema = z.object({
   jenisHakmilik: z.enum(["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"]),
   keluasan: z.number().positive(),
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
-  hargaRM: z.number().positive(),
+  hargaRM: z.number().positive(), // harga yang penjual minta
   keterangan: z.string().optional().nullable(),
-  gambarUrls: z.array(z.string().url()).max(5).optional(),
   // Salinan penuh geran WAJIB untuk penyenaraian pengguna - PLT perlu semak
   // kaveat, gadaian & sekatan kepentingan sebelum luluskan.
   salinanGeranUrl: z.string().url("Please attach the full title copy (PDF)."),
@@ -42,8 +41,10 @@ export async function POST(req: NextRequest) {
 
   const data = parsed.data;
 
-  // Every listing waits for admin review before it shows up in the public
-  // directory - see app/api/geran-admin/geran/update-status.
+  // Penyenaraian masuk dengan harga yang penjual minta sahaja. Admin semak
+  // harga pasaran, runding harga ambil, dan set harga siaran sebelum ia boleh
+  // tersiar - lihat app/api/geran-admin/geran/update. Gambar & video drone
+  // dirakam PLT/KJ Land sendiri, jadi borang penjual tak muat naik media.
   const geran = await prisma.geran.create({
     data: {
       sellerId: seller.id,
@@ -59,9 +60,8 @@ export async function POST(req: NextRequest) {
       jenisHakmilik: data.jenisHakmilik,
       keluasan: data.keluasan,
       unitKeluasan: data.unitKeluasan,
-      hargaSen: BigInt(Math.round(data.hargaRM * 100)),
+      hargaDimintaSen: BigInt(Math.round(data.hargaRM * 100)),
       keterangan: data.keterangan || null,
-      gambarUrls: data.gambarUrls ?? [],
       salinanGeranUrl: data.salinanGeranUrl,
       status: "MENUNGGU_SEMAKAN",
     },

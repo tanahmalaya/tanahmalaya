@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
@@ -21,6 +20,7 @@ type StatusGeran = keyof typeof STATUS_GERAN_LABEL;
 
 const STATUS_BADGE: Record<StatusGeran, string> = {
   MENUNGGU_SEMAKAN: "bg-amber-50 text-amber-700 border border-amber-200",
+  DALAM_RUNDINGAN: "bg-blue-50 text-blue-700 border border-blue-200",
   DISAHKAN: "bg-emerald-50 text-emerald-700 border border-emerald-200",
   DITOLAK: "bg-red-50 text-red-600 border border-red-200",
 };
@@ -39,7 +39,10 @@ export type GeranHistoryItem = {
   jenisTanah: JenisTanah;
   keluasan: number;
   unitKeluasan: UnitKeluasan;
-  hargaSen: number;
+  hargaDimintaSen: number | null;
+  hargaPasaranSen: number | null;
+  hargaAmbilSen: number | null;
+  hargaSiaranSen: number | null;
   status: StatusGeran;
   catatanAdmin: string | null;
   createdAt: string;
@@ -63,7 +66,6 @@ export default function GeranForm({
   const [unitKeluasan, setUnitKeluasan] = useState<UnitKeluasan>("EKAR");
   const [hargaRM, setHargaRM] = useState("");
   const [keterangan, setKeterangan] = useState("");
-  const [gambarUrls, setGambarUrls] = useState<string[]>([]);
   const [salinanGeranUrl, setSalinanGeranUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -92,7 +94,6 @@ export default function GeranForm({
           unitKeluasan,
           hargaRM: Number(hargaRM),
           keterangan: keterangan || null,
-          gambarUrls,
           salinanGeranUrl,
         }),
       });
@@ -110,7 +111,10 @@ export default function GeranForm({
           jenisTanah,
           keluasan: Number(keluasan),
           unitKeluasan,
-          hargaSen: Math.round(Number(hargaRM) * 100),
+          hargaDimintaSen: Math.round(Number(hargaRM) * 100),
+          hargaPasaranSen: null,
+          hargaAmbilSen: null,
+          hargaSiaranSen: null,
           status: "MENUNGGU_SEMAKAN",
           catatanAdmin: null,
           createdAt: new Date().toISOString(),
@@ -124,7 +128,6 @@ export default function GeranForm({
       setKeluasan("");
       setHargaRM("");
       setKeterangan("");
-      setGambarUrls([]);
       setSalinanGeranUrl(null);
     } catch (err) {
       setError((err as Error).message);
@@ -141,8 +144,9 @@ export default function GeranForm({
           <span className="text-xs text-[#0E3B2E]/50">{namaPenjual}</span>
         </div>
         <p className="text-[#0E3B2E]/60 text-sm mb-5">
-          Fill in your titled land details. Your listing will be reviewed by PLT before it appears in the
-          Geran directory.
+          Fill in your titled land details and the price you are asking for. PLT reviews the title, checks
+          the market value, and will contact you to agree a price before your land is listed. PLT also
+          handles the photos and the drone video - you do not need to upload any.
         </p>
 
         {justSubmittedSeq !== null && (
@@ -248,7 +252,7 @@ export default function GeranForm({
               </select>
             </div>
             <div>
-              <label className={LABEL}>Asking Price (RM)</label>
+              <label className={LABEL}>Your Asking Price (RM)</label>
               <input
                 type="number"
                 min="1"
@@ -270,11 +274,6 @@ export default function GeranForm({
               placeholder="e.g. Paved road access, near a river, suitable for a durian orchard"
               className={INPUT}
             />
-          </div>
-
-          <div>
-            <label className={LABEL}>Land Photos (optional)</label>
-            <GambarGeranUpload value={gambarUrls} onChange={setGambarUrls} />
           </div>
 
           <div>
@@ -321,8 +320,40 @@ export default function GeranForm({
                     {STATUS_GERAN_LABEL[g.status]}
                   </span>
                 </div>
-                <p className="text-sm text-[#0E3B2E]/70 mb-1">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
-                <p className="font-bold text-[#0E3B2E] text-sm">{formatRM(g.hargaSen)}</p>
+                <p className="text-sm text-[#0E3B2E]/70 mb-1.5">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
+
+                <dl className="text-xs space-y-1">
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-[#0E3B2E]/45">Your asking price</dt>
+                    <dd className="font-semibold text-[#0E3B2E]">
+                      {g.hargaDimintaSen === null ? "—" : formatRM(g.hargaDimintaSen)}
+                    </dd>
+                  </div>
+                  {g.hargaPasaranSen !== null && (
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-[#0E3B2E]/45">PLT market estimate</dt>
+                      <dd className="font-semibold text-[#0E3B2E]">{formatRM(g.hargaPasaranSen)}</dd>
+                    </div>
+                  )}
+                  {g.hargaAmbilSen !== null && (
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-[#0E3B2E]/45">Agreed price to you</dt>
+                      <dd className="font-bold text-[#0E3B2E]">{formatRM(g.hargaAmbilSen)}</dd>
+                    </div>
+                  )}
+                  {g.hargaSiaranSen !== null && (
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-[#0E3B2E]/45">Listed price</dt>
+                      <dd className="font-semibold text-[#0E3B2E]">{formatRM(g.hargaSiaranSen)}</dd>
+                    </div>
+                  )}
+                </dl>
+
+                {g.status === "DALAM_RUNDINGAN" && (
+                  <p className="text-xs text-blue-700 mt-2">
+                    PLT is reviewing the market value and will contact you about the price.
+                  </p>
+                )}
                 {g.status === "DITOLAK" && g.catatanAdmin && (
                   <p className="text-xs text-red-600 mt-1.5">Reason: {g.catatanAdmin}</p>
                 )}

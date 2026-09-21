@@ -48,7 +48,9 @@ export default async function GeranPage() {
 
   const [gerans, favorites] = await Promise.all([
     prisma.geran.findMany({
-      where: { status: "DISAHKAN" },
+      // hargaSiaranSen wajib ada sebelum status jadi DISAHKAN, tapi tapis
+      // sekali lagi di sini supaya direktori tak sesekali papar harga kosong.
+      where: { status: "DISAHKAN", hargaSiaranSen: { not: null } },
       orderBy: { createdAt: "desc" },
     }),
     session
@@ -67,7 +69,7 @@ export default async function GeranPage() {
     jenisHakmilik: g.jenisHakmilik,
     keluasan: g.keluasan,
     unitKeluasan: g.unitKeluasan,
-    hargaSen: Number(g.hargaSen),
+    hargaSen: Number(g.hargaSiaranSen),
     keterangan: g.keterangan,
     gambarUrls: g.gambarUrls,
     sumber: g.sumber,

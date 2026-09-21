@@ -17,11 +17,12 @@ import {
   SUMBER_GERAN_PUBLIC_LABEL,
   formatRM,
   formatKeluasan,
+  idVideoYoutube,
 } from "@/lib/geran";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
-  if (!geran || geran.status !== "DISAHKAN") return { title: "Geran" };
+  if (!geran || geran.status !== "DISAHKAN" || geran.hargaSiaranSen === null) return { title: "Geran" };
 
   const title = `${geran.tajuk} - GERAN`;
   const description =
@@ -52,10 +53,13 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 
 export default async function GeranDetailPage({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
-  if (!geran || geran.status !== "DISAHKAN") notFound();
+  // Tanpa harga siaran, halaman ni akan papar RM 0. update-status dah halang
+  // keadaan itu, tapi jangan bergantung pada satu lapisan sahaja.
+  if (!geran || geran.status !== "DISAHKAN" || geran.hargaSiaranSen === null) notFound();
 
   const session = getSellerSession();
-  const detailPath = `/geran/${geran.id}`;
+  const detailPath = `/geran/`;
+  const videoId = idVideoYoutube(geran.videoYoutubeUrl);
 
   const [favorite, serupa] = await Promise.all([
     session
@@ -66,6 +70,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
     prisma.geran.findMany({
       where: {
         status: "DISAHKAN",
+        hargaSiaranSen: { not: null },
         id: { not: geran.id },
         OR: [{ negeri: geran.negeri }, { jenisTanah: geran.jenisTanah }],
       },
@@ -84,6 +89,22 @@ export default async function GeranDetailPage({ params }: { params: { id: string
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} />
 
+        {videoId && (
+          <div className="mt-5">
+            <h2 className="font-bold text-[#0E3B2E] mb-2">Drone Video</h2>
+            <div className="aspect-video rounded-2xl overflow-hidden border border-black/[0.06] bg-black">
+              <iframe
+                src={"https://www.youtube-nocookie.com/embed/" + videoId}
+                title={"Drone video - " + geran.tajuk}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+            <p className="text-xs text-[#0E3B2E]/40 mt-2">Aerial footage recorded by PLT.</p>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2 space-y-6">
             <div>
@@ -93,7 +114,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
               <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-[#0E3B2E] tracking-tight mb-2">
                 {geran.tajuk}
               </h1>
-              <p className="font-extrabold text-2xl text-[#0E3B2E] tabular-nums">{formatRM(Number(geran.hargaSen))}</p>
+              <p className="font-extrabold text-2xl text-[#0E3B2E] tabular-nums">{formatRM(Number(geran.hargaSiaranSen ?? 0))}</p>
               <span className="inline-block mt-2 text-[12px] font-semibold text-[#0E3B2E]/60 bg-[#0E3B2E]/[0.06] px-2.5 py-1 rounded-full">
                 {SUMBER_GERAN_PUBLIC_LABEL[geran.sumber]}
               </span>
@@ -160,7 +181,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
                       <div className="p-3">
                         <p className="text-[13px] font-semibold text-[#0E3B2E] line-clamp-1">{s.tajuk}</p>
                         <p className="text-[11px] text-[#0E3B2E]/45 mb-1">{s.negeri}</p>
-                        <p className="text-sm font-bold text-[#0E3B2E]">{formatRM(Number(s.hargaSen))}</p>
+                        <p className="text-sm font-bold text-[#0E3B2E]">{formatRM(Number(s.hargaSiaranSen ?? 0))}</p>
                       </div>
                     </Link>
                   ))}

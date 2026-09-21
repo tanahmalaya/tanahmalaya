@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   JENIS_TANAH_LABEL,
@@ -31,7 +32,9 @@ export type GeranAdminRow = {
   jenisHakmilik: JenisHakmilik;
   keluasan: number;
   unitKeluasan: string;
-  hargaSen: number;
+  hargaDimintaSen: number | null;
+  hargaAmbilSen: number | null;
+  hargaSiaranSen: number | null;
   keterangan: string | null;
   gambarUrls: string[];
   adaSalinanGeran: boolean;
@@ -43,12 +46,14 @@ export type GeranAdminRow = {
 
 const TAB_DEF: { key: Status; label: string }[] = [
   { key: "MENUNGGU_SEMAKAN", label: "Pending" },
+  { key: "DALAM_RUNDINGAN", label: "Negotiating" },
   { key: "DISAHKAN", label: "Approved" },
   { key: "DITOLAK", label: "Rejected" },
 ];
 
 const STATUS_BADGE: Record<Status, string> = {
   MENUNGGU_SEMAKAN: "bg-amber-50 text-amber-700 border border-amber-200",
+  DALAM_RUNDINGAN: "bg-blue-50 text-blue-700 border border-blue-200",
   DISAHKAN: "bg-emerald-50 text-emerald-700 border border-emerald-200",
   DITOLAK: "bg-red-50 text-red-600 border border-red-200",
 };
@@ -63,6 +68,14 @@ const SUMBER_FILTER: ("ALL" | Sumber)[] = ["ALL", "PLT", "KJ_LAND", "PENGGUNA"];
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+const harga = (sen: number | null) => (sen === null ? "—" : formatRM(sen));
+
+// Margin hanya bermakna bila kedua-dua harga ambil & siaran dah diisi.
+function margin(g: GeranAdminRow): number | null {
+  if (g.hargaAmbilSen === null || g.hargaSiaranSen === null) return null;
+  return g.hargaSiaranSen - g.hargaAmbilSen;
 }
 
 export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
@@ -98,10 +111,10 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
   }
 
   function toggleSelectAll() {
-    setSelected((prev) => (prev.size === visible.length ? new Set() : new Set(visible.map((r) => r.id))));
+    setSelected((prev) => (prev.size === bolehSiar.length ? new Set() : new Set(bolehSiar.map((r) => r.id))));
   }
 
-  async function updateStatus(geranId: string, status: "DISAHKAN" | "DITOLAK", opts?: { catatanAdmin?: string }) {
+  async function updateStatus(geranId: string, status: Status, opts?: { catatanAdmin?: string }) {
     const res = await fetch("/api/geran-admin/geran/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -111,7 +124,7 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
     if (!res.ok) throw new Error(data.error || "Failed to update status");
   }
 
-  async function handleSingleAction(geranId: string, status: "DISAHKAN" | "DITOLAK", opts?: { catatanAdmin?: string }) {
+  async function handleSingleAction(geranId: string, status: Status, opts?: { catatanAdmin?: string }) {
     setLoadingId(geranId);
     try {
       await updateStatus(geranId, status, opts);
@@ -141,7 +154,10 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
     }
   }
 
-  const allSelected = visible.length > 0 && selected.size === visible.length;
+  // Siarkan pukal hanya untuk yang dah ada harga siaran - yang lain akan
+  // ditolak pelayan.
+  const bolehSiar = visible.filter((r) => r.hargaSiaranSen !== null);
+  const allSelected = bolehSiar.length > 0 && selected.size === bolehSiar.length;
 
   return (
     <div>
@@ -178,18 +194,18 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
         ))}
       </div>
 
-      {tab === "MENUNGGU_SEMAKAN" && visible.length > 0 && (
+      {(tab === "MENUNGGU_SEMAKAN" || tab === "DALAM_RUNDINGAN") && bolehSiar.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-4 bg-brand-cream/50 border border-brand-dark/10 rounded-md px-4 py-3">
           <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-dark/70 mr-1">
             <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-            Select All
+            Select All ({bolehSiar.length} sedia siar)
           </label>
           <button
             onClick={handleBulkApprove}
             disabled={bulkLoading || selected.size === 0}
             className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
           >
-            {bulkLoading ? "PROCESSING..." : `APPROVE (${selected.size})`}
+            {bulkLoading ? "MEMPROSES..." : `SIARKAN (${selected.size})`}
           </button>
         </div>
       )}
@@ -202,7 +218,7 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
             <div key={g.id} className="bg-white border border-brand-dark/10 rounded-md p-5">
               <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
                 <div className="flex items-start gap-3">
-                  {tab === "MENUNGGU_SEMAKAN" && (
+                  {(tab === "MENUNGGU_SEMAKAN" || tab === "DALAM_RUNDINGAN") && g.hargaSiaranSen !== null && (
                     <input type="checkbox" className="mt-1" checked={selected.has(g.id)} onChange={() => toggleSelected(g.id)} />
                   )}
                   <div>
@@ -226,7 +242,21 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
               </div>
 
               <p className="text-sm text-brand-dark/80 mb-1">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
-              <p className="font-bold text-brand-gold mb-3">{formatRM(g.hargaSen)}</p>
+
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mb-3 text-xs">
+                <span className="text-brand-dark/50">
+                  Diminta: <span className="font-semibold text-brand-dark/75">{harga(g.hargaDimintaSen)}</span>
+                </span>
+                <span className="text-brand-dark/50">
+                  Ambil: <span className="font-semibold text-brand-dark/75">{harga(g.hargaAmbilSen)}</span>
+                </span>
+                <span className="text-brand-dark/50">
+                  Siaran: <span className="font-bold text-brand-gold text-sm">{harga(g.hargaSiaranSen)}</span>
+                </span>
+                {margin(g) !== null && (
+                  <span className="font-semibold text-emerald-700">Margin: {formatRM(margin(g)!)}</span>
+                )}
+              </div>
 
               <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-brand-dark/60 mb-3">
                 <p>
@@ -274,24 +304,44 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                 <p className="text-xs text-red-600 mt-2">Rejection reason: {g.catatanAdmin}</p>
               )}
 
-              {g.status === "MENUNGGU_SEMAKAN" && (
-                <div className="flex gap-2 mt-4 pt-4 border-t border-brand-dark/10">
+              <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-brand-dark/10">
+                <Link
+                  href={`/geran/admin/geran/${g.id}`}
+                  className="border border-brand-dark/25 text-brand-dark text-xs font-semibold rounded-sm px-3 py-1.5"
+                >
+                  HARGA & MEDIA
+                </Link>
+
+                {g.status === "MENUNGGU_SEMAKAN" && (
                   <button
-                    onClick={() => handleSingleAction(g.id, "DISAHKAN")}
+                    onClick={() => handleSingleAction(g.id, "DALAM_RUNDINGAN")}
                     disabled={loadingId === g.id}
-                    className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+                    className="border border-blue-300 text-blue-700 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
                   >
-                    APPROVE
+                    MULA RUNDING
                   </button>
-                  <button
-                    onClick={() => setRejectingId(rejectingId === g.id ? null : g.id)}
-                    disabled={loadingId === g.id}
-                    className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
-                  >
-                    REJECT
-                  </button>
-                </div>
-              )}
+                )}
+
+                {(g.status === "MENUNGGU_SEMAKAN" || g.status === "DALAM_RUNDINGAN") && (
+                  <>
+                    <button
+                      onClick={() => handleSingleAction(g.id, "DISAHKAN")}
+                      disabled={loadingId === g.id || g.hargaSiaranSen === null}
+                      title={g.hargaSiaranSen === null ? "Set harga siaran dahulu" : undefined}
+                      className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+                    >
+                      SIARKAN
+                    </button>
+                    <button
+                      onClick={() => setRejectingId(rejectingId === g.id ? null : g.id)}
+                      disabled={loadingId === g.id}
+                      className="border border-red-300 text-red-600 text-xs font-semibold rounded-sm px-3 py-1.5 disabled:opacity-50"
+                    >
+                      REJECT
+                    </button>
+                  </>
+                )}
+              </div>
 
               {rejectingId === g.id && (
                 <div className="mt-3 pt-3 border-t border-brand-dark/10">

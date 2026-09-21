@@ -3,7 +3,9 @@
 import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
-const MAX_GAMBAR = 5;
+import { MAX_GAMBAR_GERAN } from "@/lib/geran";
+
+const MAX_GAMBAR = MAX_GAMBAR_GERAN;
 
 export default function GambarGeranUpload({
   value,

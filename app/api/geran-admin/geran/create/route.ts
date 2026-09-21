@@ -23,9 +23,11 @@ const schema = z.object({
   jenisHakmilik: z.enum(["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"]),
   keluasan: z.number().positive(),
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
-  hargaRM: z.number().positive(),
+  hargaAmbilRM: z.number().positive().optional().nullable(), // kos PLT/KJ Land
+  hargaSiaranRM: z.number().positive(), // harga di direktori awam
   keterangan: z.string().optional().nullable(),
-  gambarUrls: z.array(z.string().url()).max(5).optional(),
+  gambarUrls: z.array(z.string().url()).max(8).optional(),
+  videoYoutubeUrl: z.string().url().optional().nullable(),
   // Pilihan di sini - PLT/KJ Land dah sahkan tanah sendiri sebelum masuk.
   salinanGeranUrl: z.string().url().optional().nullable(),
 });
@@ -59,9 +61,11 @@ export async function POST(req: NextRequest) {
       jenisHakmilik: data.jenisHakmilik,
       keluasan: data.keluasan,
       unitKeluasan: data.unitKeluasan,
-      hargaSen: BigInt(Math.round(data.hargaRM * 100)),
+      hargaAmbilSen: data.hargaAmbilRM ? BigInt(Math.round(data.hargaAmbilRM * 100)) : null,
+      hargaSiaranSen: BigInt(Math.round(data.hargaSiaranRM * 100)),
       keterangan: data.keterangan || null,
       gambarUrls: data.gambarUrls ?? [],
+      videoYoutubeUrl: data.videoYoutubeUrl || null,
       salinanGeranUrl: data.salinanGeranUrl || null,
       status: "DISAHKAN",
     },
