@@ -591,8 +591,9 @@ model Geran {
   // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
   // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat
   // app/api/geran POST), pilihan untuk PLT/KJ Land yang admin masuk sendiri.
-  // JANGAN dedahkan URL ni pada halaman awam: ia mengandungi nama, no. KP &
-  // alamat tuan tanah, dan blob Vercel boleh dibuka sesiapa yang ada pautan.
+  // URL ni tunjuk ke blob PERIBADI dan tak boleh dibuka terus - admin baca
+  // melalui app/api/geran-admin/salinan-geran/[id]. Jangan hantar nilai ni ke
+  // pelayar: dokumen itu ada nama, no. KP & alamat tuan tanah.
   salinanGeranUrl String?
 
   status       StatusGeran @default(MENUNGGU_SEMAKAN)

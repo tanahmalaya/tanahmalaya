@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
 const MAX_SAIZ = 15 * 1024 * 1024;
 
-// Salinan penuh geran dalam bentuk PDF - satu fail sahaja, dipapar dalam
-// dashboard admin sahaja (lihat komen pada Geran.salinanGeranUrl).
+// Salinan penuh geran dalam bentuk PDF - satu fail sahaja, dimuat naik
+// sebagai blob PERIBADI (lihat komen pada Geran.salinanGeranUrl). URL yang
+// dipulangkan tak boleh dibuka terus; admin baca melalui laluan proksi
+// app/api/geran-admin/salinan-geran/[id] yang semak sesi admin dulu.
 export default function SalinanGeranUpload({
   value,
   onChange,
@@ -17,7 +19,16 @@ export default function SalinanGeranUpload({
   const [status, setStatus] = useState<"idle" | "memuatnaik">("idle");
   const [error, setError] = useState("");
   const [namaFail, setNamaFail] = useState("");
+  // Pratonton tempatan dari fail yang baru dipilih - blob peribadi tak boleh
+  // dibuka terus, jadi pautan ini hidup dalam sesi pelayar ini sahaja.
+  const [pratontonUrl, setPratontonUrl] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pratontonUrl) URL.revokeObjectURL(pratontonUrl);
+    };
+  }, [pratontonUrl]);
 
   async function handleFile(files: FileList | null) {
     const file = files?.[0];
@@ -36,10 +47,14 @@ export default function SalinanGeranUpload({
     setStatus("memuatnaik");
     try {
       const blob = await upload(`geran/salinan/${Date.now()}-${file.name}`, file, {
-        access: "public",
+        access: "private",
         handleUploadUrl: "/api/geran/upload",
       });
       setNamaFail(file.name);
+      setPratontonUrl((lama) => {
+        if (lama) URL.revokeObjectURL(lama);
+        return URL.createObjectURL(file);
+      });
       onChange(blob.url);
     } catch {
       setError("Failed to upload the PDF. Please try again.");
@@ -51,6 +66,10 @@ export default function SalinanGeranUpload({
 
   function buang() {
     setNamaFail("");
+    setPratontonUrl((lama) => {
+      if (lama) URL.revokeObjectURL(lama);
+      return null;
+    });
     onChange(null);
     if (inputRef.current) inputRef.current.value = "";
   }
@@ -61,20 +80,20 @@ export default function SalinanGeranUpload({
         <span className="text-lg leading-none">📄</span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold truncate">{namaFail || "Title copy (PDF)"}</p>
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs underline text-[#0E3B2E]/60"
-          >
-            Preview
-          </a>
+          {pratontonUrl ? (
+            <a
+              href={pratontonUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs underline text-[#0E3B2E]/60"
+            >
+              Preview
+            </a>
+          ) : (
+            <p className="text-xs text-[#0E3B2E]/45">Attached</p>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={buang}
-          className="text-xs font-semibold text-red-600 shrink-0"
-        >
+        <button type="button" onClick={buang} className="text-xs font-semibold text-red-600 shrink-0">
           Remove
         </button>
       </div>

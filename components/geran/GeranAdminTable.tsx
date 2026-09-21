@@ -34,7 +34,7 @@ export type GeranAdminRow = {
   hargaSen: number;
   keterangan: string | null;
   gambarUrls: string[];
-  salinanGeranUrl: string | null;
+  adaSalinanGeran: boolean;
   sumber: Sumber;
   status: Status;
   catatanAdmin: string | null;
@@ -257,9 +257,9 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                 </div>
               )}
 
-              {g.salinanGeranUrl ? (
+              {g.adaSalinanGeran ? (
                 <a
-                  href={g.salinanGeranUrl}
+                  href={`/api/geran-admin/salinan-geran/${g.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark bg-brand-cream/70 border border-brand-dark/15 rounded-sm px-2.5 py-1.5 mb-3"
