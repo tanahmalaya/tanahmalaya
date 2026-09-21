@@ -7,6 +7,7 @@ import { requireSeller } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
+import GeranAccountNav from "@/components/geran/GeranAccountNav";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
@@ -34,7 +35,10 @@ export default async function FavoritePage() {
 
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
-      <GeranBrandHeader back={<BackButton href="/geran" label="Directory" variant="light" />} />
+      <GeranBrandHeader
+        back={<BackButton href="/geran" label="Directory" variant="light" />}
+        action={<GeranAccountNav isLoggedIn redirectPath="/geran/favorite" />}
+      />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0E3B2E] mb-1">

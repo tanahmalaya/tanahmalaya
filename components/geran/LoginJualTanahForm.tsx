@@ -95,14 +95,17 @@ export default function LoginJualTanahForm() {
       <GeranBrandHeader back={<BackButton href="/geran" label="Directory" variant="light" />} />
 
       <div className="max-w-lg mx-auto px-6 py-10">
-        <p className="text-sm text-[#0E3B2E]/55 mb-6">Sign up for a quick account to list your land on Geran.</p>
+        <p className="text-sm text-[#0E3B2E]/55 mb-6">
+          One free account to save land to your favorites, follow up with PLT, and list land of your own.
+        </p>
         <div className={CARD}>
           {step === "daftar" ? (
             <>
               <h2 className="text-[#0E3B2E] font-bold mb-1">SIGN UP / LOG IN</h2>
               <p className="text-[#0E3B2E]/60 text-sm mb-5">
-                Fill in your details below. A 6-digit verification code will be sent to your registered
-                email (existing members can use the same form to log back in).
+                New here? Fill in your details and we will create your account. Already registered? Use
+                the same form with the email you signed up with. Either way, a 6-digit code is sent to
+                your inbox - no password to remember.
               </p>
 
               <form onSubmit={handleDaftarSubmit} className="space-y-4">

@@ -1,18 +1,18 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSellerSession } from "@/lib/sellerAuth";
 import GeranDirectory, { type GeranListing } from "@/components/geran/GeranDirectory";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
-import { GERAN_BTN_PRIMARY_INLINE } from "@/components/geran/theme";
+import GeranAccountNav from "@/components/geran/GeranAccountNav";
+import GeranAbout from "@/components/geran/GeranAbout";
 import { isGeranDomainRequest } from "@/lib/isGeranRequest";
 
 const GERAN_TITLE = "Geran - Titled Land Directory For Sale";
 const GERAN_DESCRIPTION =
-  "Search & filter titled land (clear ownership) listed for sale across Malaysia. Every listing is reviewed & verified by PLT first.";
+  "Malaysia's marketplace for titled land with clear ownership. Search & filter land for sale, or list your own - every listing is reviewed & verified by PLT first.";
 
 export const metadata = {
   title: GERAN_TITLE,
@@ -77,18 +77,7 @@ export default async function GeranPage() {
     <div className="bg-[#F6F4EE] min-h-screen">
       <GeranBrandHeader
         back={showHomeButton ? <BackButton href="/" label="Home" variant="light" /> : undefined}
-        action={
-          <div className="flex items-center gap-4">
-            {session && (
-              <Link href="/geran/favorite" className="text-sm font-semibold text-[#0E3B2E]/60 hover:text-[#0E3B2E]">
-                ❤ Favorite
-              </Link>
-            )}
-            <Link href="/geran/jual" className={GERAN_BTN_PRIMARY_INLINE}>
-              + List Your Land
-            </Link>
-          </div>
-        }
+        action={<GeranAccountNav isLoggedIn={!!session} redirectPath="/geran" />}
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -96,9 +85,9 @@ export default async function GeranPage() {
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0E3B2E]">
             Find Titled Land
           </h1>
-          <p className="text-[#0E3B2E]/55 text-[15px] mt-1 max-w-xl">
-            Directory of titled land (clear ownership) for sale — every listing is reviewed &amp; verified
-            first.
+          <p className="text-[#0E3B2E]/55 text-[15px] mt-1 max-w-2xl leading-relaxed">
+            Malaysia&apos;s marketplace for land with a proper title and clear ownership. Browse what is for
+            sale, or list your own land — every listing is reviewed and verified by PLT first.
           </p>
         </div>
         <GeranDirectory
@@ -106,6 +95,8 @@ export default async function GeranPage() {
           isLoggedIn={!!session}
           favoritedIds={favorites.map((f) => f.geranId)}
         />
+
+        <GeranAbout isLoggedIn={!!session} />
       </div>
 
       <GeranFooter />

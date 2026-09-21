@@ -10,6 +10,7 @@ import GeranFooter from "@/components/geran/GeranFooter";
 import GeranImageGallery from "@/components/geran/GeranImageGallery";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
+import GeranAccountNav from "@/components/geran/GeranAccountNav";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
@@ -75,7 +76,10 @@ export default async function GeranDetailPage({ params }: { params: { id: string
 
   return (
     <div className="bg-[#F6F4EE] min-h-screen">
-      <GeranBrandHeader back={<BackButton href="/geran" label="Directory" variant="light" />} />
+      <GeranBrandHeader
+        back={<BackButton href="/geran" label="Directory" variant="light" />}
+        action={<GeranAccountNav isLoggedIn={!!session} redirectPath={detailPath} />}
+      />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} />
