@@ -8,3 +8,6 @@ node_modules
 # Fail bahasa OCR yang tesseract.js muat turun bila dijalankan dalam Node.
 # Dalam pelayar ia diambil dari CDN, jadi ia tak pernah perlu masuk repo.
 *.traineddata
+
+.vercel
+.env*

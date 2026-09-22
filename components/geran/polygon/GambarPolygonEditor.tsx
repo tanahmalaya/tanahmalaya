@@ -6,7 +6,7 @@
 // kanvas di sini mengikut nisbah asal gambar, dan kita lukis panduan putus-putus
 // yang tunjukkan bahagian mana akan terpangkas di halaman butiran.
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { BentukPolygon, GambarPolygons, Titik } from "@/lib/geran/polygon";
 import { bundarkanTitik } from "@/lib/geran/polygon";
 import PolygonCanvas from "./PolygonCanvas";
@@ -48,21 +48,44 @@ export default function GambarPolygonEditor({
 
   const url = gambarUrls[Math.min(aktif, gambarUrls.length - 1)];
   const bentuk: BentukPolygon | undefined = url ? value[url] : undefined;
-  const points = useMemo(() => bentuk?.points ?? [], [bentuk]);
   const dim = url ? dimensi[url] : undefined;
+
+  // Draf bucu semasa melukis disimpan di sini, BUKAN terus dalam `value` induk -
+  // `value` (GambarPolygons) hanya boleh pegang polygon yang sudah sah (>=3 bucu)
+  // atau tiada langsung (lihat gambarPolygonsSchema). Kalau draf 1-2 bucu terus
+  // ditulis ke situ, syarat "buang kalau <3 bucu" akan memadamnya balik serta-merta
+  // selepas SETIAP klik - itulah sebab lukisan nampak tak berfungsi.
+  const [points, setPoints] = useState<Titik[]>(bentuk?.points ?? []);
+
+  useEffect(() => {
+    setPoints(value[url]?.points ?? []);
+    // Reset draf hanya bila admin tukar gambar aktif - bukan pada setiap
+    // perubahan `value`, kalau tidak draf akan disebabkan semula oleh commit
+    // yang kita hantar sendiri sebaik sahaja polygon ditutup.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url]);
 
   function simpanBentuk(sebahagian: Partial<BentukPolygon>) {
     if (!url) return;
+    const puncaPoints = sebahagian.points ?? points;
+    if (sebahagian.points) setPoints(sebahagian.points);
+
+    if (puncaPoints.length > 0 && puncaPoints.length < 3) {
+      // Masih dalam proses melukis - simpan draf tempatan sahaja, jangan
+      // sentuh `value` induk lagi supaya ia tak dipadam oleh penapis panjang.
+      return;
+    }
+
     const baru = { ...value };
-    const gabung: BentukPolygon = {
-      points: sebahagian.points ?? points,
-      label: sebahagian.label !== undefined ? sebahagian.label : bentuk?.label ?? null,
-      w: dim?.w ?? bentuk?.w ?? null,
-      h: dim?.h ?? bentuk?.h ?? null,
-    };
-    if (gabung.points.length < 3) {
+    if (puncaPoints.length === 0) {
       delete baru[url];
     } else {
+      const gabung: BentukPolygon = {
+        points: puncaPoints,
+        label: sebahagian.label !== undefined ? sebahagian.label : bentuk?.label ?? null,
+        w: dim?.w ?? bentuk?.w ?? null,
+        h: dim?.h ?? bentuk?.h ?? null,
+      };
       baru[url] = { ...gabung, points: bundarkanTitik(gabung.points) };
     }
     onChange(baru);
