@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
+import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
+import GeranScanUpload, { type HasilImbas } from "@/components/geran/GeranScanUpload";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
@@ -52,6 +54,26 @@ export default function GeranAdminCreateForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [berjayaSeq, setBerjayaSeq] = useState<number | null>(null);
+
+  function isiDariImbasan(h: HasilImbas) {
+    if (h.negeri && NEGERI_LIST.includes(h.negeri)) setNegeri(h.negeri);
+    if (h.daerahMukim) setDaerahMukim(h.daerahMukim);
+    if (h.nomborLot) setNomborLot(h.nomborLot);
+    if (h.nomborGeran) setNomborGeran(h.nomborGeran);
+    if (h.jenisTanah) setJenisTanah(h.jenisTanah as JenisTanah);
+    if (h.jenisHakmilik) setJenisHakmilik(h.jenisHakmilik as JenisHakmilik);
+    if (h.statusPemilikan) setStatusPemilikan(h.statusPemilikan as StatusPemilikan);
+    if (h.keluasan !== null) setKeluasan(String(h.keluasan));
+    if (h.unitKeluasan) setUnitKeluasan(h.unitKeluasan as UnitKeluasan);
+
+    // Tajuk dicadangkan hanya kalau admin belum menaip apa-apa, dan hanya
+    // daripada medan yang betul-betul terbaca - tajuk separuh siap seperti
+    // "3 ekar Tanah di , " lebih menyusahkan daripada kotak kosong.
+    if (!tajuk.trim() && h.keluasan !== null && h.unitKeluasan && h.daerahMukim) {
+      const unit = h.unitKeluasan === "EKAR" ? "ekar" : h.unitKeluasan === "HEKTAR" ? "hektar" : "kp";
+      setTajuk(`${h.keluasan} ${unit} tanah di ${h.daerahMukim}`);
+    }
+  }
 
   const ambil = Number(hargaAmbilRM);
   const siaran = Number(hargaSiaranRM);
@@ -126,6 +148,10 @@ export default function GeranAdminCreateForm() {
           Penyenaraian #{berjayaSeq} berjaya ditambah dan sudah tersiar di direktori.
         </div>
       )}
+
+      <div className="mb-5">
+        <GeranScanUpload onIsi={isiDariImbasan} />
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -257,7 +283,9 @@ export default function GeranAdminCreateForm() {
             </select>
           </div>
           <div>
-            <label className={LABEL}>Status pemilikan</label>
+            <label className={LABEL}>
+              Status pemilikan <StatusPemilikanBadge status={statusPemilikan} saiz="kecil" />
+            </label>
             <select
               value={statusPemilikan}
               onChange={(e) => setStatusPemilikan(e.target.value as StatusPemilikan)}

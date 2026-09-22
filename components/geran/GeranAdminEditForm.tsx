@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import PolygonEditorPanel from "@/components/geran/polygon/PolygonEditorPanel";
+import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import { STATUS_PEMILIKAN_LABEL, STATUS_PEMILIKAN_NOTA, formatRM, idVideoYoutube } from "@/lib/geran";
 import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran-polygon";
 import { tapisPolygonGambar } from "@/lib/geran-polygon";
@@ -180,6 +181,9 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
           Sahkan daripada salinan geran. Penjual selalunya hantar &ldquo;Uncertain&rdquo; kerana tak
           pasti — pembeli bergantung pada nilai ini untuk tahu sama ada dia layak membeli langsung.
         </p>
+        <div className="mb-2">
+          <StatusPemilikanBadge status={statusPemilikan} />
+        </div>
         <select
           value={statusPemilikan}
           onChange={(e) => setStatusPemilikan(e.target.value)}
