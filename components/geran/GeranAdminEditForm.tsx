@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import PolygonEditorPanel from "@/components/geran/polygon/PolygonEditorPanel";
-import { formatRM, idVideoYoutube } from "@/lib/geran";
+import { STATUS_PEMILIKAN_LABEL, STATUS_PEMILIKAN_NOTA, formatRM, idVideoYoutube } from "@/lib/geran";
 import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran-polygon";
 import { tapisPolygonGambar } from "@/lib/geran-polygon";
 
@@ -24,6 +24,7 @@ export type GeranEditData = {
   keterangan: string | null;
   gambarUrls: string[];
   videoYoutubeUrl: string | null;
+  statusPemilikan: string;
   gambarPolygons: GambarPolygons;
   videoPolygonTrack: VideoPolygonTrack | null;
 };
@@ -40,6 +41,7 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
   const [keterangan, setKeterangan] = useState(geran.keterangan ?? "");
   const [gambarUrls, setGambarUrls] = useState<string[]>(geran.gambarUrls);
   const [videoYoutubeUrl, setVideoYoutubeUrl] = useState(geran.videoYoutubeUrl ?? "");
+  const [statusPemilikan, setStatusPemilikan] = useState(geran.statusPemilikan);
   const [gambarPolygons, setGambarPolygons] = useState<GambarPolygons>(geran.gambarPolygons);
   const [videoPolygonTrack, setVideoPolygonTrack] = useState<VideoPolygonTrack | null>(
     geran.videoPolygonTrack
@@ -72,6 +74,7 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
           hargaSiaranRM: hargaSiaranRM ? Number(hargaSiaranRM) : null,
           catatanRundingan: catatanRundingan || null,
           keterangan: keterangan || null,
+          statusPemilikan,
           gambarUrls,
           videoYoutubeUrl: videoYoutubeUrl || null,
           // Polygon gambar yang dah dibuang tak perlu dihantar langsung -
@@ -169,6 +172,26 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
             />
           </div>
         </div>
+      </div>
+
+      <div className="bg-white border border-brand-dark/10 rounded-md p-5">
+        <h2 className="font-bold text-brand-dark mb-1">Status pemilikan</h2>
+        <p className="text-xs text-brand-dark/45 mb-4">
+          Sahkan daripada salinan geran. Penjual selalunya hantar &ldquo;Uncertain&rdquo; kerana tak
+          pasti — pembeli bergantung pada nilai ini untuk tahu sama ada dia layak membeli langsung.
+        </p>
+        <select
+          value={statusPemilikan}
+          onChange={(e) => setStatusPemilikan(e.target.value)}
+          className={INPUT + " max-w-sm"}
+        >
+          {Object.keys(STATUS_PEMILIKAN_LABEL).map((k) => (
+            <option key={k} value={k}>
+              {STATUS_PEMILIKAN_LABEL[k]}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-brand-dark/55 mt-2">{STATUS_PEMILIKAN_NOTA[statusPemilikan]}</p>
       </div>
 
       <div className="bg-white border border-brand-dark/10 rounded-md p-5">

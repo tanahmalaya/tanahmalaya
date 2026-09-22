@@ -68,6 +68,7 @@ export default async function GeranPage() {
     nomborLot: g.nomborLot,
     jenisTanah: g.jenisTanah,
     jenisHakmilik: g.jenisHakmilik,
+    statusPemilikan: g.statusPemilikan,
     keluasan: g.keluasan,
     unitKeluasan: g.unitKeluasan,
     hargaSen: Number(g.hargaSiaranSen),

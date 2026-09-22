@@ -18,6 +18,26 @@ export const JENIS_HAKMILIK_LABEL: Record<string, string> = {
   TIDAK_PASTI: "Uncertain",
 };
 
+// Status pemilikan - lihat enum StatusPemilikan dalam prisma/schema.prisma.
+// Istilah Melayu dikekalkan walaupun laman awam berbahasa Inggeris, kerana
+// "Malay Reserve" dan "Bumi Lot" memang itulah sebutan yang dipakai dalam
+// urusan tanah Malaysia; menterjemahkannya lebih jauh hanya mengelirukan.
+export const STATUS_PEMILIKAN_LABEL: Record<string, string> = {
+  RIZAB_MELAYU: "Malay Reserve Land",
+  LOT_BUMI: "Bumi Lot",
+  LOT_NON_BUMI: "Non-Bumi Lot",
+  TIDAK_PASTI: "Uncertain",
+};
+
+// Penjelasan ringkas untuk pembeli yang tak biasa dengan istilah ini. Dipapar
+// di halaman butiran, bukan dalam dropdown.
+export const STATUS_PEMILIKAN_NOTA: Record<string, string> = {
+  RIZAB_MELAYU: "Gazetted Malay Reserve — ownership can only be transferred to Malays.",
+  LOT_BUMI: "Bumiputera quota lot — transfer to a non-Bumiputera buyer needs state consent.",
+  LOT_NON_BUMI: "No ethnic restriction on transfer of title.",
+  TIDAK_PASTI: "Not yet confirmed — PLT verifies this against the land title during review.",
+};
+
 export const UNIT_KELUASAN_LABEL: Record<string, string> = {
   SQFT: "sq ft",
   EKAR: "acre",

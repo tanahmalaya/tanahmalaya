@@ -28,6 +28,9 @@ const schema = z.object({
   gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN).optional(),
   videoYoutubeUrl: z.string().optional().nullable(),
   keterangan: z.string().max(5000).optional().nullable(),
+  // Admin membetulkan status ini selepas membaca salinan geran - penjual
+  // selalunya menghantarnya sebagai TIDAK_PASTI.
+  statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
   // Sempadan tanah yang admin lukis di skrin edit - lihat lib/geran-polygon.ts.
   gambarPolygons: gambarPolygonsSchema.optional().nullable(),
   videoPolygonTrack: videoPolygonTrackSchema.optional().nullable(),
@@ -109,6 +112,7 @@ export async function POST(req: NextRequest) {
       gambarUrls: gambarAkhir,
       videoYoutubeUrl,
       keterangan: data.keterangan?.trim() || null,
+      statusPemilikan: data.statusPemilikan ?? geran.statusPemilikan,
       gambarPolygons,
       videoPolygonTrack,
     },

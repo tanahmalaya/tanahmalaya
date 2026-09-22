@@ -15,6 +15,8 @@ import GeranAccountNav from "@/components/geran/GeranAccountNav";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
+  STATUS_PEMILIKAN_LABEL,
+  STATUS_PEMILIKAN_NOTA,
   SUMBER_GERAN_PUBLIC_LABEL,
   formatRM,
   formatKeluasan,
@@ -164,7 +166,17 @@ export default async function GeranDetailPage({ params }: { params: { id: string
                 <dd className="text-[#0E3B2E] font-semibold">{JENIS_HAKMILIK_LABEL[geran.jenisHakmilik]}</dd>
                 <dt className="text-[#0E3B2E]/45">Land Use</dt>
                 <dd className="text-[#0E3B2E] font-semibold">{JENIS_TANAH_LABEL[geran.jenisTanah]}</dd>
+                <dt className="text-[#0E3B2E]/45">Ownership</dt>
+                <dd className="text-[#0E3B2E] font-semibold">
+                  {STATUS_PEMILIKAN_LABEL[geran.statusPemilikan]}
+                </dd>
               </dl>
+              {/* Status pemilikan menentukan sama ada pembeli LAYAK membeli
+                  langsung, bukan sekadar mempengaruhi harga - jadi maksudnya
+                  dieja terus di sini dan bukan disembunyikan di sebalik istilah. */}
+              <p className="text-xs text-[#0E3B2E]/55 mt-3 bg-[#0E3B2E]/[0.04] rounded-lg px-3 py-2">
+                {STATUS_PEMILIKAN_NOTA[geran.statusPemilikan]}
+              </p>
               <p className="text-xs text-[#0E3B2E]/40 mt-3">
                 Information is based on the details submitted for this listing, reviewed by PLT before
                 publishing. Please verify the actual title details before any transaction.

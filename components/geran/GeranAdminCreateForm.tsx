@@ -8,6 +8,7 @@ import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
+  STATUS_PEMILIKAN_LABEL,
   UNIT_KELUASAN_LABEL,
   SUMBER_GERAN_LABEL,
   SUMBER_ADMIN_OPTIONS,
@@ -17,6 +18,7 @@ import {
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
+type StatusPemilikan = keyof typeof STATUS_PEMILIKAN_LABEL;
 type UnitKeluasan = keyof typeof UNIT_KELUASAN_LABEL;
 type Sumber = (typeof SUMBER_ADMIN_OPTIONS)[number];
 
@@ -37,6 +39,7 @@ export default function GeranAdminCreateForm() {
   const [nomborGeran, setNomborGeran] = useState("");
   const [jenisTanah, setJenisTanah] = useState<JenisTanah>("PERTANIAN");
   const [jenisHakmilik, setJenisHakmilik] = useState<JenisHakmilik>("TIDAK_PASTI");
+  const [statusPemilikan, setStatusPemilikan] = useState<StatusPemilikan>("TIDAK_PASTI");
   const [keluasan, setKeluasan] = useState("");
   const [unitKeluasan, setUnitKeluasan] = useState<UnitKeluasan>("EKAR");
   const [hargaAmbilRM, setHargaAmbilRM] = useState("");
@@ -77,6 +80,7 @@ export default function GeranAdminCreateForm() {
           nomborGeran: nomborGeran || null,
           jenisTanah,
           jenisHakmilik,
+          statusPemilikan,
           keluasan: Number(keluasan),
           unitKeluasan,
           hargaAmbilRM: hargaAmbilRM ? Number(hargaAmbilRM) : null,
@@ -248,6 +252,20 @@ export default function GeranAdminCreateForm() {
               {(Object.keys(JENIS_HAKMILIK_LABEL) as JenisHakmilik[]).map((k) => (
                 <option key={k} value={k}>
                   {JENIS_HAKMILIK_LABEL[k]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={LABEL}>Status pemilikan</label>
+            <select
+              value={statusPemilikan}
+              onChange={(e) => setStatusPemilikan(e.target.value as StatusPemilikan)}
+              className={INPUT}
+            >
+              {(Object.keys(STATUS_PEMILIKAN_LABEL) as StatusPemilikan[]).map((k) => (
+                <option key={k} value={k}>
+                  {STATUS_PEMILIKAN_LABEL[k]}
                 </option>
               ))}
             </select>

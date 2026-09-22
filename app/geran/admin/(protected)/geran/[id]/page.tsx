@@ -30,6 +30,7 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     keterangan: geran.keterangan,
     gambarUrls: geran.gambarUrls,
     videoYoutubeUrl: geran.videoYoutubeUrl,
+    statusPemilikan: geran.statusPemilikan,
     gambarPolygons: bacaGambarPolygons(geran.gambarPolygons),
     videoPolygonTrack: bacaVideoTrack(geran.videoPolygonTrack),
   };

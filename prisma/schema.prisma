@@ -394,6 +394,23 @@ enum JenisHakmilik {
   TIDAK_PASTI
 }
 
+// Siapa yang SAH boleh memiliki lot ini - paksi berasingan daripada jenisTanah
+// (guna tanah) dan jenisHakmilik (freehold/leasehold). Ini soalan pertama yang
+// pembeli tanah Malaysia tanya, kerana ia menentukan sama ada dia layak membeli
+// langsung, bukan sekadar mempengaruhi harga.
+//
+// RIZAB_MELAYU  tanah diwartakan di bawah Enakmen Tanah Simpanan Melayu
+// LOT_BUMI      lot di bawah kuota Bumiputera, perlu kebenaran negeri untuk lepas
+// LOT_NON_BUMI  tiada sekatan kaum pada pemindahan hakmilik
+// TIDAK_PASTI   lalai - penjual selalunya tak tahu; admin betulkan semasa
+//               semakan selepas membaca salinan geran
+enum StatusPemilikan {
+  RIZAB_MELAYU
+  LOT_BUMI
+  LOT_NON_BUMI
+  TIDAK_PASTI
+}
+
 enum UnitKeluasan {
   SQFT
   EKAR
@@ -622,6 +639,7 @@ model Geran {
   nomborGeran   String?
   jenisTanah    JenisTanah
   jenisHakmilik JenisHakmilik @default(TIDAK_PASTI)
+  statusPemilikan StatusPemilikan @default(TIDAK_PASTI)
   keluasan      Float
   unitKeluasan  UnitKeluasan  @default(SQFT)
   keterangan    String?       @db.Text

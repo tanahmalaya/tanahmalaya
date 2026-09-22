@@ -6,6 +6,8 @@ import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
+  STATUS_PEMILIKAN_LABEL,
+  STATUS_PEMILIKAN_NOTA,
   UNIT_KELUASAN_LABEL,
   STATUS_GERAN_LABEL,
   formatRM,
@@ -15,6 +17,7 @@ import { GERAN_CARD, GERAN_INPUT, GERAN_LABEL, GERAN_BTN_PRIMARY } from "@/compo
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
+type StatusPemilikan = keyof typeof STATUS_PEMILIKAN_LABEL;
 type UnitKeluasan = keyof typeof UNIT_KELUASAN_LABEL;
 type StatusGeran = keyof typeof STATUS_GERAN_LABEL;
 
@@ -62,6 +65,10 @@ export default function GeranForm({
   const [nomborGeran, setNomborGeran] = useState("");
   const [jenisTanah, setJenisTanah] = useState<JenisTanah>("PERTANIAN");
   const [jenisHakmilik, setJenisHakmilik] = useState<JenisHakmilik>("TIDAK_PASTI");
+  // Lalai "Tidak pasti" dengan sengaja - ramai pemilik tak tahu status ini, dan
+  // tekaan yang salah lebih memudaratkan pembeli daripada jawapan kosong. Admin
+  // mengesahkannya daripada salinan geran semasa semakan.
+  const [statusPemilikan, setStatusPemilikan] = useState<StatusPemilikan>("TIDAK_PASTI");
   const [keluasan, setKeluasan] = useState("");
   const [unitKeluasan, setUnitKeluasan] = useState<UnitKeluasan>("EKAR");
   const [hargaRM, setHargaRM] = useState("");
@@ -90,6 +97,7 @@ export default function GeranForm({
           nomborGeran: nomborGeran || null,
           jenisTanah,
           jenisHakmilik,
+          statusPemilikan,
           keluasan: Number(keluasan),
           unitKeluasan,
           hargaRM: Number(hargaRM),
@@ -226,6 +234,25 @@ export default function GeranForm({
                 ))}
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className={LABEL}>Ownership Status</label>
+            <select
+              value={statusPemilikan}
+              onChange={(e) => setStatusPemilikan(e.target.value as StatusPemilikan)}
+              className={INPUT}
+            >
+              {(Object.keys(STATUS_PEMILIKAN_LABEL) as StatusPemilikan[]).map((k) => (
+                <option key={k} value={k}>
+                  {STATUS_PEMILIKAN_LABEL[k]}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-black/45 mt-1">
+              {STATUS_PEMILIKAN_NOTA[statusPemilikan]} Leave it as Uncertain if you are not sure — PLT
+              checks this against your title copy.
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-4">

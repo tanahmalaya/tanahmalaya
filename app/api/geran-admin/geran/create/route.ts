@@ -21,6 +21,7 @@ const schema = z.object({
   nomborGeran: z.string().optional().nullable(),
   jenisTanah: z.enum(["KOSONG", "PERTANIAN", "PEMBANGUNAN", "PERUMAHAN", "PERINDUSTRIAN", "KOMERSIAL"]),
   jenisHakmilik: z.enum(["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"]),
+  statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
   keluasan: z.number().positive(),
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
   hargaAmbilRM: z.number().positive().optional().nullable(), // kos PLT/KJ Land
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       nomborGeran: data.nomborGeran || null,
       jenisTanah: data.jenisTanah,
       jenisHakmilik: data.jenisHakmilik,
+      statusPemilikan: data.statusPemilikan ?? "TIDAK_PASTI",
       keluasan: data.keluasan,
       unitKeluasan: data.unitKeluasan,
       hargaAmbilSen: data.hargaAmbilRM ? BigInt(Math.round(data.hargaAmbilRM * 100)) : null,

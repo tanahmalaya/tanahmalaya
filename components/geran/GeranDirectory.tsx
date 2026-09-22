@@ -7,6 +7,7 @@ import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
+  STATUS_PEMILIKAN_LABEL,
   SUMBER_GERAN_PUBLIC_LABEL,
   formatRM,
   formatKeluasan,
@@ -15,6 +16,7 @@ import FavoriteButton from "@/components/geran/FavoriteButton";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
+type StatusPemilikan = keyof typeof STATUS_PEMILIKAN_LABEL;
 
 export type GeranListing = {
   id: string;
@@ -25,6 +27,7 @@ export type GeranListing = {
   nomborLot: string | null;
   jenisTanah: JenisTanah;
   jenisHakmilik: JenisHakmilik;
+  statusPemilikan: StatusPemilikan;
   keluasan: number;
   unitKeluasan: string;
   hargaSen: number;
@@ -75,6 +78,7 @@ export default function GeranDirectory({
   const [query, setQuery] = useState("");
   const [jenisAktif, setJenisAktif] = useState<"ALL" | JenisTanah>("ALL");
   const [negeriAktif, setNegeriAktif] = useState("ALL");
+  const [pemilikanAktif, setPemilikanAktif] = useState("ALL");
   const [hargaMin, setHargaMin] = useState("");
   const [hargaMaks, setHargaMaks] = useState("");
   const [favSet, setFavSet] = useState<Set<string>>(new Set(favoritedIds));
@@ -86,6 +90,7 @@ export default function GeranDirectory({
     return listings.filter((l) => {
       if (jenisAktif !== "ALL" && l.jenisTanah !== jenisAktif) return false;
       if (negeriAktif !== "ALL" && l.negeri !== negeriAktif) return false;
+      if (pemilikanAktif !== "ALL" && l.statusPemilikan !== pemilikanAktif) return false;
       const rm = l.hargaSen / 100;
       if (min !== null && rm < min) return false;
       if (maks !== null && rm > maks) return false;
@@ -95,7 +100,7 @@ export default function GeranDirectory({
       }
       return true;
     });
-  }, [listings, query, jenisAktif, negeriAktif, hargaMin, hargaMaks]);
+  }, [listings, query, jenisAktif, negeriAktif, pemilikanAktif, hargaMin, hargaMaks]);
 
   function handleToggle(geranId: string, favorited: boolean) {
     setFavSet((prev) => {
@@ -149,6 +154,19 @@ export default function GeranDirectory({
             {NEGERI_LIST.map((n) => (
               <option key={n} value={n}>
                 {n}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={pemilikanAktif}
+            onChange={(e) => setPemilikanAktif(e.target.value)}
+            className="shrink-0 px-3.5 py-2 rounded-full text-[13px] font-semibold bg-black/[0.05] text-[#0E3B2E]/60 outline-none border-none"
+          >
+            <option value="ALL">All Ownership</option>
+            {Object.keys(STATUS_PEMILIKAN_LABEL).map((k) => (
+              <option key={k} value={k}>
+                {STATUS_PEMILIKAN_LABEL[k]}
               </option>
             ))}
           </select>
@@ -234,6 +252,9 @@ export default function GeranDirectory({
                   <h3 className="font-display font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 text-[#0E3B2E]">{l.tajuk}</h3>
                   <p className="text-[12px] text-[#0E3B2E]/50 mb-3">
                     {JENIS_TANAH_LABEL[l.jenisTanah]} · {formatKeluasan(l.keluasan, l.unitKeluasan)}
+                    {l.statusPemilikan !== "TIDAK_PASTI" && (
+                      <> · {STATUS_PEMILIKAN_LABEL[l.statusPemilikan]}</>
+                    )}
                   </p>
                   <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(l.hargaSen)}</p>
                   <p className="text-[11px] text-[#0E3B2E]/40 mt-1.5">{SUMBER_GERAN_PUBLIC_LABEL[l.sumber]}</p>

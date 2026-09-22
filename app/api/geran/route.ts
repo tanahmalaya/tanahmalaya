@@ -13,6 +13,9 @@ const schema = z.object({
   nomborGeran: z.string().optional().nullable(),
   jenisTanah: z.enum(["KOSONG", "PERTANIAN", "PEMBANGUNAN", "PERUMAHAN", "PERINDUSTRIAN", "KOMERSIAL"]),
   jenisHakmilik: z.enum(["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"]),
+  // Pilihan supaya penyenaraian lama & mana-mana pemanggil sedia ada tak pecah;
+  // ketiadaannya bermakna "tidak pasti", sama seperti lalai borang.
+  statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
   keluasan: z.number().positive(),
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
   hargaRM: z.number().positive(), // harga yang penjual minta
@@ -58,6 +61,7 @@ export async function POST(req: NextRequest) {
       nomborGeran: data.nomborGeran || null,
       jenisTanah: data.jenisTanah,
       jenisHakmilik: data.jenisHakmilik,
+      statusPemilikan: data.statusPemilikan ?? "TIDAK_PASTI",
       keluasan: data.keluasan,
       unitKeluasan: data.unitKeluasan,
       hargaDimintaSen: BigInt(Math.round(data.hargaRM * 100)),
