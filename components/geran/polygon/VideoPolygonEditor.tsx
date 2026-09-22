@@ -17,6 +17,7 @@
 //      butiran melukis semula polygon atas embed itu mengikut masa main.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MAX_SAIZ_VIDEO_BYTES, formatSaizFail } from "@/lib/geran";
 import type { KeyframePolygon, Titik, VideoPolygonTrack } from "@/lib/geran-polygon";
 import { MAX_KEYFRAME_TRACK, bundarkanTitik, mampatKeyframes, polygonPadaMasa } from "@/lib/geran-polygon";
 import {
@@ -106,6 +107,19 @@ export default function VideoPolygonEditor({
   // ---------- Muat fail tempatan ----------
   function pilihFail(fail: File | null) {
     if (!fail) return;
+
+    if (fail.size > MAX_SAIZ_VIDEO_BYTES) {
+      setStatus({
+        berjalan: false,
+        progres: 0,
+        mesej:
+          `Fail ini ${formatSaizFail(fail.size)}, melebihi had ${formatSaizFail(MAX_SAIZ_VIDEO_BYTES)}. ` +
+          "Jejak polygon hanya bekerja pada 640px lebar, jadi rakaman 4K penuh tak memberi ketepatan tambahan — " +
+          "ia cuma melambatkan setiap lompatan bingkai. Potong bahagian yang perlu sahaja, atau eksport semula pada 1080p.",
+      });
+      return;
+    }
+
     batalRef.current = true;
     setStatus(kosong);
     if (failUrl) URL.revokeObjectURL(failUrl);
@@ -383,6 +397,8 @@ export default function VideoPolygonEditor({
         jejak sahaja. Selepas simpan, muat naik fail <strong>yang sama</strong> ke YouTube (Unlisted)
         dan tampal pautannya di bahagian Media. Kalau potongan YouTube tak sama, laraskan offset masa
         di bawah.
+        <br />
+        Had fail: <strong>{formatSaizFail(MAX_SAIZ_VIDEO_BYTES)}</strong> · MP4 H.264 paling boleh diharap.
       </div>
 
       <input
@@ -408,6 +424,18 @@ export default function VideoPolygonEditor({
               ref={videoRef}
               src={failUrl}
               onLoadedMetadata={handleMetadata}
+              onError={() =>
+                // Fail .mov/HEVC dari iPhone dan sesetengah drone tak boleh
+                // dinyahkod oleh Chrome walaupun saiznya kecil. Tanpa mesej ini
+                // admin cuma nampak kotak hitam dan tak tahu apa yang salah.
+                setStatus({
+                  berjalan: false,
+                  progres: 0,
+                  mesej:
+                    "Pelayar tak dapat memainkan fail ini. Biasanya ia HEVC/H.265 (fail .mov dari iPhone atau sesetengah drone). " +
+                    "Tukar ke MP4 H.264 dahulu, kemudian pilih semula.",
+                })
+              }
               onPlay={() => setSedangMain(true)}
               onPause={() => setSedangMain(false)}
               onSeeked={(e) => {

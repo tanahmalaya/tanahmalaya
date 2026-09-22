@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
-const MAX_SAIZ = 15 * 1024 * 1024;
+import { MAX_SAIZ_SALINAN_BYTES, formatSaizFail } from "@/lib/geran";
+
+const MAX_SAIZ = MAX_SAIZ_SALINAN_BYTES;
 
 // Salinan penuh geran dalam bentuk PDF - satu fail sahaja, dimuat naik
 // sebagai blob PERIBADI (lihat komen pada Geran.salinanGeranUrl). URL yang

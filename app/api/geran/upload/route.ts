@@ -4,6 +4,7 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getSellerSession } from "@/lib/sellerAuth";
 import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { MAX_SAIZ_GAMBAR_BYTES, MAX_SAIZ_SALINAN_BYTES } from "@/lib/geran";
 
 // Upload token straight from the browser to Vercel Blob for Geran photos -
 // see components/geran/GambarGeranUpload.tsx. Same pattern as
@@ -27,14 +28,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (pathname.startsWith("geran/gambar/")) {
           return {
             allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
-            maximumSizeInBytes: 10 * 1024 * 1024,
+            maximumSizeInBytes: MAX_SAIZ_GAMBAR_BYTES,
             addRandomSuffix: true,
           };
         }
         if (pathname.startsWith("geran/salinan/")) {
           return {
             allowedContentTypes: ["application/pdf"],
-            maximumSizeInBytes: 15 * 1024 * 1024,
+            maximumSizeInBytes: MAX_SAIZ_SALINAN_BYTES,
             addRandomSuffix: true,
           };
         }

@@ -50,7 +50,28 @@ export const STATUS_GERAN_LABEL: Record<string, string> = {
   DITOLAK: "Rejected",
 };
 
+// ---------- Had muat naik ----------
+// SATU tempat sahaja untuk semua had saiz fail GERAN. Sebelum ini nombor yang
+// sama disalin antara komponen klien dan route pelayan; bila salah satu diubah,
+// yang lain senyap-senyap terpesong dan penggunanya dapat sama ada penolakan
+// yang mengelirukan di tengah muat naik, atau fail besar yang sepatutnya
+// dihalang awal-awal.
 export const MAX_GAMBAR_GERAN = 8;
+export const MAX_SAIZ_GAMBAR_BYTES = 10 * 1024 * 1024;
+export const MAX_SAIZ_SALINAN_BYTES = 15 * 1024 * 1024;
+
+// Video TIDAK dimuat naik ke mana-mana - ia dibuka terus dari komputer admin
+// untuk kerja jejak polygon (lihat components/geran/polygon/VideoPolygonEditor).
+// Jadi had ini bukan tentang kos storan; ia melindungi sesi penyuntingan itu
+// sendiri. Fail 4K yang sangat besar menjadikan setiap lompatan bingkai perlahan
+// sehingga auto-jejak mengambil masa berpuluh minit, sedangkan kanvas jejak
+// hanya bekerja pada 640px lebar - ketajaman tambahan itu langsung tak dipakai.
+export const MAX_SAIZ_VIDEO_BYTES = 200 * 1024 * 1024;
+
+export function formatSaizFail(bytes: number): string {
+  if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  return `${Math.round(bytes / (1024 * 1024))} MB`;
+}
 
 // Terima pautan youtube.com/watch?v=, youtu.be/ dan youtube.com/embed/,
 // pulangkan ID video sahaja supaya halaman butiran boleh bina URL embed

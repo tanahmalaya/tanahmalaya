@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
-import { MAX_GAMBAR_GERAN } from "@/lib/geran";
+import { MAX_GAMBAR_GERAN, MAX_SAIZ_GAMBAR_BYTES, formatSaizFail } from "@/lib/geran";
 
 const MAX_GAMBAR = MAX_GAMBAR_GERAN;
 
@@ -33,8 +33,8 @@ export default function GambarGeranUpload({
     try {
       const urlBaru: string[] = [];
       for (const file of senarai) {
-        if (file.size > 10 * 1024 * 1024) {
-          setError(`"${file.name}" exceeds the 10MB limit, skipped.`);
+        if (file.size > MAX_SAIZ_GAMBAR_BYTES) {
+          setError(`"${file.name}" exceeds the ${formatSaizFail(MAX_SAIZ_GAMBAR_BYTES)} limit, skipped.`);
           continue;
         }
         // eslint-disable-next-line no-await-in-loop
@@ -91,7 +91,7 @@ export default function GambarGeranUpload({
       )}
       {status === "memuatnaik" && <p className="mt-1 text-xs text-brand-dark/50">Uploading...</p>}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      <p className="mt-1 text-xs text-brand-dark/40">Maximum {MAX_GAMBAR} photos (optional).</p>
+      <p className="mt-1 text-xs text-brand-dark/40">Maximum {MAX_GAMBAR} photos, {formatSaizFail(MAX_SAIZ_GAMBAR_BYTES)} each (optional).</p>
     </div>
   );
 }
