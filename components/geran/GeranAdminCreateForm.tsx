@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
+import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
@@ -52,6 +53,7 @@ export default function GeranAdminCreateForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [berjayaSeq, setBerjayaSeq] = useState<number | null>(null);
+
 
   const ambil = Number(hargaAmbilRM);
   const siaran = Number(hargaSiaranRM);
@@ -257,7 +259,9 @@ export default function GeranAdminCreateForm() {
             </select>
           </div>
           <div>
-            <label className={LABEL}>Status pemilikan</label>
+            <label className={LABEL}>
+              Status pemilikan <StatusPemilikanBadge status={statusPemilikan} saiz="kecil" />
+            </label>
             <select
               value={statusPemilikan}
               onChange={(e) => setStatusPemilikan(e.target.value as StatusPemilikan)}

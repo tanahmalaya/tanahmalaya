@@ -1,5 +1,6 @@
 "use client";
 
+import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,6 +31,7 @@ export type GeranAdminRow = {
   nomborGeran: string | null;
   jenisTanah: JenisTanah;
   jenisHakmilik: JenisHakmilik;
+  statusPemilikan: string;
   keluasan: number;
   unitKeluasan: string;
   hargaDimintaSen: number | null;
@@ -235,6 +237,7 @@ export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
                   <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${SUMBER_BADGE[g.sumber]}`}>
                     {SUMBER_GERAN_LABEL[g.sumber]}
                   </span>
+                  <StatusPemilikanBadge status={g.statusPemilikan} />
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_BADGE[g.status]}`}>
                     {STATUS_GERAN_LABEL[g.status]}
                   </span>

@@ -23,6 +23,7 @@ export default async function GeranAdminGeranPage() {
     nomborGeran: g.nomborGeran,
     jenisTanah: g.jenisTanah,
     jenisHakmilik: g.jenisHakmilik,
+    statusPemilikan: g.statusPemilikan,
     keluasan: g.keluasan,
     unitKeluasan: g.unitKeluasan,
     hargaDimintaSen: g.hargaDimintaSen === null ? null : Number(g.hargaDimintaSen),
