@@ -647,6 +647,20 @@ model Geran {
   gambarUrls      String[] // maksimum 8, URL fail di Vercel Blob (awam)
   videoYoutubeUrl String? // video drone di YouTube (unlisted), dibenamkan di halaman butiran
 
+  // Polygon sempadan tanah yang admin lukis atas media di skrin edit. Disimpan
+  // sebagai KOORDINAT ternormal (0..1), bukan dibakar ke dalam fail - jadi ia
+  // boleh diedit semula, kekal tajam pada semua saiz skrin, dan tak perlukan
+  // storan/bandwidth tambahan. Bentuk data & pengesahan ada di
+  // lib/geran-polygon.ts.
+  //
+  // gambarPolygons: { "<url gambar>": { points: [[x,y], ...] } }
+  gambarPolygons Json?
+  // videoPolygonTrack: keyframe bertanda masa, dilukis atas embed YouTube dan
+  // disegerakkan melalui YouTube IFrame API. Dijejak dalam pelayar dari fail
+  // video TEMPATAN admin (optical flow) - fail itu sendiri tak pernah
+  // dimuat naik ke mana-mana, cuma ke YouTube secara manual seperti biasa.
+  videoPolygonTrack Json?
+
   // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
   // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat
   // app/api/geran POST), pilihan untuk PLT/KJ Land yang admin masuk sendiri.

@@ -8,6 +8,7 @@ import { getSellerSession } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import GeranImageGallery from "@/components/geran/GeranImageGallery";
+import GeranVideoPolygon from "@/components/geran/GeranVideoPolygon";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
 import GeranAccountNav from "@/components/geran/GeranAccountNav";
@@ -19,6 +20,7 @@ import {
   formatKeluasan,
   idVideoYoutube,
 } from "@/lib/geran";
+import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran-polygon";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
@@ -27,7 +29,16 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const title = `${geran.tajuk} - GERAN`;
   const description =
     geran.keterangan?.slice(0, 160) || `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`;
-  const image = geran.gambarUrls[0] || "https://gerantanah.com/geran-logo-g.jpeg";
+  // Bila ada sempadan dilukis, hantar pengikis pautan ke versi yang sudah
+  // dibakar - WhatsApp/FB hanya muat turun satu fail gambar dan tak akan
+  // menjalankan overlay SVG kita. Tanpa polygon, guna terus URL blob supaya
+  // tiada kerja pelayan langsung.
+  const adaSempadan = Object.values(bacaGambarPolygons(geran.gambarPolygons)).some(
+    (b) => b.points.length >= 3
+  );
+  const image = adaSempadan
+    ? `https://gerantanah.com/api/geran/og/${geran.id}`
+    : geran.gambarUrls[0] || "https://gerantanah.com/geran-logo-g.jpeg";
   const url = `https://gerantanah.com/${geran.id}`;
 
   return {
@@ -40,7 +51,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       siteName: "GERAN",
       title,
       description,
-      images: [{ url: image }],
+      images: [adaSempadan ? { url: image, width: 1200, height: 630 } : { url: image }],
     },
     twitter: {
       card: "summary_large_image",
@@ -60,6 +71,8 @@ export default async function GeranDetailPage({ params }: { params: { id: string
   const session = getSellerSession();
   const detailPath = `/geran/`;
   const videoId = idVideoYoutube(geran.videoYoutubeUrl);
+  const gambarPolygons = bacaGambarPolygons(geran.gambarPolygons);
+  const videoTrack = bacaVideoTrack(geran.videoPolygonTrack);
 
   const [favorite, serupa] = await Promise.all([
     session
@@ -87,21 +100,16 @@ export default async function GeranDetailPage({ params }: { params: { id: string
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} />
+        <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} polygons={gambarPolygons} />
 
         {videoId && (
           <div className="mt-5">
             <h2 className="font-bold text-[#0E3B2E] mb-2">Drone Video</h2>
-            <div className="aspect-video rounded-2xl overflow-hidden border border-black/[0.06] bg-black">
-              <iframe
-                src={"https://www.youtube-nocookie.com/embed/" + videoId}
-                title={"Drone video - " + geran.tajuk}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
-            <p className="text-xs text-[#0E3B2E]/40 mt-2">Aerial footage recorded by PLT.</p>
+            <GeranVideoPolygon videoId={videoId} tajuk={geran.tajuk} track={videoTrack} />
+            <p className="text-xs text-[#0E3B2E]/40 mt-2">
+              Aerial footage recorded by PLT.
+              {videoTrack ? " The highlighted boundary marks the land on sale." : ""}
+            </p>
           </div>
         )}
 

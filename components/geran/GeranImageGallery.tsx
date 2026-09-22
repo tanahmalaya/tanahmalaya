@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import PolygonOverlay from "@/components/geran/PolygonOverlay";
+import type { GambarPolygons } from "@/lib/geran-polygon";
 
 function LandPlaceholderIcon() {
   return (
@@ -13,8 +15,17 @@ function LandPlaceholderIcon() {
   );
 }
 
-export default function GeranImageGallery({ gambarUrls, tajuk }: { gambarUrls: string[]; tajuk: string }) {
+export default function GeranImageGallery({
+  gambarUrls,
+  tajuk,
+  polygons = {},
+}: {
+  gambarUrls: string[];
+  tajuk: string;
+  polygons?: GambarPolygons;
+}) {
   const [active, setActive] = useState(0);
+  const sempadan = polygons[gambarUrls[active]];
 
   if (gambarUrls.length === 0) {
     return (
@@ -28,6 +39,17 @@ export default function GeranImageGallery({ gambarUrls, tajuk }: { gambarUrls: s
     <div>
       <div className="relative aspect-[16/9] rounded-3xl overflow-hidden bg-[#F6F4EE]">
         <Image src={gambarUrls[active]} alt={tajuk} fill className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
+        {/* Polygon dilukis dalam kotak yang sama dengan gambar dan guna
+            padanan "cover", jadi ia dipangkas serentak dengan gambarnya. */}
+        {sempadan && (
+          <PolygonOverlay
+            points={sempadan.points}
+            lebarMedia={sempadan.w}
+            tinggiMedia={sempadan.h}
+            padanan="cover"
+            label={sempadan.label}
+          />
+        )}
       </div>
       {gambarUrls.length > 1 && (
         <div className="flex gap-2 mt-3 overflow-x-auto pb-1">

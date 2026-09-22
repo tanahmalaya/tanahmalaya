@@ -3,7 +3,10 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
+import PolygonEditorPanel from "@/components/geran/polygon/PolygonEditorPanel";
 import { formatRM, idVideoYoutube } from "@/lib/geran";
+import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran-polygon";
+import { tapisPolygonGambar } from "@/lib/geran-polygon";
 
 const INPUT = "w-full text-sm border border-brand-dark/20 rounded-sm p-2 bg-white";
 const LABEL = "block text-xs font-semibold text-brand-dark/70 mb-1.5";
@@ -21,6 +24,8 @@ export type GeranEditData = {
   keterangan: string | null;
   gambarUrls: string[];
   videoYoutubeUrl: string | null;
+  gambarPolygons: GambarPolygons;
+  videoPolygonTrack: VideoPolygonTrack | null;
 };
 
 const rm = (sen: number | null) => (sen === null ? "" : String(sen / 100));
@@ -35,6 +40,10 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
   const [keterangan, setKeterangan] = useState(geran.keterangan ?? "");
   const [gambarUrls, setGambarUrls] = useState<string[]>(geran.gambarUrls);
   const [videoYoutubeUrl, setVideoYoutubeUrl] = useState(geran.videoYoutubeUrl ?? "");
+  const [gambarPolygons, setGambarPolygons] = useState<GambarPolygons>(geran.gambarPolygons);
+  const [videoPolygonTrack, setVideoPolygonTrack] = useState<VideoPolygonTrack | null>(
+    geran.videoPolygonTrack
+  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -65,6 +74,11 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
           keterangan: keterangan || null,
           gambarUrls,
           videoYoutubeUrl: videoYoutubeUrl || null,
+          // Polygon gambar yang dah dibuang tak perlu dihantar langsung -
+          // pelayan akan menapisnya juga, tapi elok jangan bawa sampah merentas
+          // rangkaian.
+          gambarPolygons: tapisPolygonGambar(gambarPolygons, gambarUrls),
+          videoPolygonTrack,
         }),
       });
       const data = await res.json();
@@ -208,6 +222,23 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
             />
           </div>
         </div>
+      </div>
+
+      <div className="bg-white border border-brand-dark/10 rounded-md p-5">
+        <h2 className="font-bold text-brand-dark mb-1">Sempadan tanah</h2>
+        <p className="text-xs text-brand-dark/45 mb-4">
+          Lukis polygon sempadan di atas gambar dan video supaya pembeli nampak dengan tepat tanah
+          mana yang dijual. Polygon disimpan sebagai koordinat — gambar asal tak diubah dan anda boleh
+          sunting semula bila-bila masa.
+        </p>
+
+        <PolygonEditorPanel
+          gambarUrls={gambarUrls}
+          gambarPolygons={gambarPolygons}
+          onGambarChange={setGambarPolygons}
+          videoTrack={videoPolygonTrack}
+          onVideoChange={setVideoPolygonTrack}
+        />
       </div>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
