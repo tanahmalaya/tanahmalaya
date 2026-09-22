@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import PasswordInput from "@/components/PasswordInput";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
@@ -208,9 +209,8 @@ export default function AuthGeranForm({ modAwal }: { modAwal: "log-masuk" | "daf
                 </div>
                 <div>
                   <label className={LABEL}>Password</label>
-                  <input
+                  <PasswordInput
                     required
-                    type="password"
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -283,9 +283,8 @@ export default function AuthGeranForm({ modAwal }: { modAwal: "log-masuk" | "daf
                 </div>
                 <div>
                   <label className={LABEL}>Password</label>
-                  <input
+                  <PasswordInput
                     required
-                    type="password"
                     autoComplete="new-password"
                     minLength={KATA_LALUAN_MIN}
                     value={password}
@@ -388,9 +387,8 @@ export default function AuthGeranForm({ modAwal }: { modAwal: "log-masuk" | "daf
                 </div>
                 <div>
                   <label className={LABEL}>New Password</label>
-                  <input
+                  <PasswordInput
                     required
-                    type="password"
                     autoComplete="new-password"
                     minLength={KATA_LALUAN_MIN}
                     value={kataLaluanBaharu}

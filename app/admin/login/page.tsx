@@ -1,3 +1,5 @@
+import PasswordInput from "@/components/PasswordInput";
+
 export default function AdminLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand-cream">
@@ -10,7 +12,7 @@ export default function AdminLoginPage() {
         </div>
         <div>
           <label className="block text-sm font-semibold mb-1">Kata Laluan</label>
-          <input type="password" name="password" required className="w-full border border-brand-dark/20 rounded-sm p-3" />
+          <PasswordInput name="password" required className="w-full border border-brand-dark/20 rounded-sm p-3" />
         </div>
         <button type="submit" className="bg-brand-gold text-brand-dark font-semibold px-6 py-3 rounded-sm w-full">
           LOG MASUK

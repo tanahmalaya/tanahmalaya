@@ -1,3 +1,5 @@
+import PasswordInput from "@/components/PasswordInput";
+
 export const metadata = {
   title: "Admin Log Masuk",
   robots: { index: false, follow: false },
@@ -21,7 +23,7 @@ export default function GeranAdminLoginPage() {
         </div>
         <div>
           <label className="block text-sm font-semibold mb-1">Kata Laluan</label>
-          <input type="password" name="password" required className="w-full border border-black/20 rounded-sm p-3" />
+          <PasswordInput name="password" required className="w-full border border-black/20 rounded-sm p-3" />
         </div>
         <button type="submit" className="bg-[#0E3B2E] text-white font-semibold px-6 py-3 rounded-sm w-full">
           LOG MASUK
