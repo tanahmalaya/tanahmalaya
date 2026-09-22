@@ -1,3 +1,14 @@
+export const metadata = {
+  title: "Admin Log Masuk",
+  robots: { index: false, follow: false },
+  openGraph: {
+    siteName: "GERAN",
+    title: "GERAN Admin",
+    description: "Dashboard admin gerantanah.com.",
+    images: [{ url: "https://gerantanah.com/geran-logo-g.jpeg", alt: "GERAN" }],
+  },
+};
+
 export default function GeranAdminLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F5F3EE]">

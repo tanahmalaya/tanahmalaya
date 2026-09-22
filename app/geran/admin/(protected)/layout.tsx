@@ -3,6 +3,17 @@ import Link from "next/link";
 import { getGeranAdminSession } from "@/lib/geran-admin-auth";
 import GeranAdminMobileNav from "@/components/geran/GeranAdminMobileNav";
 
+export const metadata = {
+  title: "Admin",
+  robots: { index: false, follow: false },
+  openGraph: {
+    siteName: "GERAN",
+    title: "GERAN Admin",
+    description: "Dashboard admin gerantanah.com.",
+    images: [{ url: "https://gerantanah.com/geran-logo-g.jpeg", alt: "GERAN" }],
+  },
+};
+
 const navItems = [
   { href: "/geran/admin", label: "Ringkasan" },
   { href: "/geran/admin/geran", label: "Senarai Tanah" },

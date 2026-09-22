@@ -15,7 +15,8 @@ const GERAN_DESCRIPTION =
   "Malaysia's marketplace for titled land with clear ownership. Search & filter land for sale, or list your own - every listing is reviewed & verified by PLT first.";
 
 export const metadata = {
-  title: GERAN_TITLE,
+  // absolute supaya tak jadi "… For Sale | GERAN" - tajuk ni dah ada "Geran".
+  title: { absolute: GERAN_TITLE },
   description: GERAN_DESCRIPTION,
   // Absolute (bukan relatif) sebab metadataBase root layout ialah
   // tanahmalaya.org - GERAN kena canonical ke domain sendiri, gerantanah.com,
