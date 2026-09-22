@@ -6,6 +6,8 @@ import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
+import GeranIsiPantas from "@/components/geran/GeranIsiPantas";
+import type { HasilHurai } from "@/lib/geranParse";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
@@ -53,6 +55,31 @@ export default function GeranAdminCreateForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [berjayaSeq, setBerjayaSeq] = useState<number | null>(null);
+
+  function isiDariIklan(h: HasilHurai) {
+    // Medan null dibiarkan sahaja, tidak dikosongkan: admin mungkin sudah
+    // menaip sesuatu, dan iklan yang tak menyebut sesuatu bukan bukti bahawa
+    // apa yang ditaip itu salah.
+    if (h.negeri && NEGERI_LIST.includes(h.negeri)) setNegeri(h.negeri);
+    if (h.daerahMukim) setDaerahMukim(h.daerahMukim);
+    if (h.nomborLot) setNomborLot(h.nomborLot);
+    if (h.jenisTanah) setJenisTanah(h.jenisTanah as JenisTanah);
+    if (h.jenisHakmilik) setJenisHakmilik(h.jenisHakmilik as JenisHakmilik);
+    if (h.statusPemilikan) setStatusPemilikan(h.statusPemilikan as StatusPemilikan);
+    if (h.keluasan !== null) setKeluasan(String(h.keluasan));
+    if (h.unitKeluasan) setUnitKeluasan(h.unitKeluasan as UnitKeluasan);
+
+    // Harga iklan masuk ke "harga kita ambil" (dalaman), TIDAK ke harga siaran.
+    // Harga siaran itu yang sampai kepada pembeli dan mesti ditetapkan admin
+    // dengan sengaja - salah baca satu digit daripada screenshot yang kabur
+    // tak sepatutnya boleh tersiar terus ke direktori awam.
+    if (h.hargaRM !== null) setHargaAmbilRM(String(h.hargaRM));
+
+    if (!tajuk.trim() && h.keluasan !== null && h.unitKeluasan && h.daerahMukim) {
+      const unit = h.unitKeluasan === "EKAR" ? "ekar" : h.unitKeluasan === "HEKTAR" ? "hektar" : "kp";
+      setTajuk(`${h.keluasan} ${unit} tanah di ${h.daerahMukim}`);
+    }
+  }
 
 
   const ambil = Number(hargaAmbilRM);
@@ -128,6 +155,10 @@ export default function GeranAdminCreateForm() {
           Penyenaraian #{berjayaSeq} berjaya ditambah dan sudah tersiar di direktori.
         </div>
       )}
+
+      <div className="mb-5">
+        <GeranIsiPantas onIsi={isiDariIklan} />
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
