@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { signGeranAdminSession, setGeranAdminCookie } from "@/lib/geran-admin-auth";
+import { signGeranAdminSession, setGeranAdminCookie } from "@/lib/geran/admin-auth";
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();

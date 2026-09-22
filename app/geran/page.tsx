@@ -8,7 +8,7 @@ import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
 import GeranAccountNav from "@/components/geran/GeranAccountNav";
 import GeranAbout from "@/components/geran/GeranAbout";
-import { isGeranDomainRequest } from "@/lib/isGeranRequest";
+import { isGeranDomainRequest } from "@/lib/geran/is-request";
 
 const GERAN_TITLE = "Geran - Titled Land Directory For Sale";
 const GERAN_DESCRIPTION =

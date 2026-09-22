@@ -7,7 +7,7 @@ import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import GeranIsiPantas from "@/components/geran/GeranIsiPantas";
-import type { HasilHurai } from "@/lib/geranParse";
+import type { HasilHurai } from "@/lib/geran/parse";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,

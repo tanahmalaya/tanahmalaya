@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { get } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
-import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
 // Proksi untuk salinan penuh geran. Fail itu blob PERIBADI - URL mentahnya
 // tak pernah sampai ke pelayar, jadi ia tak boleh dikongsi keluar walaupun

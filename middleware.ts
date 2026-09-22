@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { isGeranHostname } from "@/lib/geran-domain";
+import { isGeranHostname } from "@/lib/geran/domain";
 
 // gerantanah.com adalah domain berasingan untuk laman GERAN sahaja.
 // Semua request ke domain ini di-rewrite supaya "/" memaparkan /geran

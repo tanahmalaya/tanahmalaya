@@ -10,7 +10,7 @@
 // asal media kita tak boleh buat pengiraan itu, jadi kita jatuh balik kepada
 // regangan penuh ("none") - betul selagi bekas dan media sama nisbah.
 
-import type { Titik } from "@/lib/geran-polygon";
+import type { Titik } from "@/lib/geran/polygon";
 
 export default function PolygonOverlay({
   points,

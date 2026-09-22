@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import GeranAdminMobileNav from "@/components/geran/GeranAdminMobileNav";
 
 export const metadata = {

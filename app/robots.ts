@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 import { headers } from "next/headers";
-import { isGeranHostname } from "@/lib/geran-domain";
+import { isGeranHostname } from "@/lib/geran/domain";
 
 // gerantanah.com dan tanahmalaya.org kongsi app ni tapi ialah dua "laman"
 // berasingan (lihat middleware.ts) - robots.txt kena beza ikut host,

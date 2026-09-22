@@ -5,7 +5,7 @@
 // panel ini yang tahu tentang tab, borang itu cuma pegang nilainya.
 
 import { useState } from "react";
-import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran-polygon";
+import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran/polygon";
 import GambarPolygonEditor from "./GambarPolygonEditor";
 import VideoPolygonEditor from "./VideoPolygonEditor";
 

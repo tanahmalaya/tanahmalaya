@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getSellerSession } from "@/lib/sellerAuth";
-import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_SAIZ_GAMBAR_BYTES, MAX_SAIZ_SALINAN_BYTES } from "@/lib/geran";
 
 // Upload token straight from the browser to Vercel Blob for Geran photos -

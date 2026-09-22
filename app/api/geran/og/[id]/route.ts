@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
-import { bacaGambarPolygons, titikKeCoverPx } from "@/lib/geran-polygon";
+import { bacaGambarPolygons, titikKeCoverPx } from "@/lib/geran/polygon";
 
 // Saiz pratonton pautan yang disyorkan Facebook/WhatsApp. Nisbah 1.91:1.
 const LEBAR = 1200;

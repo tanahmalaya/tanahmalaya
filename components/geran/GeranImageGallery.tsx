@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import PolygonOverlay from "@/components/geran/PolygonOverlay";
-import type { GambarPolygons } from "@/lib/geran-polygon";
+import type { GambarPolygons } from "@/lib/geran/polygon";
 
 function LandPlaceholderIcon() {
   return (

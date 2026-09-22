@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { idVideoYoutube, MAX_GAMBAR_GERAN } from "@/lib/geran";
 import {
   bacaGambarPolygons,
   gambarPolygonsSchema,
   tapisPolygonGambar,
   videoPolygonTrackSchema,
-} from "@/lib/geran-polygon";
+} from "@/lib/geran/polygon";
 
 // Kemas kini penyenaraian sedia ada: harga sepanjang rundingan, nota
 // rundingan, dan media yang PLT/KJ Land rakam sendiri. Dulu admin cuma boleh

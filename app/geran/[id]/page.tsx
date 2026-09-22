@@ -22,7 +22,7 @@ import {
   formatKeluasan,
   idVideoYoutube,
 } from "@/lib/geran";
-import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran-polygon";
+import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran/polygon";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });

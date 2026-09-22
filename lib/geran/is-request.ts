@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { isGeranHostname } from "@/lib/geran-domain";
+import { isGeranHostname } from "@/lib/geran/domain";
 
 // Guna dalam Server Component untuk kesan sama ada request datang dari
 // gerantanah.com. Perlu sebab middleware rewrite tak ubah `usePathname()`

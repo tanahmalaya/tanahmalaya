@@ -18,8 +18,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MAX_SAIZ_VIDEO_BYTES, formatSaizFail } from "@/lib/geran";
-import type { KeyframePolygon, Titik, VideoPolygonTrack } from "@/lib/geran-polygon";
-import { MAX_KEYFRAME_TRACK, bundarkanTitik, mampatKeyframes, polygonPadaMasa } from "@/lib/geran-polygon";
+import type { KeyframePolygon, Titik, VideoPolygonTrack } from "@/lib/geran/polygon";
+import { MAX_KEYFRAME_TRACK, bundarkanTitik, mampatKeyframes, polygonPadaMasa } from "@/lib/geran/polygon";
 import {
   LEBAR_KERJA_MAKS,
   anggarTransform,

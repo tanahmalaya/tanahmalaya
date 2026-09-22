@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConditionalChrome from "@/components/ConditionalChrome";
-import { isGeranDomainRequest } from "@/lib/isGeranRequest";
+import { isGeranDomainRequest } from "@/lib/geran/is-request";
 // 1. Import CartProvider (sesuai path fail context anda)
 import { CartProvider } from "@/app/context/CartContext";
 import { CheckoutProvider } from "@/app/context/CheckoutContext";

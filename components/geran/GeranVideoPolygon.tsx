@@ -11,8 +11,8 @@
 // balik kepada iframe biasa tanpa overlay - video tetap boleh ditonton.
 
 import { useEffect, useRef, useState } from "react";
-import type { Titik, VideoPolygonTrack } from "@/lib/geran-polygon";
-import { polygonPadaMasa } from "@/lib/geran-polygon";
+import type { Titik, VideoPolygonTrack } from "@/lib/geran/polygon";
+import { polygonPadaMasa } from "@/lib/geran/polygon";
 import PolygonOverlay from "@/components/geran/PolygonOverlay";
 
 // Keadaan pemain YouTube yang bermakna "video dah mula" - sebelum itu embed

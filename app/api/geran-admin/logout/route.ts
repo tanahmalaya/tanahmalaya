@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { clearGeranAdminCookie } from "@/lib/geran-admin-auth";
+import { clearGeranAdminCookie } from "@/lib/geran/admin-auth";
 
 export async function POST(req: NextRequest) {
   clearGeranAdminCookie();

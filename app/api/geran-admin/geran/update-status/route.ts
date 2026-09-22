@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
 // Alur: penyenaraian masuk MENUNGGU_SEMAKAN, admin buka rundingan harga,
 // kemudian siarkan bila harga dipersetujui. DALAM_RUNDINGAN boleh balik ke

@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getGeranAdminSession } from "@/lib/geran-admin-auth";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
 // Penyenaraian stok PLT sendiri & dari KJ Land consultant - dimasukkan terus
 // oleh admin di /geran/admin/tambah, jadi tiada akaun Seller dan tak perlu

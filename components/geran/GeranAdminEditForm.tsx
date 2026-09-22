@@ -6,8 +6,8 @@ import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import PolygonEditorPanel from "@/components/geran/polygon/PolygonEditorPanel";
 import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import { STATUS_PEMILIKAN_LABEL, STATUS_PEMILIKAN_NOTA, formatRM, idVideoYoutube } from "@/lib/geran";
-import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran-polygon";
-import { tapisPolygonGambar } from "@/lib/geran-polygon";
+import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran/polygon";
+import { tapisPolygonGambar } from "@/lib/geran/polygon";
 
 const INPUT = "w-full text-sm border border-brand-dark/20 rounded-sm p-2 bg-white";
 const LABEL = "block text-xs font-semibold text-brand-dark/70 mb-1.5";

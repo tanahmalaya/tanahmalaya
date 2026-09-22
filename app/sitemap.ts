@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { isGeranHostname } from "@/lib/geran-domain";
+import { isGeranHostname } from "@/lib/geran/domain";
 
 const BASE_URL = "https://tanahmalaya.org";
 const GERAN_BASE_URL = "https://gerantanah.com";

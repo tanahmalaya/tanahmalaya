@@ -15,7 +15,7 @@
 
 import { useRef, useState } from "react";
 import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, STATUS_PEMILIKAN_LABEL, UNIT_KELUASAN_LABEL, formatRM } from "@/lib/geran";
-import { huraiIklanTanah, type HasilHurai } from "@/lib/geranParse";
+import { huraiIklanTanah, type HasilHurai } from "@/lib/geran/parse";
 
 const NAMA_MEDAN: Record<string, string> = {
   negeri: "Negeri",

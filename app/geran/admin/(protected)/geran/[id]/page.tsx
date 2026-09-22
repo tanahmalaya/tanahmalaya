@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import GeranAdminEditForm, { type GeranEditData } from "@/components/geran/GeranAdminEditForm";
-import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran-polygon";
+import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran/polygon";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,

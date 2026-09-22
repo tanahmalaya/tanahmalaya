@@ -10,8 +10,8 @@
 // dalam SVG, supaya ia kekal bulat walaupun bekasnya bukan segi empat sama.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Titik } from "@/lib/geran-polygon";
-import { MAX_TITIK_POLYGON, titikKeSvg } from "@/lib/geran-polygon";
+import type { Titik } from "@/lib/geran/polygon";
+import { MAX_TITIK_POLYGON, titikKeSvg } from "@/lib/geran/polygon";
 
 // Jarak (pecahan lebar bekas) untuk mengira klik sebagai "atas bucu pertama",
 // iaitu isyarat biasa untuk menutup polygon.

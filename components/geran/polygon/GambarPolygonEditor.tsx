@@ -7,8 +7,8 @@
 // yang tunjukkan bahagian mana akan terpangkas di halaman butiran.
 
 import { useMemo, useState } from "react";
-import type { BentukPolygon, GambarPolygons, Titik } from "@/lib/geran-polygon";
-import { bundarkanTitik } from "@/lib/geran-polygon";
+import type { BentukPolygon, GambarPolygons, Titik } from "@/lib/geran/polygon";
+import { bundarkanTitik } from "@/lib/geran/polygon";
 import PolygonCanvas from "./PolygonCanvas";
 
 const NISBAH_GALERI = 16 / 9;
