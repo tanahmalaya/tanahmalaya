@@ -17,6 +17,18 @@ import { MAX_TITIK_POLYGON, titikKeSvg } from "@/lib/geran/polygon";
 // iaitu isyarat biasa untuk menutup polygon.
 const JARAK_TUTUP = 0.025;
 
+// Kursor pen kecil (bukan crosshair generik) supaya kanvas ni terasa macam alat
+// melukis, bukan alat pilih/ukur. Hujung pen jatuh tepat pada hotspot (2,22) -
+// itulah titik yang sebenarnya didaftar sebagai kedudukan klik.
+const KURSOR_PEN =
+  `url("data:image/svg+xml,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">' +
+      '<path d="M3 21l0.8-4.8L14.6 5.4a1.8 1.8 0 012.6 0l1.4 1.4a1.8 1.8 0 010 2.6L7.8 20.2 3 21z" ' +
+      'fill="#F4C55C" stroke="#2A1D14" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<path d="M13.2 6.8l4 4" stroke="#2A1D14" stroke-width="1.3"/>' +
+      "</svg>"
+  )}") 2 22, crosshair`;
+
 export type ModPolygon = "lukis" | "sunting";
 
 export default function PolygonCanvas({
@@ -153,10 +165,12 @@ export default function PolygonCanvas({
         onPointerUp={tamatSeret}
         onPointerCancel={tamatSeret}
         onPointerLeave={() => setKursor(null)}
-        className={`relative w-full overflow-hidden rounded-md bg-black select-none ${
-          disabled ? "" : mod === "lukis" ? "cursor-crosshair" : "cursor-default"
-        }`}
-        style={{ aspectRatio: aspect, touchAction: "none" }}
+        className="relative w-full overflow-hidden rounded-md bg-black select-none"
+        style={{
+          aspectRatio: aspect,
+          touchAction: "none",
+          cursor: disabled ? undefined : mod === "lukis" ? KURSOR_PEN : "default",
+        }}
       >
         {children}
 
