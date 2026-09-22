@@ -191,11 +191,10 @@ export default function GeranVideoPolygon({
               // Embed YouTube melapik video yang bukan 16:9 di dalam iframe,
               // jadi overlay kena guna padanan "contain" supaya ia dilapik sama.
               <PolygonOverlay
-                points={points}
+                lots={points.length >= 3 ? [{ id: "video", points, label: track?.label ?? null, hargaSen: null }] : []}
                 lebarMedia={track?.lebar}
                 tinggiMedia={track?.tinggi}
                 padanan="contain"
-                label={track?.label}
               />
             )}
           </div>

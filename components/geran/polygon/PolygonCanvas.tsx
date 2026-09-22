@@ -26,6 +26,7 @@ export default function PolygonCanvas({
   aspect = "16 / 9",
   disabled = false,
   petunjuk,
+  latarLain,
 }: {
   points: Titik[];
   onChange: (points: Titik[]) => void;
@@ -33,6 +34,10 @@ export default function PolygonCanvas({
   aspect?: string;
   disabled?: boolean;
   petunjuk?: React.ReactNode;
+  // Lot-lot LAIN (bukan yang sedang disunting) dilukis redup di sini supaya
+  // admin nampak lot sebelah semasa melukis lot baharu - elak bucu bertindih
+  // atau lot bersilang tanpa disedari.
+  latarLain?: Array<{ id: string; points: Titik[] }>;
 }) {
   const bekasRef = useRef<HTMLDivElement>(null);
   const [mod, setMod] = useState<ModPolygon>(points.length >= 3 ? "sunting" : "lukis");
@@ -156,6 +161,17 @@ export default function PolygonCanvas({
         {children}
 
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full">
+          {latarLain?.map((lot) => (
+            <polygon
+              key={lot.id}
+              points={titikKeSvg(lot.points)}
+              fill="rgba(255,255,255,0.06)"
+              stroke="rgba(255,255,255,0.4)"
+              strokeWidth={1.5}
+              strokeDasharray="3 3"
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
           {garisan.length >= 2 && (
             <polyline
               points={titikKeSvg(tertutup ? [...points, points[0]] : garisan)}

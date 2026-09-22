@@ -26,6 +26,7 @@ export default function GeranImageGallery({
 }) {
   const [active, setActive] = useState(0);
   const sempadan = polygons[gambarUrls[active]];
+  const lots = sempadan?.lots ?? [];
 
   if (gambarUrls.length === 0) {
     return (
@@ -41,14 +42,8 @@ export default function GeranImageGallery({
         <Image src={gambarUrls[active]} alt={tajuk} fill className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
         {/* Polygon dilukis dalam kotak yang sama dengan gambar dan guna
             padanan "cover", jadi ia dipangkas serentak dengan gambarnya. */}
-        {sempadan && (
-          <PolygonOverlay
-            points={sempadan.points}
-            lebarMedia={sempadan.w}
-            tinggiMedia={sempadan.h}
-            padanan="cover"
-            label={sempadan.label}
-          />
+        {lots.length > 0 && (
+          <PolygonOverlay lots={lots} lebarMedia={sempadan?.w} tinggiMedia={sempadan?.h} padanan="cover" />
         )}
       </div>
       {gambarUrls.length > 1 && (

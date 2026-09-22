@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   // dibakar - WhatsApp/FB hanya muat turun satu fail gambar dan tak akan
   // menjalankan overlay SVG kita. Tanpa polygon, guna terus URL blob supaya
   // tiada kerja pelayan langsung.
-  const adaSempadan = Object.values(bacaGambarPolygons(geran.gambarPolygons)).some(
-    (b) => b.points.length >= 3
+  const adaSempadan = Object.values(bacaGambarPolygons(geran.gambarPolygons)).some((e) =>
+    e.lots.some((l) => l.points.length >= 3)
   );
   const image = adaSempadan
     ? `https://gerantanah.com/api/geran/og/${geran.id}`

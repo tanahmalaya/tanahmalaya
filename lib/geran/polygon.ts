@@ -13,20 +13,32 @@ import { z } from "zod";
 
 export type Titik = [number, number];
 
-export type BentukPolygon = {
+// Satu lot/sub-bahagian tanah dalam gambar - penyenaraian tanah lombong/ladang
+// selalunya dipecah jual ikut lot (Lot 1, Lot 2, ...), masing-masing dengan
+// harga sendiri. `id` stabil merentasi sunting (bukan indeks array) supaya
+// React dan kod sunting tak keliru bila lot disusun semula atau dibuang.
+export type LotPolygon = {
+  id: string;
   points: Titik[];
   label?: string | null;
-  // Dimensi asal gambar masa polygon dilukis. Perlu sebab galeri awam papar
-  // gambar dengan object-cover: tanpa tahu nisbah asal, kita tak boleh tiru
-  // pangkasan yang sama pada overlay dan polygon akan tersasar pada gambar
-  // yang bukan 16:9.
-  w?: number | null;
-  h?: number | null;
+  hargaSen?: number | null;
 };
 
-// Dikunci mengikut URL gambar (bukan indeks) supaya polygon kekal terikat pada
+export type GambarLots = {
+  // Dimensi asal gambar masa lot dilukis. Perlu sebab galeri awam papar
+  // gambar dengan object-cover: tanpa tahu nisbah asal, kita tak boleh tiru
+  // pangkasan yang sama pada overlay dan polygon akan tersasar pada gambar
+  // yang bukan 16:9. Dikongsi oleh semua lot dalam gambar yang sama.
+  w?: number | null;
+  h?: number | null;
+  lots: LotPolygon[];
+};
+
+// Dikunci mengikut URL gambar (bukan indeks) supaya lot kekal terikat pada
 // gambar yang betul walaupun admin susun semula atau buang gambar lain.
-export type GambarPolygons = Record<string, BentukPolygon>;
+export type GambarPolygons = Record<string, GambarLots>;
+
+export const MAX_LOT_SETIAP_GAMBAR = 30;
 
 export type KeyframePolygon = {
   t: number; // saat dari mula video
@@ -52,14 +64,32 @@ const titikSchema = z.tuple([z.number().min(-0.5).max(1.5), z.number().min(-0.5)
 // Titik dibenarkan keluar sedikit dari bingkai (-0.5..1.5) sebab sempadan tanah
 // selalunya terpotong di tepi gambar dan admin perlu letak bucu di luar rangka
 // supaya garisan melintas dengan sudut yang betul.
-const bentukSchema = z.object({
+const lotSchema = z.object({
+  id: z.string().min(1).max(40),
+  points: z.array(titikSchema).min(3).max(MAX_TITIK_POLYGON),
+  label: z.string().max(80).nullish(),
+  // Sen (bukan RM) supaya konsisten dengan cara duit disimpan di seluruh
+  // aplikasi ni (lihat Geran.hargaSiaranSen dll) dan elak ralat bulat float.
+  hargaSen: z.number().int().nonnegative().nullish(),
+});
+
+const gambarLotsSchema = z.object({
+  w: z.number().positive().max(20000).nullish(),
+  h: z.number().positive().max(20000).nullish(),
+  lots: z.array(lotSchema).min(1).max(MAX_LOT_SETIAP_GAMBAR),
+});
+
+export const gambarPolygonsSchema = z.record(z.string().url(), gambarLotsSchema);
+
+// Bentuk LAMA (sebelum sokongan berbilang lot) - satu polygon setiap gambar,
+// tiada pembungkus `lots`. Dikekalkan hanya untuk migrasi bacaan data sedia
+// ada dalam pangkalan data; jangan tulis dalam bentuk ni lagi.
+const bentukLamaSchema = z.object({
   points: z.array(titikSchema).min(3).max(MAX_TITIK_POLYGON),
   label: z.string().max(80).nullish(),
   w: z.number().positive().max(20000).nullish(),
   h: z.number().positive().max(20000).nullish(),
 });
-
-export const gambarPolygonsSchema = z.record(z.string().url(), bentukSchema);
 
 export const videoPolygonTrackSchema = z.object({
   version: z.literal(1),
@@ -82,9 +112,30 @@ export const videoPolygonTrackSchema = z.object({
 
 export function bacaGambarPolygons(nilai: unknown): GambarPolygons {
   if (!nilai || typeof nilai !== "object") return {};
-  const hasil = gambarPolygonsSchema.safeParse(nilai);
-  if (!hasil.success) return {};
-  return hasil.data as GambarPolygons;
+
+  const keluar: GambarPolygons = {};
+  for (const [url, mentah] of Object.entries(nilai as Record<string, unknown>)) {
+    if (!mentah || typeof mentah !== "object") continue;
+
+    if (Array.isArray((mentah as { lots?: unknown }).lots)) {
+      const hasil = gambarLotsSchema.safeParse(mentah);
+      if (hasil.success) keluar[url] = hasil.data;
+      continue;
+    }
+
+    // Format lama: satu polygon terus pada peringkat gambar (tiada `lots`).
+    // Migrasi jadi SATU lot supaya penyenaraian sedia ada terus kelihatan
+    // dalam editor & halaman awam yang baharu, tanpa perlu skrip migrasi DB.
+    const lama = bentukLamaSchema.safeParse(mentah);
+    if (lama.success) {
+      keluar[url] = {
+        w: lama.data.w ?? null,
+        h: lama.data.h ?? null,
+        lots: [{ id: "warisan", points: lama.data.points, label: lama.data.label ?? null, hargaSen: null }],
+      };
+    }
+  }
+  return keluar;
 }
 
 export function bacaVideoTrack(nilai: unknown): VideoPolygonTrack | null {
@@ -175,13 +226,17 @@ export function titikKeSvg(points: Titik[], skala = 100): string {
   return points.map(([x, y]) => `${(x * skala).toFixed(3)},${(y * skala).toFixed(3)}`).join(" ");
 }
 
-// Buang polygon yang gambarnya sudah tiada dalam penyenaraian. Dipanggil masa
-// simpan supaya kolum Json tak kumpul sampah URL blob yang dah dibuang.
+// Buang lot yang gambarnya sudah tiada dalam penyenaraian, dan mana-mana lot
+// yang belum lengkap (<3 bucu - draf yang masih dilukis). Dipanggil masa
+// simpan supaya kolum Json tak kumpul sampah URL blob yang dah dibuang atau
+// lot separuh jalan yang tak sah ikut gambarPolygonsSchema.
 export function tapisPolygonGambar(polygons: GambarPolygons, gambarUrls: string[]): GambarPolygons {
   const dibenarkan = new Set(gambarUrls);
   const hasil: GambarPolygons = {};
-  for (const [url, bentuk] of Object.entries(polygons)) {
-    if (dibenarkan.has(url)) hasil[url] = bentuk;
+  for (const [url, entri] of Object.entries(polygons)) {
+    if (!dibenarkan.has(url)) continue;
+    const lots = entri.lots.filter((l) => l.points.length >= 3);
+    if (lots.length > 0) hasil[url] = { ...entri, lots };
   }
   return hasil;
 }
