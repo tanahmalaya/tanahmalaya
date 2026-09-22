@@ -11,7 +11,7 @@
 import { useEffect, useState } from "react";
 import type { GambarPolygons, LotPolygon, Titik } from "@/lib/geran/polygon";
 import { bundarkanTitik } from "@/lib/geran/polygon";
-import { formatRM } from "@/lib/geran";
+import HargaInput from "@/components/geran/HargaInput";
 import PolygonCanvas from "./PolygonCanvas";
 
 const NISBAH_GALERI = 16 / 9;
@@ -236,22 +236,13 @@ export default function GambarPolygonEditor({
               <label className="mb-1 block text-xs font-semibold text-brand-dark/70">
                 Harga lot ini (RM, pilihan)
               </label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={lotAktif?.hargaSen ? lotAktif.hargaSen / 100 : ""}
-                onChange={(e) => {
-                  const rm = Number(e.target.value);
-                  kemaskiniMedan({ hargaSen: e.target.value && rm > 0 ? Math.round(rm * 100) : null });
-                }}
+              <HargaInput
+                value={lotAktif?.hargaSen ? String(lotAktif.hargaSen / 100) : ""}
+                onChange={(rm) => kemaskiniMedan({ hargaSen: rm ? Math.round(Number(rm) * 100) : null })}
                 disabled={!lotAktif}
-                placeholder="cth. 198000"
+                placeholder="cth. 198k"
                 className={INPUT}
               />
-              {lotAktif?.hargaSen ? (
-                <p className="mt-1 text-xs text-brand-dark/40">{formatRM(lotAktif.hargaSen)}</p>
-              ) : null}
             </div>
           </div>
           <p className="mt-2 text-xs text-brand-dark/40">

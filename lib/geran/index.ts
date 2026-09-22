@@ -115,3 +115,31 @@ export function formatKeluasan(keluasan: number, unit: string) {
   const nombor = keluasan.toLocaleString("en-MY", { maximumFractionDigits: 2 });
   return `${nombor} ${UNIT_KELUASAN_LABEL[unit] ?? unit}`;
 }
+
+// Terima ringkasan harga macam mana orang sebenarnya taip - "233k", "2.5jt",
+// "450000" atau "RM 233,000" - dan pulangkan angka RM penuh. Singkatan yang
+// dikenali (k/ribu/rb = beribu, jt/juta/mil/m = berjuta) sama macam yang
+// dikenali huraiIklanTanah() dalam lib/geran/parse.ts, supaya admin tak perlu
+// ingat dua konvensyen berbeza untuk dua tempat berbeza. null bermakna teks tu
+// bukan nombor harga yang sah.
+export function huraiRinggit(teksMentah: string): number | null {
+  const teks = teksMentah
+    .trim()
+    .toLowerCase()
+    .replace(/rm/g, "")
+    .replace(/,/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!teks) return null;
+
+  const padan = teks.match(/^(\d+(?:\.\d+)?)\s*(juta|jt|mil(?:lion)?|m|ribu|rb|k)?$/);
+  if (!padan) return null;
+
+  const nombor = Number(padan[1]);
+  if (!Number.isFinite(nombor) || nombor <= 0) return null;
+
+  const akhiran = padan[2];
+  const gandaan = akhiran ? (/^(juta|jt|mil(?:lion)?|m)$/.test(akhiran) ? 1_000_000 : 1_000) : 1;
+
+  return Math.round(nombor * gandaan * 100) / 100;
+}

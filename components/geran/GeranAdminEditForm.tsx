@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
+import HargaInput from "@/components/geran/HargaInput";
 import PolygonEditorPanel from "@/components/geran/polygon/PolygonEditorPanel";
 import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import { STATUS_PEMILIKAN_LABEL, STATUS_PEMILIKAN_NOTA, formatRM, idVideoYoutube } from "@/lib/geran";
@@ -116,36 +117,15 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
           <div className="grid sm:grid-cols-3 gap-3">
             <div>
               <label className={LABEL}>Anggaran pasaran (RM)</label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={hargaPasaranRM}
-                onChange={(e) => setHargaPasaranRM(e.target.value)}
-                className={INPUT}
-              />
+              <HargaInput value={hargaPasaranRM} onChange={setHargaPasaranRM} className={INPUT} />
             </div>
             <div>
               <label className={LABEL}>Harga kita ambil (RM)</label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={hargaAmbilRM}
-                onChange={(e) => setHargaAmbilRM(e.target.value)}
-                className={INPUT}
-              />
+              <HargaInput value={hargaAmbilRM} onChange={setHargaAmbilRM} className={INPUT} />
             </div>
             <div>
               <label className={LABEL}>Harga siaran (RM)</label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={hargaSiaranRM}
-                onChange={(e) => setHargaSiaranRM(e.target.value)}
-                className={INPUT}
-              />
+              <HargaInput value={hargaSiaranRM} onChange={setHargaSiaranRM} className={INPUT} />
             </div>
           </div>
 

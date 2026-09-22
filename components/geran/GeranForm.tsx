@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
+import HargaInput from "@/components/geran/HargaInput";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import {
   JENIS_TANAH_LABEL,
@@ -280,14 +281,12 @@ export default function GeranForm({
             </div>
             <div>
               <label className={LABEL}>Your Asking Price (RM)</label>
-              <input
-                type="number"
-                min="1"
-                step="1"
+              <HargaInput
                 required
                 value={hargaRM}
-                onChange={(e) => setHargaRM(e.target.value)}
+                onChange={setHargaRM}
                 className={INPUT}
+                previewClassName="mt-1 text-xs text-[#0E3B2E]/45"
               />
             </div>
           </div>

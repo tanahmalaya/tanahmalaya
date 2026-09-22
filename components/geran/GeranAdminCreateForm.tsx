@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import SalinanGeranUpload from "@/components/geran/SalinanGeranUpload";
+import HargaInput from "@/components/geran/HargaInput";
 import { NEGERI_LIST } from "@/lib/aduanTanah";
 import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
 import GeranIsiPantas from "@/components/geran/GeranIsiPantas";
@@ -339,27 +340,12 @@ export default function GeranAdminCreateForm() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className={LABEL}>Harga kita ambil (RM) — pilihan</label>
-            <input
-              type="number"
-              min="0"
-              step="any"
-              value={hargaAmbilRM}
-              onChange={(e) => setHargaAmbilRM(e.target.value)}
-              className={INPUT}
-            />
+            <HargaInput value={hargaAmbilRM} onChange={setHargaAmbilRM} className={INPUT} />
             <p className="text-xs text-brand-dark/40 mt-1">Kos PLT/KJ Land. Tak dipapar kepada pembeli.</p>
           </div>
           <div>
             <label className={LABEL}>Harga siaran (RM)</label>
-            <input
-              required
-              type="number"
-              min="0"
-              step="any"
-              value={hargaSiaranRM}
-              onChange={(e) => setHargaSiaranRM(e.target.value)}
-              className={INPUT}
-            />
+            <HargaInput required value={hargaSiaranRM} onChange={setHargaSiaranRM} className={INPUT} />
             <p className="text-xs text-brand-dark/40 mt-1">Harga yang pembeli nampak di direktori.</p>
           </div>
         </div>
