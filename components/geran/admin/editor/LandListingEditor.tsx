@@ -13,7 +13,8 @@ import StatusBadge from "@/components/geran/admin/StatusBadge";
 import { STATUS_BUTIRAN_AWAM, type StatusGeranKey } from "@/lib/geran/status";
 import TabGeneral from "./TabGeneral";
 import TabLots from "./TabLots";
-import { Tab360, TabDokumen, TabMedia, TabSeo } from "./TabLain";
+import { TabDokumen, TabMedia, TabSeo } from "./TabLain";
+import Tab360 from "@/components/geran/admin/panorama/Tab360";
 import type { EditorForm, EditorMeta } from "./types";
 
 const TAB = [
@@ -63,6 +64,17 @@ function keMuatan(form: EditorForm, geranId: string) {
     gambarUrls: form.gambarUrls,
     penanda: form.penanda,
     penandaPeta: form.penandaPeta,
+    panorama: form.panorama.map((p) => ({
+      ...(p.id ? { id: p.id } : {}),
+      kunci: p.kunci,
+      url: p.url,
+      tajuk: teks(p.tajuk),
+      latitude: nombor(p.latitude),
+      longitude: nombor(p.longitude),
+      lotId: p.lotId || null,
+      yawAwal: p.yawAwal,
+      hotspots: p.hotspots,
+    })),
     seoTitle: teks(form.seoTitle),
     seoDescription: teks(form.seoDescription),
     status: form.status,
@@ -145,9 +157,11 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
       // seterusnya kemas kini rekod yang sama, bukan cipta semula. `kunci`
       // sengaja tak diubah supaya lot yang sedang dipilih kekal terpilih.
       const ids: string[] = data.lotIds ?? [];
+      const idPanorama: string[] = data.panoramaIds ?? [];
       const baru: EditorForm = {
         ...sasaran,
         lots: sasaran.lots.map((l, i) => (ids[i] ? { ...l, id: ids[i] } : l)),
+        panorama: sasaran.panorama.map((p, i) => (idPanorama[i] ? { ...p, id: idPanorama[i] } : p)),
       };
       setForm(baru);
       setTersimpan(JSON.stringify(baru));
@@ -239,7 +253,14 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
       <div className="flex gap-1 border-b border-black/[0.08] mb-5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">
         {TAB.map((t) => {
           const aktif = t.kunci === tab;
-          const kiraan = t.kunci === "lots" ? form.lots.length : t.kunci === "media" ? form.gambarUrls.length : 0;
+          const kiraan =
+            t.kunci === "lots"
+              ? form.lots.length
+              : t.kunci === "media"
+                ? form.gambarUrls.length
+                : t.kunci === "360"
+                  ? form.panorama.length
+                  : 0;
           return (
             <button
               key={t.kunci}
@@ -263,7 +284,7 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
       {tab === "general" && <TabGeneral form={form} ubah={ubah} meta={meta} />}
       {tab === "lots" && <TabLots form={form} ubah={ubah} />}
       {tab === "media" && <TabMedia form={form} ubah={ubah} />}
-      {tab === "360" && <Tab360 />}
+      {tab === "360" && <Tab360 form={form} ubah={ubah} />}
       {tab === "documents" && <TabDokumen meta={meta} />}
       {tab === "seo" && <TabSeo form={form} ubah={ubah} meta={meta} />}
     </div>

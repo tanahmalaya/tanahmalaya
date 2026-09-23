@@ -1,5 +1,6 @@
 import type { Penanda } from "@/lib/geran/penanda";
 import type { PenandaPeta } from "@/lib/geran/peta";
+import type { Hotspot } from "@/lib/geran/panorama";
 import type { StatusGeranKey } from "@/lib/geran/status";
 
 // Bentuk data Land Listing Editor. Semua wang dalam RM sebagai rentetan
@@ -23,6 +24,21 @@ export type LotForm = {
   latitude: string;
   longitude: string;
   nota: string;
+};
+
+// Satu panorama 360°. lotId & hotspot.lotId merujuk LotForm.kunci;
+// hotspot.keScene merujuk PanoramaForm.kunci - kedua-duanya ditukar ke id
+// sebenar oleh pelayan semasa simpan (sama seperti penanda).
+export type PanoramaForm = {
+  kunci: string;
+  id: string | null;
+  url: string;
+  tajuk: string;
+  latitude: string;
+  longitude: string;
+  lotId: string; // "" = tiada
+  yawAwal: number;
+  hotspots: Hotspot[];
 };
 
 export type EditorForm = {
@@ -59,6 +75,7 @@ export type EditorForm = {
   penanda: Penanda;
   // Bentuk atas peta satelit - [lng, lat]; lotId juga merujuk LotForm.kunci.
   penandaPeta: PenandaPeta;
+  panorama: PanoramaForm[];
 
   seoTitle: string;
   seoDescription: string;

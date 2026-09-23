@@ -725,6 +725,7 @@ model Geran {
 
   favoritedBy GeranFavorite[]
   lots        Lot[]
+  panorama    Panorama[]
 
   @@index([negeri, daerahMukim])
   @@index([status])
@@ -756,6 +757,41 @@ model Lot {
   longitude    Float?
   nota         String?        @db.Text
   susunan      Int            @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Panorama 360° yang kameranya berdiri atas lot ini - klik lot di peta
+  // membuka pandangan 360° dari sini.
+  panorama Panorama[]
+
+  @@index([geranId])
+}
+
+// Gambar 360° (equirectangular) sesuatu penyenaraian, dengan hotspot
+// (Main Road, River, Lot Boundary, ...) dan kedudukan kamera atas peta.
+// Hotspot disimpan sebagai Json dalam baris ini - ia sentiasa dibaca & ditulis
+// bersama panoramanya, dan bentuknya disahkan di lib/geran/panorama.ts.
+model Panorama {
+  id      String @id @default(cuid())
+  geranId String
+  geran   Geran  @relation(fields: [geranId], references: [id], onDelete: Cascade)
+
+  url     String // Vercel Blob (awam), WebP dimampat dalam pelayar sebelum muat naik
+  tajuk   String?
+  susunan Int     @default(0)
+
+  // Kedudukan kamera (WGS84) - pin kamera atas peta lot.
+  latitude  Float?
+  longitude Float?
+  // Lot tempat kamera berdiri, jika ada.
+  lotId     String?
+  lot       Lot?    @relation(fields: [lotId], references: [id], onDelete: SetNull)
+
+  // Arah pandangan awal (darjah yaw) supaya pembeli mula menghadap tanah.
+  yawAwal Float @default(0)
+
+  hotspots Json @default("[]")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { bacaPenanda, tukarWarisan } from "@/lib/geran/penanda";
 import { bacaPenandaPeta } from "@/lib/geran/peta";
+import { bacaHotspot } from "@/lib/geran/panorama";
 import LandListingEditor from "@/components/geran/admin/editor/LandListingEditor";
 import type { EditorForm, EditorMeta, LotForm, StatusLotKey } from "@/components/geran/admin/editor/types";
 
@@ -15,7 +16,7 @@ const s = (v: string | number | null | undefined) => (v === null || v === undefi
 export default async function GeranAdminEditPage({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({
     where: { id: params.id },
-    include: { lots: { orderBy: { susunan: "asc" } } },
+    include: { lots: { orderBy: { susunan: "asc" } }, panorama: { orderBy: { susunan: "asc" } } },
   });
   if (!geran) notFound();
 
@@ -54,6 +55,17 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     gambarUrls: geran.gambarUrls,
     penanda: warisan.penanda,
     penandaPeta: bacaPenandaPeta(geran.penandaPeta),
+    panorama: geran.panorama.map((p) => ({
+      kunci: p.id,
+      id: p.id,
+      url: p.url,
+      tajuk: s(p.tajuk),
+      latitude: s(p.latitude),
+      longitude: s(p.longitude),
+      lotId: s(p.lotId),
+      yawAwal: p.yawAwal,
+      hotspots: bacaHotspot(p.hotspots),
+    })),
     seoTitle: s(geran.seoTitle),
     seoDescription: s(geran.seoDescription),
     status: geran.status,

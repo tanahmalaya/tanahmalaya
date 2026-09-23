@@ -26,6 +26,8 @@ export type BentukPeta = {
   label: string | null;
 };
 
+export type KameraPeta = { id: string; lat: number; lng: number; tajuk: string | null; lotId: string | null };
+
 export type ListingPeta = {
   id: string;
   seq: number;
@@ -44,6 +46,7 @@ export type ListingPeta = {
   gambar: string | null;
   lots: LotPeta[];
   bentuk: BentukPeta[];
+  kamera: KameraPeta[];
 };
 
 export function statusPetaListing(s: StatusGeranKey): StatusPeta {
@@ -75,6 +78,11 @@ export async function dataPetaLot(): Promise<ListingPeta[]> {
       lots: {
         orderBy: { susunan: "asc" },
         select: { id: true, noLot: true, status: true, hargaSen: true, keluasan: true, unitKeluasan: true },
+      },
+      panorama: {
+        where: { latitude: { not: null }, longitude: { not: null } },
+        orderBy: { susunan: "asc" },
+        select: { id: true, latitude: true, longitude: true, tajuk: true, lotId: true },
       },
     },
   });
@@ -120,6 +128,13 @@ export async function dataPetaLot(): Promise<ListingPeta[]> {
         unit: l.unitKeluasan,
       })),
       bentuk,
+      kamera: g.panorama.map((p) => ({
+        id: p.id,
+        lat: p.latitude as number,
+        lng: p.longitude as number,
+        tajuk: p.tajuk,
+        lotId: p.lotId,
+      })),
     };
   });
 }

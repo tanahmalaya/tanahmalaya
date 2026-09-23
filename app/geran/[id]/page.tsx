@@ -8,6 +8,8 @@ import { getSellerSession } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import GeranImageGallery from "@/components/geran/GeranImageGallery";
+import Paparan360, { type LotAwam360, type SceneAwam } from "@/components/geran/panorama/Paparan360";
+import { bacaHotspot } from "@/lib/geran/panorama";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
 import GeranAccountNav from "@/components/geran/GeranAccountNav";
@@ -78,7 +80,7 @@ export default async function GeranDetailPage({
 }) {
   const geran = await prisma.geran.findUnique({
     where: { id: params.id },
-    include: { lots: { orderBy: { susunan: "asc" } } },
+    include: { lots: { orderBy: { susunan: "asc" } }, panorama: { orderBy: { susunan: "asc" } } },
   });
   if (!geran) notFound();
 
@@ -92,6 +94,26 @@ export default async function GeranDetailPage({
   const session = getSellerSession();
   const detailPath = `/geran/`;
   const penanda = penandaAwam(geran, geran.lots, formatRM);
+  const scenes: SceneAwam[] = geran.panorama.map((p) => ({
+    id: p.id,
+    url: p.url,
+    tajuk: p.tajuk,
+    yawAwal: p.yawAwal,
+    hotspots: bacaHotspot(p.hotspots),
+  }));
+  // Hanya maklumat lot yang memang awam - harga disembunyi untuk lot Sold,
+  // sama seperti overlay gambar (lib/geran/penanda.ts).
+  const lot360: Record<string, LotAwam360> = Object.fromEntries(
+    geran.lots.map((l) => [
+      l.id,
+      {
+        noLot: l.noLot,
+        status: l.status,
+        keluasan: l.keluasan ? formatKeluasan(l.keluasan, l.unitKeluasan) : null,
+        harga: l.status !== "SOLD" && l.hargaSen ? formatRM(Number(l.hargaSen)) : null,
+      },
+    ])
+  );
 
   const [favorite, serupa] = await Promise.all([
     session
@@ -127,6 +149,14 @@ export default async function GeranDetailPage({
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} penanda={penanda} />
+
+        {scenes.length > 0 && (
+          <section className="mt-6">
+            <h2 className="font-bold text-[#0E3B2E] mb-2">360° View</h2>
+            <Paparan360 scenes={scenes} lots={lot360} />
+            <p className="text-xs text-[#0E3B2E]/40 mt-2">Drag to look around. Tap a marker for details.</p>
+          </section>
+        )}
 
         <div className="grid md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2 space-y-6">

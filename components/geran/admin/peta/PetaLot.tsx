@@ -84,9 +84,17 @@ function IkutZum({ onZum }: { onZum: (z: number) => void }) {
   return null;
 }
 
-function PautanListing({ l }: { l: ListingPeta }) {
+function PautanListing({ l, ada360 = false }: { l: ListingPeta; ada360?: boolean }) {
   return (
-    <div className="mt-2 flex gap-2">
+    <div className="mt-2 flex flex-wrap gap-2">
+      {ada360 && (
+        <Link
+          href={`/geran/admin/geran/${l.id}?tab=360`}
+          className="rounded-md bg-violet-600 px-2.5 py-1 text-[12px] font-bold !text-white no-underline"
+        >
+          360° view
+        </Link>
+      )}
       <Link
         href={`/geran/admin/geran/${l.id}?tab=lots`}
         className="rounded-md bg-emerald-700 px-2.5 py-1 text-[12px] font-bold !text-white no-underline"
@@ -122,7 +130,7 @@ function PopupLot({ lot, l }: { lot: LotPeta; l: ListingPeta }) {
       <p className="mt-1.5 text-[12px] text-black/50">
         #{l.seq} {l.tajuk}
       </p>
-      <PautanListing l={l} />
+      <PautanListing l={l} ada360={l.kamera.some((k) => k.lotId === lot.id)} />
     </div>
   );
 }
@@ -282,6 +290,28 @@ export default function PetaLot({
             return null;
           });
         })}
+
+        {/* Kamera 360° - pin ungu kecil; klik terus ke tab 360° listing. */}
+        {!ringkas &&
+          tapisan.flatMap(({ l }) =>
+            l.kamera.map((k) => (
+              <CircleMarker
+                key={`kam-${k.id}`}
+                center={[k.lat, k.lng]}
+                radius={6}
+                pathOptions={{ color: "#fff", weight: 2, fillColor: "#8B5CF6", fillOpacity: 1 }}
+              >
+                <Tooltip>📷 {k.tajuk || "360° camera"}</Tooltip>
+                <Popup>
+                  <div className="min-w-[180px] text-[13px]">
+                    <strong>📷 {k.tajuk || "360° camera"}</strong>
+                    <p className="text-[12px] text-black/55 mt-0.5">#{l.seq} {l.tajuk}</p>
+                    <PautanListing l={l} ada360 />
+                  </div>
+                </Popup>
+              </CircleMarker>
+            ))
+          )}
 
         {tapisan.map(({ l }) =>
           l.lat !== null && l.lng !== null ? (

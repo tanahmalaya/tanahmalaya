@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSellerSession } from "@/lib/sellerAuth";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_SAIZ_GAMBAR_BYTES, MAX_SAIZ_SALINAN_BYTES } from "@/lib/geran";
+import { MAX_SAIZ_360_BYTES } from "@/lib/geran/panorama";
 
 // Upload token straight from the browser to Vercel Blob for Geran photos -
 // see components/geran/GambarGeranUpload.tsx. Same pattern as
@@ -12,7 +13,8 @@ import { MAX_SAIZ_GAMBAR_BYTES, MAX_SAIZ_SALINAN_BYTES } from "@/lib/geran";
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Penjual muat naik dari /geran/jual, admin GERAN pula dari
   // /geran/admin/tambah.
-  if (!getSellerSession() && !getGeranAdminSession()) {
+  const admin = !!getGeranAdminSession();
+  if (!getSellerSession() && !admin) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
@@ -29,6 +31,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           return {
             allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
             maximumSizeInBytes: MAX_SAIZ_GAMBAR_BYTES,
+            addRandomSuffix: true,
+          };
+        }
+        // Panorama 360° - admin sahaja (GT/KJ Land rakam sendiri). Sudah
+        // dimampat ke WebP dalam pelayar, lihat components/geran/admin/panorama.
+        if (pathname.startsWith("geran/360/")) {
+          if (!admin) throw new Error("Not authorized.");
+          return {
+            allowedContentTypes: ["image/webp", "image/jpeg"],
+            maximumSizeInBytes: MAX_SAIZ_360_BYTES,
             addRandomSuffix: true,
           };
         }

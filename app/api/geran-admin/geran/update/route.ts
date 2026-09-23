@@ -8,6 +8,7 @@ import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_GAMBAR_GERAN } from "@/lib/geran";
 import { penandaSchema, tapisPenanda, type Penanda } from "@/lib/geran/penanda";
 import { penandaPetaSchema } from "@/lib/geran/peta";
+import { MAX_HOTSPOT, MAX_PANORAMA, hotspotSchema } from "@/lib/geran/panorama";
 import { STATUS_GERAN, capMasaStatus, semakPeralihan } from "@/lib/geran/status";
 
 // Simpan Land Listing Editor LANDHUB. Editor sentiasa hantar KESELURUHAN
@@ -39,6 +40,19 @@ const lotSchema = z.object({
   latitude: koordinat(-90, 90),
   longitude: koordinat(-180, 180),
   nota: teks(2000),
+});
+
+const panoramaSchema = z.object({
+  id: z.string().min(1).optional(),
+  kunci: z.string().min(1).max(60),
+  // Hanya fail yang dimuat naik ke Blob kita - bukan URL luar sewenang-wenang.
+  url: z.string().url().refine((u) => new URL(u).hostname.endsWith(".public.blob.vercel-storage.com"), "Invalid 360° image"),
+  tajuk: teks(120),
+  latitude: koordinat(-90, 90),
+  longitude: koordinat(-180, 180),
+  lotId: z.string().max(60).nullable(),
+  yawAwal: z.number().min(-360).max(360),
+  hotspots: z.array(hotspotSchema).max(MAX_HOTSPOT),
 });
 
 const schema = z.object({
@@ -79,6 +93,7 @@ const schema = z.object({
   gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN),
   penanda: penandaSchema,
   penandaPeta: penandaPetaSchema,
+  panorama: z.array(panoramaSchema).max(MAX_PANORAMA),
 
   // SEO
   seoTitle: teks(70),
@@ -108,7 +123,13 @@ export async function POST(req: NextRequest) {
 
   const geran = await prisma.geran.findUnique({
     where: { id: d.geranId },
-    select: { id: true, publishedAt: true, soldAt: true, lots: { select: { id: true } } },
+    select: {
+      id: true,
+      publishedAt: true,
+      soldAt: true,
+      lots: { select: { id: true } },
+      panorama: { select: { id: true } },
+    },
   });
   if (!geran) {
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
@@ -128,6 +149,13 @@ export async function POST(req: NextRequest) {
   if (asing) {
     return NextResponse.json({ error: "A lot does not belong to this listing." }, { status: 400 });
   }
+  const idPanoramaSedia = new Set(geran.panorama.map((p) => p.id));
+  if (d.panorama.some((p) => p.id && !idPanoramaSedia.has(p.id))) {
+    return NextResponse.json({ error: "A 360° image does not belong to this listing." }, { status: 400 });
+  }
+  const idPanoramaDikekal = new Set(d.panorama.filter((p) => p.id).map((p) => p.id!));
+  const idPanoramaDibuang = [...idPanoramaSedia].filter((id) => !idPanoramaDikekal.has(id));
+
   const idDikekal = new Set(d.lots.filter((l) => l.id).map((l) => l.id!));
   const idDibuang = [...idSedia].filter((id) => !idDikekal.has(id));
 
@@ -148,7 +176,7 @@ export async function POST(req: NextRequest) {
 
   // Transaksi interaktif: lot baru mesti dicipta DULU untuk dapat id sebelum
   // penanda (yang merujuk lot) boleh ditulis.
-  const lotIds = await prisma.$transaction(async (tx) => {
+  const { ids: lotIds, idPanorama: panoramaIds } = await prisma.$transaction(async (tx) => {
     await tx.lot.deleteMany({ where: { geranId: geran.id, id: { in: idDibuang } } });
 
     const kunciKeId = new Map<string, string>();
@@ -223,10 +251,42 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return ids;
-  }, { timeout: 20_000 });
+    // Panorama: cipta/kemas kini dulu tanpa hotspot untuk dapat id setiap
+    // scene, kemudian tulis hotspot dengan rujukan lot & scene yang ditukar
+    // ke id sebenar - hotspot "Explore" boleh menuju panorama yang baru dicipta
+    // dalam simpan yang sama.
+    await tx.panorama.deleteMany({ where: { geranId: geran.id, id: { in: idPanoramaDibuang } } });
+    const sceneKeId = new Map<string, string>();
+    const idPanorama: string[] = [];
+    for (const [i, p] of d.panorama.entries()) {
+      const data = {
+        url: p.url,
+        tajuk: kosongJadiNull(p.tajuk),
+        latitude: p.latitude,
+        longitude: p.longitude,
+        lotId: p.lotId ? kunciKeId.get(p.lotId) ?? null : null,
+        yawAwal: p.yawAwal,
+        susunan: i,
+      };
+      const rekod = p.id
+        ? await tx.panorama.update({ where: { id: p.id }, data, select: { id: true } })
+        : await tx.panorama.create({ data: { geranId: geran.id, ...data }, select: { id: true } });
+      sceneKeId.set(p.kunci, rekod.id);
+      idPanorama.push(rekod.id);
+    }
+    for (const [i, p] of d.panorama.entries()) {
+      const hotspots = p.hotspots.map((h) => ({
+        ...h,
+        lotId: h.lotId ? kunciKeId.get(h.lotId) ?? null : null,
+        keScene: h.keScene ? sceneKeId.get(h.keScene) ?? null : null,
+      }));
+      await tx.panorama.update({ where: { id: idPanorama[i] }, data: { hotspots } });
+    }
+
+    return { ids, idPanorama };
+  }, { timeout: 30_000 });
 
   // Pulangkan id lot ikut susunan supaya editor boleh tukar lot "baru" kepada
   // rekod sebenar - tanpa ini, simpan kali kedua akan cipta lot yang sama lagi.
-  return NextResponse.json({ ok: true, lotIds });
+  return NextResponse.json({ ok: true, lotIds, panoramaIds });
 }

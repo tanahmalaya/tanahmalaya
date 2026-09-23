@@ -1,10 +1,10 @@
 "use client";
 
-// Tab Media, 360°, Documents & SEO untuk Land Listing Editor. Sempadan lot
-// kini dilukis dalam tab Lots (Lot Marker); 360° dan Document Vault penuh
-// datang dalam fasa LANDHUB seterusnya.
+// Tab Media, Documents & SEO untuk Land Listing Editor. Sempadan lot dilukis
+// dalam tab Lots (Lot Marker) dan 360° dalam components/geran/admin/panorama;
+// Document Vault penuh datang dalam fasa LANDHUB seterusnya.
 
-import { ExternalLink, FileText, Lock, Orbit } from "lucide-react";
+import { ExternalLink, FileText, Lock } from "lucide-react";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import { KAD, LABEL, INPUT, TEXTAREA, type EditorForm, type EditorMeta, type UbahForm } from "./types";
 
@@ -33,7 +33,7 @@ export function TabMedia({ form, ubah }: { form: EditorForm; ubah: UbahForm }) {
   );
 }
 
-function AkanDatang({ ikon: Ikon, tajuk, teks }: { ikon: typeof Orbit; tajuk: string; teks: string }) {
+function AkanDatang({ ikon: Ikon, tajuk, teks }: { ikon: typeof Lock; tajuk: string; teks: string }) {
   return (
     <div className={`${KAD} p-10 flex flex-col items-center text-center`}>
       <span className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4">
@@ -42,16 +42,6 @@ function AkanDatang({ ikon: Ikon, tajuk, teks }: { ikon: typeof Orbit; tajuk: st
       <p className="font-bold">{tajuk}</p>
       <p className="text-sm text-black/50 mt-1 max-w-md">{teks}</p>
     </div>
-  );
-}
-
-export function Tab360() {
-  return (
-    <AkanDatang
-      ikon={Orbit}
-      tajuk="360° panoramas - coming soon"
-      teks="Upload 360° photos, place hotspots (road, river, lot boundary) and link each camera position to a lot on the map."
-    />
   );
 }
 
