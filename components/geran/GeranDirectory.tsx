@@ -34,6 +34,8 @@ export type GeranListing = {
   keterangan: string | null;
   gambarUrls: string[];
   sumber: keyof typeof SUMBER_GERAN_PUBLIC_LABEL;
+  // Hanya PUBLISHED atau RESERVED sampai ke direktori (lib/geran/status.ts).
+  reserved: boolean;
 };
 
 const JENIS_CHIPS: ("ALL" | JenisTanah)[] = ["ALL", "PERTANIAN", "KOSONG", "PERUMAHAN", "KOMERSIAL", "PERINDUSTRIAN", "PEMBANGUNAN"];
@@ -236,9 +238,15 @@ export default function GeranDirectory({
                       <LandPlaceholderIcon />
                     </div>
                   )}
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                    ✓ Approved
-                  </span>
+                  {l.reserved ? (
+                    <span className="absolute top-3 left-3 bg-violet-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                      Reserved
+                    </span>
+                  ) : (
+                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                      ✓ Verified
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-4">

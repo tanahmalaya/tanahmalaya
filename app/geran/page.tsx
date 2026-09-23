@@ -76,6 +76,7 @@ export default async function GeranPage() {
     keterangan: g.keterangan,
     gambarUrls: g.gambarUrls,
     sumber: g.sumber,
+    reserved: g.status === "RESERVED",
   }));
 
   return (
