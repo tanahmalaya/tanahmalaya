@@ -62,6 +62,7 @@ function keMuatan(form: EditorForm, geranId: string) {
     catatanRundingan: teks(form.catatanRundingan),
     gambarUrls: form.gambarUrls,
     penanda: form.penanda,
+    penandaPeta: form.penandaPeta,
     seoTitle: teks(form.seoTitle),
     seoDescription: teks(form.seoDescription),
     status: form.status,

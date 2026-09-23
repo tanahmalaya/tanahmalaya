@@ -2,10 +2,17 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import Image from "next/image";
+import dynamicImport from "next/dynamic";
 import { AlertTriangle, CircleDollarSign, Eye, LandPlot, Pencil, Plus, Sparkles, Tag } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatRM, formatKeluasan } from "@/lib/geran";
 import StatusBadge from "@/components/geran/admin/StatusBadge";
+import { dataPetaLot } from "@/lib/geran/data-peta";
+
+const PetaLot = dynamicImport(() => import("@/components/geran/admin/peta/PetaLot"), {
+  ssr: false,
+  loading: () => <div className="h-[320px] rounded-xl bg-black/[0.05] animate-pulse" />,
+});
 import { KUMPULAN_STATUS, STATUS_GERAN, STATUS_INFO, isStatusGeran } from "@/lib/geran/status";
 
 const infoStatus = (s: string) => (isStatusGeran(s) ? STATUS_INFO[s] : null);
@@ -84,7 +91,7 @@ export default async function LandhubDashboardPage() {
   const mulaBulan = new Date(kini.getFullYear(), kini.getMonth(), 1);
   const mulaBulanLepas = new Date(kini.getFullYear(), kini.getMonth() - 1, 1);
 
-  const [jumlah, baruBulanIni, baruBulanLepas, ikutStatus, nilai, terkini, aktiviti, ikutNegeri, jualBulanIni] =
+  const [jumlah, baruBulanIni, baruBulanLepas, ikutStatus, nilai, terkini, aktiviti, dataPeta, jualBulanIni] =
     await Promise.all([
       prisma.geran.count(),
       prisma.geran.count({ where: { createdAt: { gte: mulaBulan } } }),
@@ -118,7 +125,7 @@ export default async function LandhubDashboardPage() {
         take: 6,
         select: { id: true, seq: true, tajuk: true, status: true, createdAt: true, updatedAt: true },
       }),
-      prisma.geran.groupBy({ by: ["negeri"], _count: { _all: true }, orderBy: { _count: { negeri: "desc" } }, take: 6 }),
+      dataPetaLot(),
       prisma.geran.count({ where: { status: "SOLD", soldAt: { gte: mulaBulan } } }),
     ]);
 
@@ -132,7 +139,6 @@ export default async function LandhubDashboardPage() {
   const nilaiSen = Number(nilai._sum?.hargaSiaranSen ?? 0);
   const perubahanBaru =
     baruBulanLepas > 0 ? Math.round(((baruBulanIni - baruBulanLepas) / baruBulanLepas) * 100) : null;
-  const negeriMaks = Math.max(1, ...ikutNegeri.map((n) => n._count._all));
 
   const statKad = [
     {
@@ -213,27 +219,12 @@ export default async function LandhubDashboardPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
         <div className={`${KAD} p-5 xl:col-span-2`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold">Inventory by State</h2>
-            <span className="text-xs text-black/40">Interactive lot map coming with Lots &amp; Map</span>
+            <h2 className="font-bold">Land Inventory Map</h2>
+            <Link href="/geran/admin/lots/map" className="text-sm font-semibold text-emerald-700 hover:underline">
+              Open Lot Map →
+            </Link>
           </div>
-          {ikutNegeri.length === 0 ? (
-            <p className="text-sm text-black/45">No listings yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {ikutNegeri.map((n) => (
-                <li key={n.negeri} className="grid grid-cols-[120px_1fr_40px] items-center gap-3 text-sm" title={`${n.negeri}: ${n._count._all}`}>
-                  <span className="text-black/70 truncate">{n.negeri}</span>
-                  <span className="h-2.5 rounded-full bg-[#EEF1EF] overflow-hidden">
-                    <span
-                      className="block h-full rounded-full bg-emerald-600"
-                      style={{ width: `${(n._count._all / negeriMaks) * 100}%` }}
-                    />
-                  </span>
-                  <span className="text-right font-semibold tabular-nums">{n._count._all}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <PetaLot data={dataPeta} mod="ringkas" />
         </div>
 
         <div className={`${KAD} p-5`}>

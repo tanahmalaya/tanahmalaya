@@ -1,4 +1,5 @@
 import type { Penanda } from "@/lib/geran/penanda";
+import type { PenandaPeta } from "@/lib/geran/peta";
 import type { StatusGeranKey } from "@/lib/geran/status";
 
 // Bentuk data Land Listing Editor. Semua wang dalam RM sebagai rentetan
@@ -56,6 +57,8 @@ export type EditorForm = {
   // Bentuk Lot Marker. lotId dalam penanda merujuk LotForm.kunci (bukan id),
   // supaya lot yang belum disimpan pun boleh dipaut.
   penanda: Penanda;
+  // Bentuk atas peta satelit - [lng, lat]; lotId juga merujuk LotForm.kunci.
+  penandaPeta: PenandaPeta;
 
   seoTitle: string;
   seoDescription: string;

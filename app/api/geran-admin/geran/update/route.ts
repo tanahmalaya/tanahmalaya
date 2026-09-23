@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_GAMBAR_GERAN } from "@/lib/geran";
 import { penandaSchema, tapisPenanda, type Penanda } from "@/lib/geran/penanda";
+import { penandaPetaSchema } from "@/lib/geran/peta";
 import { STATUS_GERAN, capMasaStatus, semakPeralihan } from "@/lib/geran/status";
 
 // Simpan Land Listing Editor LANDHUB. Editor sentiasa hantar KESELURUHAN
@@ -77,6 +78,7 @@ const schema = z.object({
   // Media
   gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN),
   penanda: penandaSchema,
+  penandaPeta: penandaPetaSchema,
 
   // SEO
   seoTitle: teks(70),
@@ -167,6 +169,14 @@ export async function POST(req: NextRequest) {
       };
     }
 
+    // Bentuk peta: rujukan lot ditukar dengan cara yang sama; pautan ke lot
+    // yang dah dipadam dijadikan null (bentuknya kekal).
+    const idSah = new Set(ids);
+    const ciriPeta = d.penandaPeta.ciri.map((c) => {
+      const lotId = c.lotId ? kunciKeId.get(c.lotId) ?? null : null;
+      return { ...c, lotId: lotId && idSah.has(lotId) ? lotId : null };
+    });
+
     await tx.geran.update({
       where: { id: geran.id },
       data: {
@@ -202,6 +212,7 @@ export async function POST(req: NextRequest) {
         penandaLot: tapisPenanda(penandaDisimpan, d.gambarUrls, new Set(ids)),
         // Data polygon format lama kini hidup dalam penandaLot + rekod Lot.
         gambarPolygons: Prisma.DbNull,
+        penandaPeta: ciriPeta.length > 0 ? { ciri: ciriPeta } : Prisma.DbNull,
 
         seoTitle: kosongJadiNull(d.seoTitle),
         seoDescription: kosongJadiNull(d.seoDescription),

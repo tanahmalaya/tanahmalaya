@@ -125,9 +125,9 @@ function SenaraiLot({ form, ubah }: { form: EditorForm; ubah: UbahForm }) {
 }
 
 export default function TabLots({ form, ubah }: { form: EditorForm; ubah: UbahForm }) {
-  // Marker jadi paparan lalai bila ada gambar untuk dilukis - itulah cara
-  // utama lot dicipta. Tanpa gambar, senarai sahaja yang bermakna.
-  const [paparan, setPaparan] = useState<"marker" | "senarai">(form.gambarUrls.length > 0 ? "marker" : "senarai");
+  // Marker jadi paparan lalai - itulah cara utama lot dicipta, sama ada atas
+  // gambar drone atau terus atas peta satelit.
+  const [paparan, setPaparan] = useState<"marker" | "senarai">("marker");
 
   const butang = (nilai: typeof paparan, label: string, Ikon: typeof List) => (
     <button

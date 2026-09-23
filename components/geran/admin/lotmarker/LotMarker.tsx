@@ -16,6 +16,7 @@ import {
   Combine,
   Eye,
   EyeOff,
+  Globe,
   Hexagon,
   ImageIcon,
   MapPin,
@@ -48,6 +49,18 @@ import {
   type Pt,
 } from "@/lib/geran/penanda";
 import type { Titik } from "@/lib/geran/polygon";
+import {
+  SAIZ_KANVAS,
+  ZUM_ASAS,
+  dariDunia,
+  keDunia,
+  luasGeo,
+  m2KeUnit,
+  pusatGeo,
+  type AsasPeta,
+  JUBIN,
+} from "@/lib/geran/peta";
+import JubinPeta from "./JubinPeta";
 import { LotFields, LotStatusBadge, STATUS_LOT, lotKosong } from "@/components/geran/admin/editor/lotShared";
 import { INPUT, LABEL, type EditorForm, type LotForm, type UbahForm } from "@/components/geran/admin/editor/types";
 
@@ -77,7 +90,11 @@ type Seret =
   | { jenis: "badan"; id: string; mula: Pt; asal: Titik[]; dicatat: boolean }
   | { jenis: "segiempat"; mula: Pt };
 
-type Snap = { penanda: Penanda; lots: LotForm[] };
+type Snap = { penanda: Penanda; penandaPeta: EditorForm["penandaPeta"]; lots: LotForm[] };
+
+// Sumber "gambar" khas untuk peta satelit - disimpan dalam keadaan `url`
+// supaya semua logik pilih/lukis/sejarah kekal sama untuk kedua-dua sumber.
+const PETA = "__peta__";
 
 let kiraanCiri = 0;
 const idCiri = () => {
@@ -91,7 +108,8 @@ function formatLuas(lot: LotForm) {
 
 export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: UbahForm }) {
   const urls = form.gambarUrls;
-  const [url, setUrl] = useState<string | null>(urls[0] ?? null);
+  const [url, setUrl] = useState<string | null>(urls[0] ?? PETA);
+  const [asas, setAsas] = useState<AsasPeta>("satelit");
   const [dimensiDimuat, setDimensiDimuat] = useState<Record<string, { w: number; h: number }>>({});
   const [alat, setAlat] = useState<Alat>("pilih");
   const [lapisanGaris, setLapisanGaris] = useState<"jalan" | "sungai">("jalan");
@@ -119,17 +137,46 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
 
   // Gambar dibuang dari tab Media semasa editor terbuka - jangan kekal atasnya.
   useEffect(() => {
-    if (url && !urls.includes(url)) setUrl(urls[0] ?? null);
-    if (!url && urls.length > 0) setUrl(urls[0]);
+    if (url && url !== PETA && !urls.includes(url)) setUrl(urls[0] ?? PETA);
   }, [url, urls]);
 
-  const entri = url ? form.penanda[url] : undefined;
-  const dim = url ? (entri ? { w: entri.w, h: entri.h } : dimensiDimuat[url]) : undefined;
-  const ciri = useMemo(() => entri?.ciri ?? [], [entri]);
+  const modPeta = url === PETA;
+
+  // Asal kanvas peta (piksel dunia pada ZUM_ASAS) - DITETAPKAN sekali bila
+  // masuk mod peta: pusat bentuk sedia ada, atau koordinat penyenaraian.
+  // Kalau ia dikira semula setiap render, kanvas akan beranjak di tengah
+  // seretan setiap kali bentuk berubah.
+  const asalPetaRef = useRef<Pt | null>(null);
+  const lokasiDiketahuiRef = useRef(true);
+  if (modPeta && !asalPetaRef.current) {
+    const semua = form.penandaPeta.ciri.flatMap((c) => c.points) as [number, number][];
+    const lat = Number(form.latitude);
+    const lng = Number(form.longitude);
+    let pusat: [number, number] | null = null;
+    if (semua.length > 0) pusat = pusatGeo(semua);
+    else if (form.latitude.trim() && form.longitude.trim() && Number.isFinite(lat) && Number.isFinite(lng)) pusat = [lng, lat];
+    lokasiDiketahuiRef.current = !!pusat;
+    const [px, py] = keDunia(...(pusat ?? ([101.9758, 4.2105] as [number, number])), ZUM_ASAS);
+    asalPetaRef.current = [px - SAIZ_KANVAS / 2, py - SAIZ_KANVAS / 2];
+  }
+  const asalPeta = asalPetaRef.current ?? [0, 0];
+
+  const entri = url && !modPeta ? form.penanda[url] : undefined;
+  const dim = modPeta
+    ? { w: SAIZ_KANVAS, h: SAIZ_KANVAS }
+    : url
+      ? entri
+        ? { w: entri.w, h: entri.h }
+        : dimensiDimuat[url]
+      : undefined;
+  const ciri = useMemo(
+    () => (modPeta ? form.penandaPeta.ciri : entri?.ciri ?? []),
+    [modPeta, form.penandaPeta, entri]
+  );
 
   // Dimensi asal gambar - perlu untuk kanvas & overlay "cover" di laman awam.
   useEffect(() => {
-    if (!url || dim) return;
+    if (!url || dim || url === PETA) return;
     const img = new window.Image();
     img.onload = () => setDimensiDimuat((d) => ({ ...d, [url]: { w: img.naturalWidth, h: img.naturalHeight } }));
     img.src = url;
@@ -144,11 +191,29 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
   }, []);
 
   const muatkan = useCallback(() => {
-    if (!dim || saizBekas.w === 0) return;
+    // Bekas belum dibentang (lebar/tinggi 0) - skala 0 akan jadikan saiz
+    // teks Infinity dan koordinat label NaN.
+    if (!dim || saizBekas.w === 0 || saizBekas.h === 0) return;
+    if (url === PETA) {
+      // Peta: muatkan semua bentuk dengan ruang tepi, atau ~700 m sekeliling
+      // lokasi penyenaraian bila belum ada apa-apa dilukis.
+      const px = ciri.flatMap((c) => c.points.map((t) => kePx(t)));
+      let [x1, y1, x2, y2] = [SAIZ_KANVAS / 2 - 600, SAIZ_KANVAS / 2 - 600, SAIZ_KANVAS / 2 + 600, SAIZ_KANVAS / 2 + 600];
+      if (px.length > 0) {
+        x1 = Math.min(...px.map((p) => p[0])) - 60;
+        y1 = Math.min(...px.map((p) => p[1])) - 60;
+        x2 = Math.max(...px.map((p) => p[0])) + 60;
+        y2 = Math.max(...px.map((p) => p[1])) + 60;
+      }
+      const s = Math.min(saizBekas.w / (x2 - x1), saizBekas.h / (y2 - y1), 4);
+      setPutar(0);
+      setPandang({ s, tx: saizBekas.w / 2 - ((x1 + x2) / 2) * s, ty: saizBekas.h / 2 - ((y1 + y2) / 2) * s });
+      return;
+    }
     const sisi = putar % 180 === 0 ? { w: dim.w, h: dim.h } : { w: dim.h, h: dim.w };
     const s = Math.min(saizBekas.w / sisi.w, saizBekas.h / sisi.h) * 0.94;
     setPandang({ s, tx: (saizBekas.w - dim.w * s) / 2, ty: (saizBekas.h - dim.h * s) / 2 });
-  }, [dim, saizBekas, putar]);
+  }, [dim, saizBekas, putar, url, ciri]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Muat semula pandangan bila gambar, saiz bekas (cth. layar penuh) atau putaran berubah.
   useEffect(() => {
@@ -176,7 +241,7 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
 
   function catatSejarah() {
     const f = formRef.current;
-    undoRef.current.push({ penanda: f.penanda, lots: f.lots });
+    undoRef.current.push({ penanda: f.penanda, penandaPeta: f.penandaPeta, lots: f.lots });
     if (undoRef.current.length > 100) undoRef.current.shift();
     redoRef.current = [];
     paksaRender();
@@ -186,6 +251,11 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
     if (!url || !dim) return;
     if (sejarah) catatSejarah();
     const f = formRef.current;
+    if (url === PETA) {
+      const penandaPeta = { ciri: ciriBaru };
+      ubah(lotsBaru ? { penandaPeta, lots: lotsBaru } : { penandaPeta });
+      return;
+    }
     const penanda: Penanda = { ...f.penanda };
     if (ciriBaru.length === 0) delete penanda[url];
     else penanda[url] = { w: dim.w, h: dim.h, ciri: ciriBaru };
@@ -196,8 +266,8 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
     const snap = undoRef.current.pop();
     if (!snap) return;
     const f = formRef.current;
-    redoRef.current.push({ penanda: f.penanda, lots: f.lots });
-    ubah({ penanda: snap.penanda, lots: snap.lots });
+    redoRef.current.push({ penanda: f.penanda, penandaPeta: f.penandaPeta, lots: f.lots });
+    ubah({ penanda: snap.penanda, penandaPeta: snap.penandaPeta, lots: snap.lots });
     paksaRender();
   }
 
@@ -205,18 +275,35 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
     const snap = redoRef.current.pop();
     if (!snap) return;
     const f = formRef.current;
-    undoRef.current.push({ penanda: f.penanda, lots: f.lots });
-    ubah({ penanda: snap.penanda, lots: snap.lots });
+    undoRef.current.push({ penanda: f.penanda, penandaPeta: f.penandaPeta, lots: f.lots });
+    ubah({ penanda: snap.penanda, penandaPeta: snap.penandaPeta, lots: snap.lots });
     paksaRender();
   }
 
   // ---------- Penukaran koordinat ----------
 
-  const kePx = useCallback((t: Titik): Pt => [t[0] * (dim?.w ?? 1), t[1] * (dim?.h ?? 1)], [dim]);
-  const keNorm = useCallback(
-    (p: Pt): Titik => [Math.round((p[0] / (dim?.w ?? 1)) * 1e5) / 1e5, Math.round((p[1] / (dim?.h ?? 1)) * 1e5) / 1e5],
-    [dim]
-  );
+  // Gambar: koordinat tersimpan ternormal 0..1. Peta: [lng, lat] sebenar,
+  // ditukar ke piksel kanvas melalui piksel dunia Web Mercator.
+  function kePx(t: Titik): Pt {
+    if (modPeta) {
+      const [x, y] = keDunia(t[0], t[1], ZUM_ASAS);
+      return [x - asalPeta[0], y - asalPeta[1]];
+    }
+    return [t[0] * (dim?.w ?? 1), t[1] * (dim?.h ?? 1)];
+  }
+  function keNorm(p: Pt): Titik {
+    if (modPeta) {
+      const [lng, lat] = dariDunia(p[0] + asalPeta[0], p[1] + asalPeta[1], ZUM_ASAS);
+      return [Math.round(lng * 1e7) / 1e7, Math.round(lat * 1e7) / 1e7];
+    }
+    return [Math.round((p[0] / (dim?.w ?? 1)) * 1e5) / 1e5, Math.round((p[1] / (dim?.h ?? 1)) * 1e5) / 1e5];
+  }
+
+  // Luas poligon peta dalam unit lot (null untuk bentuk atas gambar - tiada skala).
+  function luasDiukur(c: Ciri, unit: string): number | null {
+    if (!modPeta || c.bentuk !== "poligon") return null;
+    return Math.round(m2KeUnit(luasGeo(c.points as [number, number][]), unit) * 100) / 100;
+  }
 
   function titikGambar(e: { clientX: number; clientY: number }): Pt {
     const svg = svgRef.current;
@@ -266,6 +353,15 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
     const f = formRef.current;
     const lot = lotKosong(f);
     const c: Ciri = { id: idCiri(), lapisan: "lot", bentuk: "poligon", points: pointsPx.map(keNorm), lotId: lot.kunci };
+    // Atas peta satelit kita tahu saiz sebenar - isi keluasan & koordinat
+    // lot terus daripada lukisan.
+    const luas = luasDiukur(c, lot.unitKeluasan);
+    if (luas !== null) {
+      const [lng, lat] = pusatGeo(c.points as [number, number][]);
+      lot.keluasan = String(luas);
+      lot.latitude = lat.toFixed(6);
+      lot.longitude = lng.toFixed(6);
+    }
     tulis([...ciri, c], [...f.lots, lot]);
     setDipilih(c.id);
     setMesej(`${lot.noLot} created — fill in its details on the right.`);
@@ -748,20 +844,10 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
   const alatAktif = ALAT.find((a) => a.kunci === alat)!;
   const kiraLapisan = (l: Lapisan) => ciri.filter((c) => c.lapisan === l).length;
   const lotTakDilukis = form.lots.filter(
-    (l) => !Object.values(form.penanda).some((e) => e.ciri.some((c) => c.lotId === l.kunci))
+    (l) =>
+      !Object.values(form.penanda).some((e) => e.ciri.some((c) => c.lotId === l.kunci)) &&
+      !form.penandaPeta.ciri.some((c) => c.lotId === l.kunci)
   );
-
-  if (urls.length === 0) {
-    return (
-      <div className="bg-white rounded-2xl border border-black/[0.06] p-10 flex flex-col items-center text-center">
-        <ImageIcon size={28} className="text-black/25 mb-2" />
-        <p className="font-semibold">No photos yet</p>
-        <p className="text-sm text-black/50 mt-1 max-w-sm">
-          Upload an aerial, drone or regular photo in the Media tab, then come back here to mark the lots.
-        </p>
-      </div>
-    );
-  }
 
   const PANEL = "bg-white rounded-2xl border border-black/[0.06]";
 
@@ -770,6 +856,19 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
       {/* Bar atas: pilih gambar, putar, kelegapan, layar penuh */}
       <div className={`${PANEL} px-3 py-2 flex flex-wrap items-center gap-3`}>
         <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none]">
+          <button
+            type="button"
+            onClick={() => setUrl(PETA)}
+            title="Draw on the satellite map"
+            className={`relative h-10 px-3 rounded-md shrink-0 border-2 inline-flex items-center gap-1.5 text-xs font-bold ${
+              modPeta ? "border-emerald-600 bg-emerald-50 text-emerald-800" : "border-black/[0.08] text-black/60 hover:bg-black/[0.03]"
+            }`}
+          >
+            <Globe size={15} /> Satellite
+            {form.penandaPeta.ciri.length > 0 && (
+              <span className="rounded bg-black/70 px-1 text-[9px] font-bold text-white">{form.penandaPeta.ciri.length}</span>
+            )}
+          </button>
           {urls.map((u, i) => (
             <button
               key={u}
@@ -911,7 +1010,18 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
             >
               {dim && url && (
                 <g ref={gRef} transform={`translate(${pandang.tx} ${pandang.ty}) scale(${s}) rotate(${putar} ${dim.w / 2} ${dim.h / 2})`}>
-                  <image href={url} width={dim.w} height={dim.h} opacity={kelegapan} preserveAspectRatio="none" />
+                  {modPeta ? (
+                    <JubinPeta
+                      asal={asalPeta}
+                      pandang={pandang}
+                      putar={putar}
+                      saiz={{ w: saizBekas.w, h: saizBekas.h, kanvas: SAIZ_KANVAS }}
+                      asas={asas}
+                      kelegapan={kelegapan}
+                    />
+                  ) : (
+                    <image href={url} width={dim.w} height={dim.h} opacity={kelegapan} preserveAspectRatio="none" />
+                  )}
                   {ciri.filter((c) => c.bentuk === "poligon").map(lukisCiri)}
                   {ciri.filter((c) => c.bentuk === "garis").map(lukisCiri)}
                   {ciri.filter((c) => c.bentuk === "titik").map(lukisCiri)}
@@ -922,6 +1032,12 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
             </svg>
 
             {!dim && <p className="absolute inset-0 flex items-center justify-center text-sm text-white/60">Loading photo…</p>}
+            {modPeta && !lokasiDiketahuiRef.current && form.penandaPeta.ciri.length === 0 && (
+              <div className="absolute inset-x-3 bottom-14 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-900">
+                This listing has no coordinates yet, so the map starts at the centre of Malaysia. Add the latitude &amp;
+                longitude in the <strong>General</strong> tab, save, and reopen this tab to jump straight to the land.
+              </div>
+            )}
 
             <div className="absolute top-3 left-3 right-3 flex justify-between gap-3 pointer-events-none">
               <p className="rounded-lg bg-black/60 px-3 py-1.5 text-xs text-white/90 max-w-md backdrop-blur-sm">
@@ -946,13 +1062,27 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
             <button type="button" onClick={muatkan} className="ml-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold hover:bg-black/5">
               <Maximize size={14} /> Fit
             </button>
+            {modPeta && (
+              <div className="ml-2 flex rounded-md bg-black/[0.05] p-0.5 text-xs font-semibold">
+                {(["satelit", "peta"] as const).map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => setAsas(a)}
+                    className={`rounded px-2.5 py-1 ${asas === a ? "bg-white shadow-sm" : "text-black/50"}`}
+                  >
+                    {a === "satelit" ? "Satellite" : "Map"}
+                  </button>
+                ))}
+              </div>
+            )}
             {draf.length > 0 && (alat === "poligon" || alat === "garis") && (
               <button type="button" onClick={tamatkanDraf} className="ml-auto rounded-md bg-emerald-700 px-3 py-1 text-xs font-bold text-white">
                 Finish shape (Enter)
               </button>
             )}
             <span className={`${draf.length > 0 ? "" : "ml-auto"} text-xs text-black/40 hidden sm:inline`}>
-              Scroll to zoom · drag to pan
+              {modPeta ? JUBIN[asas].atribusi : "Scroll to zoom · drag to pan"}
             </span>
           </div>
         </div>
@@ -990,6 +1120,30 @@ export default function LotMarker({ form, ubah }: { form: EditorForm; ubah: Ubah
                         <h3 className="font-display text-lg font-extrabold truncate">{lotDipilih.noLot || "Untitled lot"}</h3>
                         <LotStatusBadge status={lotDipilih.status} />
                       </div>
+                      {(() => {
+                        const luas = luasDiukur(ciriDipilih, lotDipilih.unitKeluasan);
+                        if (luas === null) return null;
+                        const sama = Number(lotDipilih.keluasan) === luas;
+                        const [lng, lat] = pusatGeo(ciriDipilih.points as [number, number][]);
+                        return (
+                          <div className="mb-3 flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                            <span>
+                              Measured on map: <strong>{luas.toLocaleString("en-MY")} {UNIT_KELUASAN_LABEL[lotDipilih.unitKeluasan]}</strong>
+                            </span>
+                            {!sama && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  ubahLotDipilih({ keluasan: String(luas), latitude: lat.toFixed(6), longitude: lng.toFixed(6) })
+                                }
+                                className="rounded-md bg-emerald-700 px-2 py-1 font-bold text-white"
+                              >
+                                Use
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <LotFields lot={lotDipilih} ubahLot={ubahLotDipilih} padat />
                     </>
                   ) : (

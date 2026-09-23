@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { bacaPenanda, tukarWarisan } from "@/lib/geran/penanda";
+import { bacaPenandaPeta } from "@/lib/geran/peta";
 import LandListingEditor from "@/components/geran/admin/editor/LandListingEditor";
 import type { EditorForm, EditorMeta, LotForm, StatusLotKey } from "@/components/geran/admin/editor/types";
 
@@ -52,6 +53,7 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     catatanRundingan: s(geran.catatanRundingan),
     gambarUrls: geran.gambarUrls,
     penanda: warisan.penanda,
+    penandaPeta: bacaPenandaPeta(geran.penandaPeta),
     seoTitle: s(geran.seoTitle),
     seoDescription: s(geran.seoDescription),
     status: geran.status,

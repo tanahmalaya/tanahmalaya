@@ -696,6 +696,11 @@ model Geran {
   // dipaut ke rekod Lot. Bentuk data & pengesahan: lib/geran/penanda.ts.
   penandaLot Json?
 
+  // Bentuk yang dilukis atas peta satelit dalam Lot Marker - [lng, lat]
+  // sebenar (bukan koordinat gambar), jadi luas lot boleh diukur & dipapar
+  // pada Peta Lot. Bentuk data: lib/geran/peta.ts.
+  penandaPeta Json?
+
   // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
   // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat
   // app/api/geran POST), pilihan untuk PLT/KJ Land yang admin masuk sendiri.
