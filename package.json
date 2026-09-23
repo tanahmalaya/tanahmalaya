@@ -9,7 +9,9 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:dev:push": "node --env-file=.env.local node_modules/prisma/build/index.js db push",
+    "db:dev:studio": "node --env-file=.env.local node_modules/prisma/build/index.js studio"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
