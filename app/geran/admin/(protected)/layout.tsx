@@ -1,50 +1,36 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
-import GeranAdminMobileNav from "@/components/geran/GeranAdminMobileNav";
+import LandhubShell from "@/components/geran/admin/LandhubShell";
 
 export const metadata = {
-  title: "Admin",
+  title: "LANDHUB",
   robots: { index: false, follow: false },
   openGraph: {
     siteName: "GERAN",
-    title: "GERAN Admin",
-    description: "Dashboard admin gerantanah.com.",
+    title: "LANDHUB — GERAN Admin",
+    description: "Land management dashboard for gerantanah.com.",
     images: [{ url: "https://gerantanah.com/geran-logo-g.jpeg", alt: "GERAN" }],
   },
 };
 
-const navItems = [
-  { href: "/geran/admin", label: "Ringkasan" },
-  { href: "/geran/admin/geran", label: "Senarai Tanah" },
-  { href: "/geran/admin/tambah", label: "Tambah Tanah" },
-];
-
-export default function GeranAdminLayout({ children }: { children: React.ReactNode }) {
+export default async function GeranAdminLayout({ children }: { children: React.ReactNode }) {
   const session = getGeranAdminSession();
   if (!session) redirect("/geran/admin/login");
 
+  const [admin, pending, active] = await Promise.all([
+    prisma.geranAdminUser.findUnique({ where: { id: session.geranAdminId }, select: { name: true } }),
+    prisma.geran.count({ where: { status: { in: ["MENUNGGU_SEMAKAN", "DALAM_RUNDINGAN"] } } }),
+    prisma.geran.count({ where: { status: "DISAHKAN" } }),
+  ]);
+
+  // Status SOLD belum wujud dalam enum StatusGeran sehingga migrasi workflow
+  // LandHub - kiraan 0 buat masa ni.
+  const counts = { pending, active, sold: 0 };
+
   return (
-    <div className="min-h-screen md:flex bg-[#F5F3EE]">
-      <aside className="w-64 bg-[#0E3B2E] text-white p-6 hidden md:block">
-        <p className="font-display font-extrabold text-lg mb-8">GERAN Admin</p>
-        <nav className="space-y-2">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="block text-sm py-2 hover:text-emerald-300">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <form action="/api/geran-admin/logout" method="POST" className="mt-8 pt-4 border-t border-white/10">
-          <button type="submit" className="text-sm text-white/60 hover:text-red-400">
-            Log Keluar
-          </button>
-        </form>
-      </aside>
-
-      <GeranAdminMobileNav navItems={navItems} />
-
-      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden">{children}</div>
-    </div>
+    <LandhubShell counts={counts} adminName={admin?.name ?? "Admin"}>
+      {children}
+    </LandhubShell>
   );
 }

@@ -80,9 +80,15 @@ function margin(g: GeranAdminRow): number | null {
   return g.hargaSiaranSen - g.hargaAmbilSen;
 }
 
-export default function GeranAdminTable({ rows }: { rows: GeranAdminRow[] }) {
+export default function GeranAdminTable({
+  rows,
+  initialTab = "MENUNGGU_SEMAKAN",
+}: {
+  rows: GeranAdminRow[];
+  initialTab?: Status;
+}) {
   const router = useRouter();
-  const [tab, setTab] = useState<Status>("MENUNGGU_SEMAKAN");
+  const [tab, setTab] = useState<Status>(initialTab);
   const [sumberAktif, setSumberAktif] = useState<"ALL" | Sumber>("ALL");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
