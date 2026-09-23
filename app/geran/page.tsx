@@ -54,6 +54,7 @@ export default async function GeranPage() {
       // sekali lagi di sini supaya direktori tak sesekali papar harga kosong.
       where: { status: { in: STATUS_DIREKTORI }, hargaSiaranSen: { not: null } },
       orderBy: { createdAt: "desc" },
+      include: { _count: { select: { panorama: true, lots: true } } },
     }),
     session
       ? prisma.geranFavorite.findMany({ where: { sellerId: session.sellerId }, select: { geranId: true } })
@@ -77,6 +78,10 @@ export default async function GeranPage() {
     gambarUrls: g.gambarUrls,
     sumber: g.sumber,
     reserved: g.status === "RESERVED",
+    ada360: g._count.panorama > 0,
+    // Ada sesuatu untuk dipapar atas peta: koordinat listing atau lot dilukis.
+    adaPeta: (g.latitude !== null && g.longitude !== null) || g.penandaPeta !== null,
+    bilLot: g._count.lots,
   }));
 
   return (

@@ -13,6 +13,7 @@ import {
   formatKeluasan,
 } from "@/lib/geran";
 import FavoriteButton from "@/components/geran/FavoriteButton";
+import { Map as MapIcon, MapPin, Orbit } from "lucide-react";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
@@ -36,6 +37,9 @@ export type GeranListing = {
   sumber: keyof typeof SUMBER_GERAN_PUBLIC_LABEL;
   // Hanya PUBLISHED atau RESERVED sampai ke direktori (lib/geran/status.ts).
   reserved: boolean;
+  ada360: boolean;
+  adaPeta: boolean;
+  bilLot: number;
 };
 
 const JENIS_CHIPS: ("ALL" | JenisTanah)[] = ["ALL", "PERTANIAN", "KOSONG", "PERUMAHAN", "KOMERSIAL", "PERINDUSTRIAN", "PEMBANGUNAN"];
@@ -216,21 +220,12 @@ export default function GeranDirectory({
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((l) => (
-            <div
+            <article
               key={l.id}
-              className="relative bg-white rounded-3xl overflow-hidden border border-black/[0.04] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_36px_-20px_rgba(14,59,46,0.35)] active:scale-[0.98] transition-transform"
+              className="relative bg-white rounded-3xl overflow-hidden border border-black/[0.04] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_36px_-20px_rgba(14,59,46,0.35)] flex flex-col"
             >
-              <FavoriteButton
-                geranId={l.id}
-                favorited={favSet.has(l.id)}
-                isLoggedIn={isLoggedIn}
-                redirectPath="/geran"
-                onToggle={handleToggle}
-                className="absolute top-3 right-3 z-10"
-              />
-
-              <Link href={`/geran/${l.id}`} className="block">
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-[#F6F4EE] to-black/[0.03]">
+              <div className="relative aspect-[4/3] bg-gradient-to-br from-[#F6F4EE] to-black/[0.03]">
+                <Link href={`/geran/${l.id}`} className="absolute inset-0" aria-label={l.tajuk}>
                   {l.gambarUrls[0] ? (
                     <Image src={l.gambarUrls[0]} alt={l.tajuk} fill className="object-cover" sizes="(max-width: 640px) 100vw, 33vw" />
                   ) : (
@@ -238,37 +233,72 @@ export default function GeranDirectory({
                       <LandPlaceholderIcon />
                     </div>
                   )}
-                  {l.reserved ? (
-                    <span className="absolute top-3 left-3 bg-violet-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                      Reserved
-                    </span>
-                  ) : (
-                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                      ✓ Verified
-                    </span>
+                </Link>
+                {l.reserved ? (
+                  <span className="absolute top-3 left-3 bg-violet-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                    Reserved
+                  </span>
+                ) : (
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[#175C42] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                    ✓ Verified
+                  </span>
+                )}
+                <div className="absolute bottom-3 inset-x-3 flex items-center justify-between gap-2">
+                  <FavoriteButton
+                    geranId={l.id}
+                    favorited={favSet.has(l.id)}
+                    isLoggedIn={isLoggedIn}
+                    redirectPath="/geran"
+                    onToggle={handleToggle}
+                  />
+                  {l.adaPeta && (
+                    <Link
+                      href={`/geran/${l.id}#peta`}
+                      className="inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur px-3 py-1.5 text-[12px] font-bold text-[#0E3B2E] shadow-sm"
+                    >
+                      <MapPin size={13} /> View Map
+                    </Link>
                   )}
                 </div>
+              </div>
 
-                <div className="p-4">
-                  <div className="flex items-center gap-1 text-[12px] text-[#0E3B2E]/45 mb-1">
-                    <PinIcon />
-                    {l.daerahMukim}, {l.negeri}
-                    <span className="ml-auto text-[11px] font-semibold text-[#0E3B2E]/50 bg-[#0E3B2E]/[0.06] px-2 py-0.5 rounded-full">
-                      {JENIS_HAKMILIK_LABEL[l.jenisHakmilik]}
-                    </span>
-                  </div>
-                  <h3 className="font-display font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 text-[#0E3B2E]">{l.tajuk}</h3>
-                  <p className="text-[12px] text-[#0E3B2E]/50 mb-3">
-                    {JENIS_TANAH_LABEL[l.jenisTanah]} · {formatKeluasan(l.keluasan, l.unitKeluasan)}
-                    {l.statusPemilikan !== "TIDAK_PASTI" && (
-                      <> · {STATUS_PEMILIKAN_LABEL[l.statusPemilikan]}</>
-                    )}
-                  </p>
-                  <p className="font-extrabold text-[#0E3B2E] text-lg tabular-nums">{formatRM(l.hargaSen)}</p>
-                  <p className="text-[11px] text-[#0E3B2E]/40 mt-1.5">{SUMBER_GERAN_PUBLIC_LABEL[l.sumber]}</p>
+              <Link href={`/geran/${l.id}`} className="block px-4 pt-4 flex-1">
+                <h3 className="font-display font-bold text-[15px] leading-snug line-clamp-2 text-[#0E3B2E]">{l.tajuk}</h3>
+                <p className="flex items-center gap-1 text-[12px] text-[#0E3B2E]/50 mt-1">
+                  <PinIcon />
+                  {l.daerahMukim}, {l.negeri}
+                </p>
+                <p className="font-extrabold text-[#0E3B2E] text-xl tabular-nums mt-2">{formatRM(l.hargaSen)}</p>
+                <div className="flex flex-wrap gap-1.5 mt-2.5 text-[11.5px] font-semibold text-[#0E3B2E]/65">
+                  <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2 py-0.5">{formatKeluasan(l.keluasan, l.unitKeluasan)}</span>
+                  <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2 py-0.5">{JENIS_HAKMILIK_LABEL[l.jenisHakmilik]}</span>
+                  <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2 py-0.5">{JENIS_TANAH_LABEL[l.jenisTanah]}</span>
+                  {l.bilLot > 1 && <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2 py-0.5">{l.bilLot} lots</span>}
                 </div>
               </Link>
-            </div>
+
+              {(l.adaPeta || l.ada360) && (
+                <div className="grid grid-cols-2 gap-2 px-4 pt-3">
+                  {l.adaPeta && (
+                    <Link
+                      href={`/geran/${l.id}#peta`}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-full border border-[#0E3B2E]/20 py-2 text-[12.5px] font-bold text-[#0E3B2E] hover:bg-[#0E3B2E]/[0.05] ${l.ada360 ? "" : "col-span-2"}`}
+                    >
+                      <MapIcon size={14} /> Explore Lot
+                    </Link>
+                  )}
+                  {l.ada360 && (
+                    <Link
+                      href={`/geran/${l.id}#360`}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0E3B2E] py-2 text-[12.5px] font-bold text-white ${l.adaPeta ? "" : "col-span-2"}`}
+                    >
+                      <Orbit size={14} /> 360° View
+                    </Link>
+                  )}
+                </div>
+              )}
+              <p className="px-4 pb-4 pt-2.5 text-[11px] text-[#0E3B2E]/40">{SUMBER_GERAN_PUBLIC_LABEL[l.sumber]}</p>
+            </article>
           ))}
         </div>
       )}

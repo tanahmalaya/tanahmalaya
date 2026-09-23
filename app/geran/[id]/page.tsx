@@ -7,9 +7,13 @@ import { prisma } from "@/lib/prisma";
 import { getSellerSession } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
-import GeranImageGallery from "@/components/geran/GeranImageGallery";
-import Paparan360, { type LotAwam360, type SceneAwam } from "@/components/geran/panorama/Paparan360";
+import PaparanHartanah from "@/components/geran/awam/PaparanHartanah";
+import type { SceneAwam } from "@/components/geran/panorama/Paparan360";
+import type { LotPetaAwam } from "@/components/geran/awam/PetaAwam";
 import { bacaHotspot } from "@/lib/geran/panorama";
+import { bacaPenandaPeta } from "@/lib/geran/peta";
+import { bacaTetapanGT } from "@/lib/geran/tetapan";
+import { Map as MapIcon, Orbit } from "lucide-react";
 import { JENIS_DOKUMEN, formatSaiz } from "@/lib/geran/dokumen";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
@@ -103,7 +107,8 @@ export default async function GeranDetailPage({
   if (!awam && !pratonton) notFound();
 
   const session = getSellerSession();
-  const detailPath = `/geran/`;
+  // Laluan kembali selepas log masuk - listing ini, bukan direktori.
+  const detailPath = `/geran/${geran.id}`;
   const penanda = penandaAwam(geran, geran.lots, formatRM);
   const scenes: SceneAwam[] = geran.panorama.map((p) => ({
     id: p.id,
@@ -114,19 +119,29 @@ export default async function GeranDetailPage({
   }));
   // Hanya maklumat lot yang memang awam - harga disembunyi untuk lot Sold,
   // sama seperti overlay gambar (lib/geran/penanda.ts).
-  const lot360: Record<string, LotAwam360> = Object.fromEntries(
-    geran.lots.map((l) => [
-      l.id,
-      {
-        noLot: l.noLot,
-        status: l.status,
-        keluasan: l.keluasan ? formatKeluasan(l.keluasan, l.unitKeluasan) : null,
-        harga: l.status !== "SOLD" && l.hargaSen ? formatRM(Number(l.hargaSen)) : null,
-      },
-    ])
-  );
+  const lotsAwam: LotPetaAwam[] = geran.lots.map((l) => ({
+    id: l.id,
+    noLot: l.noLot,
+    status: l.status,
+    keluasan: l.keluasan ? formatKeluasan(l.keluasan, l.unitKeluasan) : null,
+    harga: l.status !== "SOLD" && l.hargaSen ? formatRM(Number(l.hargaSen)) : null,
+  }));
+  const bentukPeta = bacaPenandaPeta(geran.penandaPeta).ciri.map((c) => ({
+    id: c.id,
+    lapisan: c.lapisan,
+    bentuk: c.bentuk,
+    points: c.points as [number, number][],
+    lotId: c.lotId ?? null,
+    label: c.label ?? null,
+  }));
+  const kamera = geran.panorama
+    .filter((p) => p.latitude !== null && p.longitude !== null)
+    .map((p) => ({ sceneId: p.id, lat: p.latitude as number, lng: p.longitude as number, lotId: p.lotId, tajuk: p.tajuk }));
+  const pusat: [number, number] | null =
+    geran.latitude !== null && geran.longitude !== null ? [geran.latitude, geran.longitude] : null;
+  const adaPeta = bentukPeta.length > 0 || kamera.length > 0 || pusat !== null;
 
-  const [favorite, serupa] = await Promise.all([
+  const [favorite, serupa, tetapan] = await Promise.all([
     session
       ? prisma.geranFavorite.findUnique({
           where: { sellerId_geranId: { sellerId: session.sellerId, geranId: geran.id } },
@@ -142,6 +157,7 @@ export default async function GeranDetailPage({
       orderBy: { createdAt: "desc" },
       take: 3,
     }),
+    bacaTetapanGT(),
   ]);
 
   return (
@@ -158,44 +174,88 @@ export default async function GeranDetailPage({
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} penanda={penanda} />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6">
+          <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+            <PaparanHartanah
+              tajuk={geran.tajuk}
+              gambarUrls={geran.gambarUrls}
+              penanda={penanda}
+              bentukPeta={bentukPeta}
+              kamera={kamera}
+              pusat={pusat}
+              scenes={scenes}
+              lots={lotsAwam}
+            />
+          </div>
 
-        {scenes.length > 0 && (
-          <section className="mt-6">
-            <h2 className="font-bold text-[#0E3B2E] mb-2">360° View</h2>
-            <Paparan360 scenes={scenes} lots={lot360} />
-            <p className="text-xs text-[#0E3B2E]/40 mt-2">Drag to look around. Tap a marker for details.</p>
-          </section>
-        )}
-
-        <div className="grid md:grid-cols-3 gap-6 mt-6">
-          <div className="md:col-span-2 space-y-6">
-            <div>
-              <p className="text-[13px] text-[#0E3B2E]/50 mb-1">
-                {geran.daerahMukim}, {geran.negeri}
-              </p>
-              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-[#0E3B2E] tracking-tight mb-2">
-                {geran.tajuk}
-              </h1>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <p className="font-extrabold text-2xl text-[#0E3B2E] tabular-nums">
-                  {geran.hargaSiaranSen === null ? "Price not set" : formatRM(Number(geran.hargaSiaranSen))}
+          <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2">
+            <div className="lg:sticky lg:top-20 space-y-4">
+              <div className="bg-white border border-black/[0.06] rounded-2xl p-5">
+                <p className="text-[13px] text-[#0E3B2E]/50 mb-1">
+                  {[geran.mukim, geran.daerahMukim, geran.negeri].filter(Boolean).join(", ")}
                 </p>
-                {(geran.status === "RESERVED" || geran.status === "SOLD") && (
-                  <span
-                    className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ring-1 ring-inset ${
-                      STATUS_INFO[geran.status].badge
-                    }`}
-                  >
-                    {STATUS_INFO[geran.status].label}
-                  </span>
+                <h1 className="font-display text-2xl font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
+                  {geran.tajuk}
+                </h1>
+                <div className="flex items-center gap-2.5 flex-wrap mt-3">
+                  <p className="font-extrabold text-[26px] text-[#0E3B2E] tabular-nums">
+                    {geran.hargaSiaranSen === null ? "Price not set" : formatRM(Number(geran.hargaSiaranSen))}
+                  </p>
+                  {(geran.status === "RESERVED" || geran.status === "SOLD") && (
+                    <span
+                      className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ring-1 ring-inset ${
+                        STATUS_INFO[geran.status].badge
+                      }`}
+                    >
+                      {STATUS_INFO[geran.status].label}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5 mt-3 text-[12px] font-semibold text-[#0E3B2E]/70">
+                  <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2.5 py-1">{formatKeluasan(geran.keluasan, geran.unitKeluasan)}</span>
+                  <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2.5 py-1">{JENIS_HAKMILIK_LABEL[geran.jenisHakmilik]}</span>
+                  <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2.5 py-1">{JENIS_TANAH_LABEL[geran.jenisTanah]}</span>
+                  {geran.statusPemilikan !== "TIDAK_PASTI" && (
+                    <span className="rounded-full bg-[#0E3B2E]/[0.06] px-2.5 py-1">{STATUS_PEMILIKAN_LABEL[geran.statusPemilikan]}</span>
+                  )}
+                </div>
+                {(adaPeta || scenes.length > 0) && (
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    {adaPeta && (
+                      <a
+                        href="#peta"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0E3B2E] px-3 py-2.5 text-sm font-bold text-white"
+                      >
+                        <MapIcon size={16} /> Explore Lots
+                      </a>
+                    )}
+                    {scenes.length > 0 && (
+                      <a
+                        href="#360"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#0E3B2E]/25 px-3 py-2.5 text-sm font-bold text-[#0E3B2E]"
+                      >
+                        <Orbit size={16} /> 360° View
+                      </a>
+                    )}
+                  </div>
                 )}
+                <p className="text-[11.5px] text-[#0E3B2E]/45 mt-3">{SUMBER_GERAN_PUBLIC_LABEL[geran.sumber]}</p>
               </div>
-              <span className="inline-block mt-2 text-[12px] font-semibold text-[#0E3B2E]/60 bg-[#0E3B2E]/[0.06] px-2.5 py-1 rounded-full">
-                {SUMBER_GERAN_PUBLIC_LABEL[geran.sumber]}
-              </span>
+              <GeranDetailActions
+                geranId={geran.id}
+                seq={geran.seq}
+                tajuk={geran.tajuk}
+                isLoggedIn={!!session}
+                initiallyFavorited={!!favorite}
+                detailPath={detailPath}
+                whatsapp={tetapan.whatsapp}
+                emel={tetapan.emel}
+              />
             </div>
+          </aside>
+
+          <div className="min-w-0 space-y-6 lg:col-start-1 lg:row-start-2">
 
             {geran.keterangan && (
               <div className="bg-white border border-black/[0.06] rounded-2xl p-5">
@@ -313,18 +373,6 @@ export default async function GeranDetailPage({
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="md:col-span-1">
-            <div className="md:sticky md:top-20">
-              <GeranDetailActions
-                geranId={geran.id}
-                seq={geran.seq}
-                isLoggedIn={!!session}
-                initiallyFavorited={!!favorite}
-                detailPath={detailPath}
-              />
-            </div>
           </div>
         </div>
       </div>

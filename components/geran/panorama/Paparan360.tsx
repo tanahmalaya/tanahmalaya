@@ -25,8 +25,24 @@ export type LotAwam360 = { noLot: string; status: "AVAILABLE" | "RESERVED" | "SO
 const WARNA_STATUS = { AVAILABLE: "#10B981", RESERVED: "#F59E0B", SOLD: "#EF4444" } as const;
 const LABEL_STATUS = { AVAILABLE: "Available", RESERVED: "Reserved", SOLD: "Sold" } as const;
 
-export default function Paparan360({ scenes, lots }: { scenes: SceneAwam[]; lots: Record<string, LotAwam360> }) {
-  const [aktif, setAktif] = useState(scenes[0]?.id);
+export default function Paparan360({
+  scenes,
+  lots,
+  sceneAktif,
+  onTukarScene,
+  kelas = "aspect-[4/3] sm:aspect-[16/9]",
+}: {
+  scenes: SceneAwam[];
+  lots: Record<string, LotAwam360>;
+  // Pilihan - bila diberi, scene dikawal dari luar (cth. klik lot di peta
+  // membuka 360° dari kamera atas lot itu).
+  sceneAktif?: string;
+  onTukarScene?: (id: string) => void;
+  kelas?: string;
+}) {
+  const [aktifDalam, setAktifDalam] = useState(scenes[0]?.id);
+  const aktif = sceneAktif ?? aktifDalam;
+  const setAktif = (id: string) => (onTukarScene ? onTukarScene(id) : setAktifDalam(id));
   const [kad, setKad] = useState<Hotspot | null>(null);
   const scene = scenes.find((s) => s.id === aktif) ?? scenes[0];
   if (!scene) return null;
@@ -35,8 +51,9 @@ export default function Paparan360({ scenes, lots }: { scenes: SceneAwam[]; lots
     const h = scene.hotspots.find((x) => x.id === id);
     if (!h) return;
     if (h.jenis === "EXPLORE") {
-      if (h.keScene && scenes.some((s) => s.id === h.keScene)) {
-        setAktif(h.keScene);
+      const ke = h.keScene;
+      if (ke && scenes.some((s) => s.id === ke)) {
+        setAktif(ke);
         setKad(null);
       }
       return;
@@ -56,7 +73,7 @@ export default function Paparan360({ scenes, lots }: { scenes: SceneAwam[]; lots
           hotspots={scene.hotspots}
           onKlikHotspot={klikHotspot}
           onKlikPanorama={() => setKad(null)}
-          kelas="aspect-[4/3] sm:aspect-[16/9]"
+          kelas={kelas}
         />
         {kad && (
           <div className="absolute left-3 bottom-14 z-20 w-64 rounded-2xl bg-white p-4 shadow-xl">
