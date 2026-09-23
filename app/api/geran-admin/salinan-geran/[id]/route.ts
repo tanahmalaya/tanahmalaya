@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { get } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
+import { TOKEN_BLOB_PERIBADI } from "@/lib/geran/blob-peribadi";
 
 // Proksi untuk salinan penuh geran. Fail itu blob PERIBADI - URL mentahnya
 // tak pernah sampai ke pelayar, jadi ia tak boleh dikongsi keluar walaupun
@@ -21,7 +22,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "Tiada salinan geran untuk penyenaraian ini" }, { status: 404 });
   }
 
-  const hasil = await get(geran.salinanGeranUrl, { access: "private" });
+  const hasil = await get(geran.salinanGeranUrl, { access: "private", token: TOKEN_BLOB_PERIBADI }).catch(() => null);
   if (!hasil || hasil.statusCode !== 200) {
     return NextResponse.json({ error: "Fail tak dapat dibaca dari storan" }, { status: 502 });
   }

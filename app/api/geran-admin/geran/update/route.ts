@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { del } from "@vercel/blob";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +10,8 @@ import { MAX_GAMBAR_GERAN } from "@/lib/geran";
 import { penandaSchema, tapisPenanda, type Penanda } from "@/lib/geran/penanda";
 import { penandaPetaSchema } from "@/lib/geran/peta";
 import { MAX_HOTSPOT, MAX_PANORAMA, hotspotSchema } from "@/lib/geran/panorama";
+import { MAX_DOKUMEN, MIME_DOKUMEN, SENARAI_AKSES, SENARAI_JENIS_DOKUMEN } from "@/lib/geran/dokumen";
+import { TOKEN_BLOB_PERIBADI } from "@/lib/geran/blob-peribadi";
 import { STATUS_GERAN, capMasaStatus, semakPeralihan } from "@/lib/geran/status";
 
 // Simpan Land Listing Editor LANDHUB. Editor sentiasa hantar KESELURUHAN
@@ -55,6 +58,29 @@ const panoramaSchema = z.object({
   hotspots: z.array(hotspotSchema).max(MAX_HOTSPOT),
 });
 
+const medanDokumen = {
+  jenis: z.enum(SENARAI_JENIS_DOKUMEN as [string, ...string[]]),
+  nama: z.string().trim().min(1).max(160),
+  akses: z.enum(SENARAI_AKSES as [string, ...string[]]),
+};
+// Dokumen sedia ada dihantar dengan id sahaja (URL blob peribadinya tak
+// pernah sampai ke pelayar); dokumen baru dengan URL yang baru dimuat naik.
+const dokumenSchema = z.union([
+  z.object({ id: z.string().min(1), ...medanDokumen }),
+  z.object({
+    url: z
+      .string()
+      .url()
+      .refine((u) => {
+        const x = new URL(u);
+        return x.hostname.endsWith(".blob.vercel-storage.com") && x.pathname.startsWith("/geran/dokumen/");
+      }, "Invalid document file"),
+    saizBait: z.number().int().positive(),
+    mime: z.enum(MIME_DOKUMEN),
+    ...medanDokumen,
+  }),
+]);
+
 const schema = z.object({
   geranId: z.string().min(1),
 
@@ -94,6 +120,7 @@ const schema = z.object({
   penanda: penandaSchema,
   penandaPeta: penandaPetaSchema,
   panorama: z.array(panoramaSchema).max(MAX_PANORAMA),
+  dokumen: z.array(dokumenSchema).max(MAX_DOKUMEN),
 
   // SEO
   seoTitle: teks(70),
@@ -127,8 +154,10 @@ export async function POST(req: NextRequest) {
       id: true,
       publishedAt: true,
       soldAt: true,
+      gambarUrls: true,
       lots: { select: { id: true } },
-      panorama: { select: { id: true } },
+      panorama: { select: { id: true, url: true } },
+      dokumen: { select: { id: true, url: true } },
     },
   });
   if (!geran) {
@@ -156,6 +185,14 @@ export async function POST(req: NextRequest) {
   const idPanoramaDikekal = new Set(d.panorama.filter((p) => p.id).map((p) => p.id!));
   const idPanoramaDibuang = [...idPanoramaSedia].filter((id) => !idPanoramaDikekal.has(id));
 
+  const idDokumenSedia = new Set(geran.dokumen.map((x) => x.id));
+  const dokumenSedia = d.dokumen.filter((x): x is Extract<typeof x, { id: string }> => "id" in x);
+  if (dokumenSedia.some((x) => !idDokumenSedia.has(x.id))) {
+    return NextResponse.json({ error: "A document does not belong to this listing." }, { status: 400 });
+  }
+  const idDokumenDikekal = new Set(dokumenSedia.map((x) => x.id));
+  const dokumenDibuang = geran.dokumen.filter((x) => !idDokumenDikekal.has(x.id));
+
   const idDikekal = new Set(d.lots.filter((l) => l.id).map((l) => l.id!));
   const idDibuang = [...idSedia].filter((id) => !idDikekal.has(id));
 
@@ -176,7 +213,7 @@ export async function POST(req: NextRequest) {
 
   // Transaksi interaktif: lot baru mesti dicipta DULU untuk dapat id sebelum
   // penanda (yang merujuk lot) boleh ditulis.
-  const { ids: lotIds, idPanorama: panoramaIds } = await prisma.$transaction(async (tx) => {
+  const { ids: lotIds, idPanorama: panoramaIds, idDokumen: dokumenIds } = await prisma.$transaction(async (tx) => {
     await tx.lot.deleteMany({ where: { geranId: geran.id, id: { in: idDibuang } } });
 
     const kunciKeId = new Map<string, string>();
@@ -283,10 +320,49 @@ export async function POST(req: NextRequest) {
       await tx.panorama.update({ where: { id: idPanorama[i] }, data: { hotspots } });
     }
 
-    return { ids, idPanorama };
+    await tx.dokumen.deleteMany({ where: { geranId: geran.id, id: { in: dokumenDibuang.map((x) => x.id) } } });
+    const idDokumen: string[] = [];
+    for (const [i, x] of d.dokumen.entries()) {
+      const data = {
+        jenis: x.jenis as never,
+        nama: x.nama,
+        akses: x.akses as never,
+        susunan: i,
+      };
+      const rekod =
+        "id" in x
+          ? await tx.dokumen.update({ where: { id: x.id }, data, select: { id: true } })
+          : await tx.dokumen.create({
+              data: { geranId: geran.id, url: x.url, saizBait: x.saizBait, mime: x.mime, ...data },
+              select: { id: true },
+            });
+      idDokumen.push(rekod.id);
+    }
+
+    return { ids, idPanorama, idDokumen };
   }, { timeout: 30_000 });
 
   // Pulangkan id lot ikut susunan supaya editor boleh tukar lot "baru" kepada
   // rekod sebenar - tanpa ini, simpan kali kedua akan cipta lot yang sama lagi.
-  return NextResponse.json({ ok: true, lotIds, panoramaIds });
+  // Buang fail blob yang tak lagi dirujuk (gambar, 360° & dokumen yang
+  // dipadam) - selepas transaksi berjaya, dan secara terbaik-usaha: fail yatim
+  // lebih baik daripada simpanan yang gagal kerana storan tak dapat dihubungi.
+  //
+  // HANYA di production: dev & preview berkongsi stor Blob production tapi
+  // guna database lain, jadi rekod dev yang merujuk fail production boleh
+  // memadam gambar listing sebenar.
+  const bolehPadamBlob = process.env.VERCEL_ENV === "production";
+  const panoramaDikekal = new Set(d.panorama.map((p) => p.url));
+  const gambarDikekal = new Set(d.gambarUrls);
+  const yatim = [
+    ...geran.gambarUrls.filter((u) => !gambarDikekal.has(u)),
+    ...geran.panorama.filter((p) => !panoramaDikekal.has(p.url)).map((p) => p.url),
+  ];
+  if (bolehPadamBlob && yatim.length > 0) await del(yatim).catch(() => {});
+  // Dokumen ada dalam stor peribadi - token berbeza.
+  if (bolehPadamBlob && dokumenDibuang.length > 0 && TOKEN_BLOB_PERIBADI) {
+    await del(dokumenDibuang.map((x) => x.url), { token: TOKEN_BLOB_PERIBADI }).catch(() => {});
+  }
+
+  return NextResponse.json({ ok: true, lotIds, panoramaIds, dokumenIds });
 }

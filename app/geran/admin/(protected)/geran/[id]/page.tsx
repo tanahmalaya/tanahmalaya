@@ -16,7 +16,15 @@ const s = (v: string | number | null | undefined) => (v === null || v === undefi
 export default async function GeranAdminEditPage({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({
     where: { id: params.id },
-    include: { lots: { orderBy: { susunan: "asc" } }, panorama: { orderBy: { susunan: "asc" } } },
+    include: {
+      lots: { orderBy: { susunan: "asc" } },
+      panorama: { orderBy: { susunan: "asc" } },
+      // url sengaja tak dipilih - blob peribadi tak dihantar ke pelayar.
+      dokumen: {
+        orderBy: { susunan: "asc" },
+        select: { id: true, jenis: true, nama: true, saizBait: true, mime: true, akses: true },
+      },
+    },
   });
   if (!geran) notFound();
 
@@ -66,6 +74,16 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
       yawAwal: p.yawAwal,
       hotspots: bacaHotspot(p.hotspots),
     })),
+    dokumen: geran.dokumen.map((d) => ({
+      kunci: d.id,
+      id: d.id,
+      jenis: d.jenis,
+      nama: d.nama,
+      url: "",
+      saizBait: d.saizBait,
+      mime: d.mime,
+      akses: d.akses,
+    })),
     seoTitle: s(geran.seoTitle),
     seoDescription: s(geran.seoDescription),
     status: geran.status,
@@ -113,6 +131,7 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     updatedAt: geran.updatedAt.toISOString(),
     publishedAt: geran.publishedAt?.toISOString() ?? null,
     lotWarisan: warisan.lotBaru.length,
+    storPeribadi: !!process.env.BLOB_PRIVATE_READ_WRITE_TOKEN,
   };
 
   // useSearchParams (?tab=) dalam editor perlukan sempadan Suspense.

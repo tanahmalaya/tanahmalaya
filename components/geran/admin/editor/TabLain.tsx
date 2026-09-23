@@ -1,11 +1,8 @@
 "use client";
 
-// Tab Media, Documents & SEO untuk Land Listing Editor. Sempadan lot dilukis
-// dalam tab Lots (Lot Marker) dan 360° dalam components/geran/admin/panorama;
-// Document Vault penuh datang dalam fasa LANDHUB seterusnya.
+// Tab SEO untuk Land Listing Editor. Tab lain ada dalam folder masing-masing:
+// Lot Marker (lotmarker/), 360° (panorama/), Media (media/), Documents (dokumen/).
 
-import { ExternalLink, FileText, Lock } from "lucide-react";
-import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import { KAD, LABEL, INPUT, TEXTAREA, type EditorForm, type EditorMeta, type UbahForm } from "./types";
 
 function Tajuk({ children, nota }: { children: React.ReactNode; nota?: string }) {
@@ -13,68 +10,6 @@ function Tajuk({ children, nota }: { children: React.ReactNode; nota?: string })
     <div className="mb-4">
       <h2 className="text-[13px] font-bold uppercase tracking-[0.08em] text-black/55">{children}</h2>
       {nota && <p className="text-xs text-black/45 mt-1">{nota}</p>}
-    </div>
-  );
-}
-
-export function TabMedia({ form, ubah }: { form: EditorForm; ubah: UbahForm }) {
-  return (
-    <div className="space-y-5">
-      <section className={`${KAD} p-5 sm:p-6`}>
-        <Tajuk nota="The first photo is the cover image in the directory and link previews.">
-          Property Photos
-        </Tajuk>
-        <p className="text-xs text-black/45 -mt-2 mb-3">
-          Mark lots, roads and rivers on these photos in the <strong>Lots</strong> tab.
-        </p>
-        <GambarGeranUpload value={form.gambarUrls} onChange={(gambarUrls) => ubah({ gambarUrls })} />
-      </section>
-    </div>
-  );
-}
-
-function AkanDatang({ ikon: Ikon, tajuk, teks }: { ikon: typeof Lock; tajuk: string; teks: string }) {
-  return (
-    <div className={`${KAD} p-10 flex flex-col items-center text-center`}>
-      <span className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4">
-        <Ikon size={22} />
-      </span>
-      <p className="font-bold">{tajuk}</p>
-      <p className="text-sm text-black/50 mt-1 max-w-md">{teks}</p>
-    </div>
-  );
-}
-
-export function TabDokumen({ meta }: { meta: EditorMeta }) {
-  return (
-    <div className="space-y-5">
-      <section className={`${KAD} p-5 sm:p-6`}>
-        <Tajuk nota="Private files - never shown on the public listing.">Title Documents</Tajuk>
-        {meta.adaSalinanGeran ? (
-          <a
-            href={`/api/geran-admin/salinan-geran/${meta.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-xl border border-black/[0.08] px-4 py-3 hover:bg-black/[0.02]"
-          >
-            <span className="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-              <FileText size={18} />
-            </span>
-            <span className="flex-1">
-              <span className="block text-sm font-semibold">Full title copy (Geran)</span>
-              <span className="block text-xs text-black/45">PDF · Admin only</span>
-            </span>
-            <ExternalLink size={15} className="text-black/40" />
-          </a>
-        ) : (
-          <p className="text-sm text-black/45">No title copy attached to this listing.</p>
-        )}
-      </section>
-      <AkanDatang
-        ikon={Lock}
-        tajuk="Document vault - coming soon"
-        teks="Official search, land plan, quit rent receipt, owner IC, SPA and valuation report, each with Admin / Consultant / Buyer / Public access."
-      />
     </div>
   );
 }

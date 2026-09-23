@@ -6,10 +6,13 @@ import { getSellerSession } from "@/lib/sellerAuth";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_SAIZ_GAMBAR_BYTES, MAX_SAIZ_SALINAN_BYTES } from "@/lib/geran";
 import { MAX_SAIZ_360_BYTES } from "@/lib/geran/panorama";
+import { MAX_SAIZ_DOKUMEN_BYTES, MIME_DOKUMEN } from "@/lib/geran/dokumen";
+import { MESEJ_TIADA_STOR_PERIBADI, TOKEN_BLOB_PERIBADI, laluanPeribadi } from "@/lib/geran/blob-peribadi";
 
 // Upload token straight from the browser to Vercel Blob for Geran photos -
-// see components/geran/GambarGeranUpload.tsx. Same pattern as
-// app/api/petty-cash/upload/route.ts.
+// see components/geran/admin/media/TabMedia.tsx. Same pattern as
+// app/api/petty-cash/upload/route.ts. Fail peribadi (dokumen, salinan geran)
+// guna token stor peribadi - lihat lib/geran/blob-peribadi.ts.
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Penjual muat naik dari /geran/jual, admin GERAN pula dari
   // /geran/admin/tambah.
@@ -20,8 +23,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const body = (await request.json()) as HandleUploadBody;
 
+  // Pilih stor ikut laluan. Tanpa semakan ini, muat naik peribadi ke stor
+  // public gagal di pelayar dan klien Blob mencuba semula ~10 kali - admin
+  // nampak butang berpusing selama beberapa minit tanpa sebarang mesej.
+  const pathname = body.type === "blob.generate-client-token" ? body.payload.pathname : "";
+  const peribadi = laluanPeribadi(pathname);
+  if (peribadi && !TOKEN_BLOB_PERIBADI) {
+    return NextResponse.json({ error: MESEJ_TIADA_STOR_PERIBADI }, { status: 503 });
+  }
+
   try {
     const jsonResponse = await handleUpload({
+      token: peribadi ? TOKEN_BLOB_PERIBADI : undefined,
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
@@ -41,6 +54,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           return {
             allowedContentTypes: ["image/webp", "image/jpeg"],
             maximumSizeInBytes: MAX_SAIZ_360_BYTES,
+            addRandomSuffix: true,
+          };
+        }
+        // Document Vault - admin sahaja; klien muat naik dengan access:
+        // "private", jadi fail hanya boleh dibaca melalui
+        // app/api/geran/dokumen/[id] yang menyemak tahap akses.
+        if (pathname.startsWith("geran/dokumen/")) {
+          if (!admin) throw new Error("Not authorized.");
+          return {
+            allowedContentTypes: [...MIME_DOKUMEN],
+            maximumSizeInBytes: MAX_SAIZ_DOKUMEN_BYTES,
             addRandomSuffix: true,
           };
         }

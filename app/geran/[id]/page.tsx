@@ -10,6 +10,7 @@ import GeranFooter from "@/components/geran/GeranFooter";
 import GeranImageGallery from "@/components/geran/GeranImageGallery";
 import Paparan360, { type LotAwam360, type SceneAwam } from "@/components/geran/panorama/Paparan360";
 import { bacaHotspot } from "@/lib/geran/panorama";
+import { JENIS_DOKUMEN, formatSaiz } from "@/lib/geran/dokumen";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
 import GeranAccountNav from "@/components/geran/GeranAccountNav";
@@ -80,7 +81,17 @@ export default async function GeranDetailPage({
 }) {
   const geran = await prisma.geran.findUnique({
     where: { id: params.id },
-    include: { lots: { orderBy: { susunan: "asc" } }, panorama: { orderBy: { susunan: "asc" } } },
+    include: {
+      lots: { orderBy: { susunan: "asc" } },
+      panorama: { orderBy: { susunan: "asc" } },
+      // Hanya dokumen untuk pembeli/awam, dan TANPA url - fail dibuka melalui
+      // /api/geran/dokumen/[id] yang menyemak akses sekali lagi.
+      dokumen: {
+        where: { akses: { in: ["PUBLIC", "BUYER"] } },
+        orderBy: { susunan: "asc" },
+        select: { id: true, jenis: true, nama: true, saizBait: true, akses: true },
+      },
+    },
   });
   if (!geran) notFound();
 
@@ -238,6 +249,44 @@ export default async function GeranDetailPage({
                 publishing. Please verify the actual title details before any transaction.
               </p>
             </div>
+
+            {geran.dokumen.length > 0 && (
+              <div className="bg-white border border-black/[0.06] rounded-2xl p-5">
+                <h2 className="font-bold text-[#0E3B2E] mb-3">Documents</h2>
+                <ul className="space-y-2">
+                  {geran.dokumen.map((d) => {
+                    const boleh = d.akses === "PUBLIC" || !!session;
+                    return (
+                      <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
+                        <span className="min-w-0">
+                          <span className="block font-semibold text-[#0E3B2E] truncate">{JENIS_DOKUMEN[d.jenis]}</span>
+                          <span className="block text-xs text-[#0E3B2E]/45 truncate">
+                            {d.nama} · {formatSaiz(d.saizBait)}
+                          </span>
+                        </span>
+                        {boleh ? (
+                          <a
+                            href={`/api/geran/dokumen/${d.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 rounded-full border border-[#0E3B2E]/20 px-3 py-1 text-xs font-bold text-[#0E3B2E] hover:bg-[#0E3B2E]/[0.05]"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          <Link
+                            href={`/geran/log-masuk?redirect=${encodeURIComponent(`/geran/${geran.id}`)}`}
+                            className="shrink-0 rounded-full bg-[#0E3B2E] px-3 py-1 text-xs font-bold text-white"
+                          >
+                            Log in to view
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
             {serupa.length > 0 && (
               <div>

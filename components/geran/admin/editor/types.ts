@@ -1,6 +1,7 @@
 import type { Penanda } from "@/lib/geran/penanda";
 import type { PenandaPeta } from "@/lib/geran/peta";
 import type { Hotspot } from "@/lib/geran/panorama";
+import type { AksesDokumenKey, JenisDokumenKey } from "@/lib/geran/dokumen";
 import type { StatusGeranKey } from "@/lib/geran/status";
 
 // Bentuk data Land Listing Editor. Semua wang dalam RM sebagai rentetan
@@ -41,6 +42,20 @@ export type PanoramaForm = {
   hotspots: Hotspot[];
 };
 
+// Satu dokumen dalam vault. `url` hanya diisi untuk fail yang baru dimuat
+// naik dalam sesi ini - URL blob peribadi dokumen sedia ada tak pernah
+// dihantar ke pelayar; ia dibuka melalui /api/geran/dokumen/[id].
+export type DokumenForm = {
+  kunci: string;
+  id: string | null;
+  jenis: JenisDokumenKey;
+  nama: string;
+  url: string;
+  saizBait: number;
+  mime: string;
+  akses: AksesDokumenKey;
+};
+
 export type EditorForm = {
   tajuk: string;
   sumber: string;
@@ -76,6 +91,7 @@ export type EditorForm = {
   // Bentuk atas peta satelit - [lng, lat]; lotId juga merujuk LotForm.kunci.
   penandaPeta: PenandaPeta;
   panorama: PanoramaForm[];
+  dokumen: DokumenForm[];
 
   seoTitle: string;
   seoDescription: string;
@@ -99,6 +115,9 @@ export type EditorMeta = {
   // Bilangan lot yang baru ditukar dari polygon format lama semasa halaman
   // dibuka - belum tersimpan sehingga admin tekan Save.
   lotWarisan: number;
+  // BLOB_PRIVATE_READ_WRITE_TOKEN ditetapkan? Tanpanya Document Vault tak boleh
+  // menerima fail (stor Blob utama jenis public).
+  storPeribadi: boolean;
 };
 
 export type UbahForm = (perubahan: Partial<EditorForm>) => void;

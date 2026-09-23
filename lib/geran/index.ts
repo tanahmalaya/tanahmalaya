@@ -69,7 +69,9 @@ export const SUMBER_ADMIN_OPTIONS = ["GT", "KJ_LAND"] as const;
 // yang lain senyap-senyap terpesong dan penggunanya dapat sama ada penolakan
 // yang mengelirukan di tengah muat naik, atau fail besar yang sepatutnya
 // dihalang awal-awal.
-export const MAX_GAMBAR_GERAN = 8;
+// Gambar dimampat ke WebP dalam pelayar oleh Media Manager LANDHUB, jadi had
+// bilangan boleh lebih longgar daripada zaman muat naik fail asal.
+export const MAX_GAMBAR_GERAN = 30;
 export const MAX_SAIZ_GAMBAR_BYTES = 10 * 1024 * 1024;
 export const MAX_SAIZ_SALINAN_BYTES = 15 * 1024 * 1024;
 

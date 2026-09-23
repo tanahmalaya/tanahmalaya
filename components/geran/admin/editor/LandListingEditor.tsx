@@ -13,7 +13,9 @@ import StatusBadge from "@/components/geran/admin/StatusBadge";
 import { STATUS_BUTIRAN_AWAM, type StatusGeranKey } from "@/lib/geran/status";
 import TabGeneral from "./TabGeneral";
 import TabLots from "./TabLots";
-import { TabDokumen, TabMedia, TabSeo } from "./TabLain";
+import { TabSeo } from "./TabLain";
+import TabMedia from "@/components/geran/admin/media/TabMedia";
+import TabDokumen from "@/components/geran/admin/dokumen/TabDokumen";
 import Tab360 from "@/components/geran/admin/panorama/Tab360";
 import type { EditorForm, EditorMeta } from "./types";
 
@@ -74,6 +76,12 @@ function keMuatan(form: EditorForm, geranId: string) {
       lotId: p.lotId || null,
       yawAwal: p.yawAwal,
       hotspots: p.hotspots,
+    })),
+    dokumen: form.dokumen.map((d) => ({
+      ...(d.id ? { id: d.id } : { url: d.url, saizBait: d.saizBait, mime: d.mime }),
+      jenis: d.jenis,
+      nama: d.nama,
+      akses: d.akses,
     })),
     seoTitle: teks(form.seoTitle),
     seoDescription: teks(form.seoDescription),
@@ -158,10 +166,13 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
       // sengaja tak diubah supaya lot yang sedang dipilih kekal terpilih.
       const ids: string[] = data.lotIds ?? [];
       const idPanorama: string[] = data.panoramaIds ?? [];
+      const idDokumen: string[] = data.dokumenIds ?? [];
       const baru: EditorForm = {
         ...sasaran,
         lots: sasaran.lots.map((l, i) => (ids[i] ? { ...l, id: ids[i] } : l)),
         panorama: sasaran.panorama.map((p, i) => (idPanorama[i] ? { ...p, id: idPanorama[i] } : p)),
+        // Dokumen baru kini ada id; lupakan URL blob peribadinya dari memori.
+        dokumen: sasaran.dokumen.map((d, i) => (idDokumen[i] ? { ...d, id: idDokumen[i], url: "" } : d)),
       };
       setForm(baru);
       setTersimpan(JSON.stringify(baru));
@@ -260,7 +271,9 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
                 ? form.gambarUrls.length
                 : t.kunci === "360"
                   ? form.panorama.length
-                  : 0;
+                  : t.kunci === "documents"
+                    ? form.dokumen.length
+                    : 0;
           return (
             <button
               key={t.kunci}
@@ -285,7 +298,7 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
       {tab === "lots" && <TabLots form={form} ubah={ubah} />}
       {tab === "media" && <TabMedia form={form} ubah={ubah} />}
       {tab === "360" && <Tab360 form={form} ubah={ubah} />}
-      {tab === "documents" && <TabDokumen meta={meta} />}
+      {tab === "documents" && <TabDokumen form={form} ubah={ubah} meta={meta} />}
       {tab === "seo" && <TabSeo form={form} ubah={ubah} meta={meta} />}
     </div>
   );

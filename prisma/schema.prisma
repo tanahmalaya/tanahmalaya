@@ -726,6 +726,7 @@ model Geran {
   favoritedBy GeranFavorite[]
   lots        Lot[]
   panorama    Panorama[]
+  dokumen     Dokumen[]
 
   @@index([negeri, daerahMukim])
   @@index([status])
@@ -764,6 +765,48 @@ model Lot {
   // Panorama 360° yang kameranya berdiri atas lot ini - klik lot di peta
   // membuka pandangan 360° dari sini.
   panorama Panorama[]
+
+  @@index([geranId])
+}
+
+enum JenisDokumen {
+  GERAN // salinan geran / hakmilik
+  CARIAN_RASMI
+  PELAN_TANAH
+  RESIT_CUKAI // resit cukai tanah
+  IC_PEMILIK
+  SPA
+  PENILAIAN // laporan penilaian
+  LAIN
+}
+
+// Siapa boleh buka dokumen. CONSULTANT & BUYER bergantung pada akaun
+// log masuk (lihat app/api/geran/dokumen/[id]); ADMIN hanya dashboard.
+enum AksesDokumen {
+  ADMIN
+  CONSULTANT
+  BUYER
+  PUBLIC
+}
+
+// Document Vault LANDHUB - fail disimpan sebagai blob PERIBADI (seperti
+// Geran.salinanGeranUrl) dan hanya dihidang melalui laluan proksi yang
+// menyemak tahap akses. Jangan hantar `url` ke pelayar.
+model Dokumen {
+  id      String @id @default(cuid())
+  geranId String
+  geran   Geran  @relation(fields: [geranId], references: [id], onDelete: Cascade)
+
+  jenis    JenisDokumen
+  nama     String // nama fail asal / tajuk yang dipapar
+  url      String // blob peribadi
+  saizBait Int
+  mime     String
+  akses    AksesDokumen @default(ADMIN)
+  susunan  Int          @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([geranId])
 }
