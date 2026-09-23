@@ -228,7 +228,7 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
         </div>
       )}
 
-      <div className="flex gap-1 border-b border-black/[0.08] mb-5 overflow-x-auto" role="tablist">
+      <div className="flex gap-1 border-b border-black/[0.08] mb-5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">
         {TAB.map((t) => {
           const aktif = t.kunci === tab;
           const kiraan = t.kunci === "lots" ? form.lots.length : t.kunci === "media" ? form.gambarUrls.length : 0;

@@ -14,8 +14,11 @@ export const metadata: Metadata = {
   // Supaya URL relatif dalam metadata halaman anak selesai ke gerantanah.com,
   // bukan tanahmalaya.org seperti root layout.
   metadataBase: new URL("https://gerantanah.com"),
+  // "absolute", bukan "default": tajuk segmen ini sendiri (cth. halaman 404
+  // GERAN) akan dibungkus template root jadi "GERAN | Pertubuhan Literasi
+  // Tanah" - jenama PLT yang tak patut muncul di gerantanah.com.
   title: {
-    default: "GERAN",
+    absolute: "GERAN",
     template: "%s | GERAN",
   },
   openGraph: {

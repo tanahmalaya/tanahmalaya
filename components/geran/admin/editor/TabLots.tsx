@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LandPlot, Plus, Trash2 } from "lucide-react";
 import HargaInput from "@/components/geran/HargaInput";
 import { JENIS_HAKMILIK_LABEL, JENIS_TANAH_LABEL, UNIT_KELUASAN_LABEL, formatRM } from "@/lib/geran";
-import { INPUT, KAD, LABEL, TEXTAREA, type EditorForm, type LotForm, type StatusLotKey, type UbahForm } from "./types";
+import { INPUT, INPUT_NOMBOR, INPUT_UNIT, KAD, LABEL, TEXTAREA, type EditorForm, type LotForm, type StatusLotKey, type UbahForm } from "./types";
 
 export const STATUS_LOT: Record<StatusLotKey, { label: string; badge: string; dot: string }> = {
   AVAILABLE: { label: "Available", badge: "bg-emerald-50 text-emerald-700 ring-emerald-200", dot: "bg-emerald-500" },
@@ -170,12 +170,12 @@ export default function TabLots({ form, ubah }: { form: EditorForm; ubah: UbahFo
                   min="0"
                   value={lot.keluasan}
                   onChange={(e) => ubahLot({ keluasan: e.target.value })}
-                  className={INPUT}
+                  className={INPUT_NOMBOR}
                 />
                 <select
                   value={lot.unitKeluasan}
                   onChange={(e) => ubahLot({ unitKeluasan: e.target.value })}
-                  className={`${INPUT} w-28 shrink-0`}
+                  className={INPUT_UNIT}
                 >
                   {Object.entries(UNIT_KELUASAN_LABEL).map(([k, v]) => (
                     <option key={k} value={k}>

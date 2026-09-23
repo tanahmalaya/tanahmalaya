@@ -19,7 +19,7 @@ import {
   SUMBER_GERAN_LABEL,
   UNIT_KELUASAN_LABEL,
 } from "@/lib/geran";
-import { INPUT, KAD, LABEL } from "@/components/geran/admin/editor/types";
+import { INPUT, INPUT_NOMBOR, INPUT_UNIT, KAD, LABEL } from "@/components/geran/admin/editor/types";
 
 type Sumber = (typeof SUMBER_ADMIN_OPTIONS)[number];
 
@@ -153,12 +153,12 @@ export default function AddLandForm() {
                 min="0"
                 value={keluasan}
                 onChange={(e) => setKeluasan(e.target.value)}
-                className={INPUT}
+                className={INPUT_NOMBOR}
               />
               <select
                 value={unitKeluasan}
                 onChange={(e) => setUnitKeluasan(e.target.value)}
-                className={`${INPUT} w-32 shrink-0`}
+                className={INPUT_UNIT}
               >
                 {Object.entries(UNIT_KELUASAN_LABEL).map(([k, v]) => (
                   <option key={k} value={k}>

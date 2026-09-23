@@ -117,7 +117,7 @@ export default async function LandListPage({ searchParams }: { searchParams: Car
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {chip("All", "", jumlahSemua)}
           {Object.entries(KUMPULAN_STATUS).map(([k, v]) => chip(v.label, k, kiraKumpulan(k)))}
         </div>

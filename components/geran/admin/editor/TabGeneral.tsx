@@ -14,7 +14,7 @@ import {
   formatRM,
 } from "@/lib/geran";
 import { STATUS_GERAN, STATUS_INFO } from "@/lib/geran/status";
-import { INPUT, KAD, LABEL, TEXTAREA, type EditorForm, type EditorMeta, type UbahForm } from "./types";
+import { INPUT, INPUT_NOMBOR, INPUT_UNIT, KAD, LABEL, TEXTAREA, type EditorForm, type EditorMeta, type UbahForm } from "./types";
 
 // Tukar keluasan kepada ekar untuk "Price / acre" - unit yang pembeli tanah
 // Malaysia biasa banding, walaupun penyenaraian direkod dalam kaki persegi.
@@ -120,12 +120,12 @@ export default function TabGeneral({ form, ubah, meta }: { form: EditorForm; uba
                   min="0"
                   value={form.keluasan}
                   onChange={(e) => ubah({ keluasan: e.target.value })}
-                  className={INPUT}
+                  className={INPUT_NOMBOR}
                 />
                 <select
                   value={form.unitKeluasan}
                   onChange={(e) => ubah({ unitKeluasan: e.target.value })}
-                  className={`${INPUT} w-32 shrink-0`}
+                  className={INPUT_UNIT}
                 >
                   {Object.entries(UNIT_KELUASAN_LABEL).map(([k, v]) => (
                     <option key={k} value={k}>

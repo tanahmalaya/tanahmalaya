@@ -80,6 +80,12 @@ export type UbahForm = (perubahan: Partial<EditorForm>) => void;
 
 export const INPUT =
   "w-full h-10 rounded-lg border border-black/[0.12] bg-white px-3 text-sm text-[#0E2A20] placeholder-black/30 outline-none transition focus:border-emerald-600/60 focus:ring-2 focus:ring-emerald-600/15 disabled:bg-black/[0.03] disabled:text-black/45";
+// Pasangan "nombor + unit" dalam satu baris: INPUT ada w-full, jadi versi
+// tanpa lebar diperlukan - kalau tidak w-full & w-28 bercanggah dan medan
+// nombor terhimpit.
+const INPUT_TANPA_LEBAR = INPUT.replace("w-full ", "");
+export const INPUT_NOMBOR = `${INPUT_TANPA_LEBAR} min-w-0 flex-1`;
+export const INPUT_UNIT = `${INPUT_TANPA_LEBAR} w-28 shrink-0`;
 export const TEXTAREA =
   "w-full rounded-lg border border-black/[0.12] bg-white px-3 py-2.5 text-sm text-[#0E2A20] placeholder-black/30 outline-none transition focus:border-emerald-600/60 focus:ring-2 focus:ring-emerald-600/15";
 export const LABEL = "block text-[12.5px] font-semibold text-black/60 mb-1.5";
