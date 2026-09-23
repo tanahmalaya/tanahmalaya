@@ -49,6 +49,7 @@ const IKON: Record<LandhubIcon, LucideIcon> = {
 
 // Warna lencana ikut maksud: kuning = perlu tindakan, hijau = aktif, kelabu = arkib.
 const WARNA_LENCANA: Record<keyof LandhubCounts, string> = {
+  draft: "bg-white/15 text-white/80",
   pending: "bg-amber-400 text-amber-950",
   active: "bg-emerald-400 text-emerald-950",
   sold: "bg-white/15 text-white/80",

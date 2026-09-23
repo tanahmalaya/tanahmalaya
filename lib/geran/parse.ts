@@ -124,7 +124,7 @@ function cariKeluasan(teks: string): { keluasan: number | null; unit: string | n
 
   if (/\brelong\b/i.test(teks)) {
     nota.push(
-      "Iklan menyebut 'relong' — nilainya berbeza mengikut negeri, jadi keluasan tidak diisi. Tukarkan sendiri."
+      "The ad mentions 'relong' — its value differs by state, so the size was not filled in. Convert it yourself."
     );
   }
 
@@ -178,7 +178,7 @@ function cariHarga(teks: string): { harga: number | null; nota: string[] } {
 
   const waras = calon.filter((c) => c.nilai >= HARGA_MIN && c.nilai <= HARGA_MAKS);
   if (calon.length > 0 && waras.length === 0) {
-    nota.push("Ada nombor yang kelihatan seperti harga tetapi di luar julat munasabah — harga tidak diisi.");
+    nota.push("A number looks like a price but is outside a sensible range — the price was not filled in.");
   }
   if (waras.length === 0) return { harga: null, nota };
 
@@ -186,7 +186,7 @@ function cariHarga(teks: string): { harga: number | null; nota: string[] } {
   const terpilih = waras[0];
 
   if (/\bse\s*(?:ekar|kaki|ka?p)\b|\/\s*(?:ekar|kp|kaki)/i.test(teks)) {
-    nota.push("Harga dalam iklan nampak seperti harga SEUNIT, bukan harga keseluruhan — semak semula.");
+    nota.push("The price in the ad looks like a PER-UNIT price, not the total price — please check.");
   }
   return { harga: terpilih.nilai, nota };
 }

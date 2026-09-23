@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { STATUS_DIREKTORI } from "@/lib/geran/status";
 import { isGeranHostname } from "@/lib/geran/domain";
 
 const BASE_URL = "https://tanahmalaya.org";
@@ -11,7 +12,7 @@ const GERAN_BASE_URL = "https://gerantanah.com";
 // bukan disatukan dengan sitemap utama tanahmalaya.org.
 async function geranSitemap(): Promise<MetadataRoute.Sitemap> {
   const gerans = await prisma.geran.findMany({
-    where: { status: "DISAHKAN", hargaSiaranSen: { not: null } },
+    where: { status: { in: STATUS_DIREKTORI }, hargaSiaranSen: { not: null } },
     select: { id: true, updatedAt: true },
   });
 

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { STATUS_BUTIRAN_AWAM } from "@/lib/geran/status";
 import { requireSeller } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
@@ -32,7 +33,7 @@ export default async function FavoritePage() {
   });
 
   const listings = favorites
-    .filter((f) => f.geran.status === "DISAHKAN" && f.geran.hargaSiaranSen !== null)
+    .filter((f) => STATUS_BUTIRAN_AWAM.includes(f.geran.status) && f.geran.hargaSiaranSen !== null)
     .map((f) => f.geran);
 
   return (

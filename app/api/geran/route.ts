@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       hargaDimintaSen: BigInt(Math.round(data.hargaRM * 100)),
       keterangan: data.keterangan || null,
       salinanGeranUrl: data.salinanGeranUrl,
-      status: "MENUNGGU_SEMAKAN",
+      status: "SUBMITTED",
     },
   });
 

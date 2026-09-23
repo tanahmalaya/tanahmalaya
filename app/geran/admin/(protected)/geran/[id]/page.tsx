@@ -1,85 +1,85 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import GeranAdminEditForm, { type GeranEditData } from "@/components/geran/GeranAdminEditForm";
 import { bacaGambarPolygons } from "@/lib/geran/polygon";
-import {
-  JENIS_TANAH_LABEL,
-  JENIS_HAKMILIK_LABEL,
-  STATUS_GERAN_LABEL,
-  SUMBER_GERAN_LABEL,
-  formatKeluasan,
-} from "@/lib/geran";
+import LandListingEditor from "@/components/geran/admin/editor/LandListingEditor";
+import type { EditorForm, EditorMeta, StatusLotKey } from "@/components/geran/admin/editor/types";
+
+// Wang disimpan sebagai BigInt sen; editor kerja dalam RM sebagai rentetan.
+const rm = (sen: bigint | null) => (sen === null ? "" : String(Number(sen) / 100));
+const s = (v: string | number | null | undefined) => (v === null || v === undefined ? "" : String(v));
 
 export default async function GeranAdminEditPage({ params }: { params: { id: string } }) {
-  const geran = await prisma.geran.findUnique({ where: { id: params.id } });
+  const geran = await prisma.geran.findUnique({
+    where: { id: params.id },
+    include: { lots: { orderBy: { susunan: "asc" } } },
+  });
   if (!geran) notFound();
 
-  const data: GeranEditData = {
-    id: geran.id,
-    seq: geran.seq,
+  const awal: EditorForm = {
     tajuk: geran.tajuk,
-    status: geran.status,
-    hargaDimintaSen: geran.hargaDimintaSen === null ? null : Number(geran.hargaDimintaSen),
-    hargaPasaranSen: geran.hargaPasaranSen === null ? null : Number(geran.hargaPasaranSen),
-    hargaAmbilSen: geran.hargaAmbilSen === null ? null : Number(geran.hargaAmbilSen),
-    hargaSiaranSen: geran.hargaSiaranSen === null ? null : Number(geran.hargaSiaranSen),
-    catatanRundingan: geran.catatanRundingan,
-    keterangan: geran.keterangan,
-    gambarUrls: geran.gambarUrls,
+    sumber: geran.sumber,
+    jenisTanah: geran.jenisTanah,
+    jenisHakmilik: geran.jenisHakmilik,
     statusPemilikan: geran.statusPemilikan,
+    keluasan: s(geran.keluasan),
+    unitKeluasan: geran.unitKeluasan,
+    nomborLot: s(geran.nomborLot),
+    nomborGeran: s(geran.nomborGeran),
+    keterangan: s(geran.keterangan),
+    negeri: geran.negeri,
+    daerahMukim: geran.daerahMukim,
+    mukim: s(geran.mukim),
+    alamat: s(geran.alamat),
+    latitude: s(geran.latitude),
+    longitude: s(geran.longitude),
+    namaPenjual: geran.namaPenjual,
+    telefonPenjual: geran.telefonPenjual,
+    emelPenjual: geran.emelPenjual,
+    hargaPasaranRM: rm(geran.hargaPasaranSen),
+    hargaAmbilRM: rm(geran.hargaAmbilSen),
+    hargaSiaranRM: rm(geran.hargaSiaranSen),
+    catatanRundingan: s(geran.catatanRundingan),
+    gambarUrls: geran.gambarUrls,
     gambarPolygons: bacaGambarPolygons(geran.gambarPolygons),
+    seoTitle: s(geran.seoTitle),
+    seoDescription: s(geran.seoDescription),
+    status: geran.status,
+    catatanAdmin: s(geran.catatanAdmin),
+    lots: geran.lots.map((l) => ({
+      kunci: l.id,
+      id: l.id,
+      noLot: l.noLot,
+      status: l.status as StatusLotKey,
+      keluasan: s(l.keluasan),
+      unitKeluasan: l.unitKeluasan,
+      tenure: s(l.tenure),
+      kategori: s(l.kategori),
+      hargaRM: rm(l.hargaSen),
+      nomborGeran: s(l.nomborGeran),
+      latitude: s(l.latitude),
+      longitude: s(l.longitude),
+      nota: s(l.nota),
+    })),
   };
 
+  const meta: EditorMeta = {
+    id: geran.id,
+    seq: geran.seq,
+    hargaDimintaSen: geran.hargaDimintaSen === null ? null : Number(geran.hargaDimintaSen),
+    adaSalinanGeran: geran.salinanGeranUrl !== null,
+    dariPenjual: geran.sumber === "PENGGUNA",
+    createdAt: geran.createdAt.toISOString(),
+    updatedAt: geran.updatedAt.toISOString(),
+    publishedAt: geran.publishedAt?.toISOString() ?? null,
+  };
+
+  // useSearchParams (?tab=) dalam editor perlukan sempadan Suspense.
   return (
-    <div>
-      <Link href="/geran/admin/geran" className="text-xs underline text-brand-dark/50 hover:text-brand-dark">
-        ‹ Kembali ke senarai
-      </Link>
-
-      <h1 className="font-display text-2xl font-bold mt-3 mb-1">
-        #{geran.seq} — {geran.tajuk}
-      </h1>
-      <p className="text-sm text-brand-dark/55 mb-6">
-        {geran.daerahMukim}, {geran.negeri} · {JENIS_TANAH_LABEL[geran.jenisTanah]} ·{" "}
-        {JENIS_HAKMILIK_LABEL[geran.jenisHakmilik]} · {formatKeluasan(geran.keluasan, geran.unitKeluasan)} ·{" "}
-        {SUMBER_GERAN_LABEL[geran.sumber]} · {STATUS_GERAN_LABEL[geran.status]}
-      </p>
-
-      <div className="bg-white border border-brand-dark/10 rounded-md p-5 mb-5 max-w-2xl">
-        <h2 className="font-bold text-brand-dark mb-3">Hubungan penjual</h2>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-brand-dark/60">
-          <p>
-            <span className="text-brand-dark/40">Nama:</span> {geran.namaPenjual}
-          </p>
-          <p>
-            <span className="text-brand-dark/40">Telefon:</span> {geran.telefonPenjual}
-          </p>
-          <p className="sm:col-span-2">
-            <span className="text-brand-dark/40">Emel:</span> {geran.emelPenjual}
-          </p>
-          {(geran.nomborLot || geran.nomborGeran) && (
-            <p className="sm:col-span-2">
-              <span className="text-brand-dark/40">Lot/Geran:</span> {geran.nomborLot || "-"} /{" "}
-              {geran.nomborGeran || "-"}
-            </p>
-          )}
-        </div>
-        {geran.salinanGeranUrl && (
-          <a
-            href={`/api/geran-admin/salinan-geran/${geran.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark bg-brand-cream/70 border border-brand-dark/15 rounded-sm px-2.5 py-1.5 mt-3"
-          >
-            📄 Salinan penuh geran (PDF) →
-          </a>
-        )}
-      </div>
-
-      <GeranAdminEditForm geran={data} />
-    </div>
+    <Suspense>
+      <LandListingEditor awal={awal} meta={meta} />
+    </Suspense>
   );
 }

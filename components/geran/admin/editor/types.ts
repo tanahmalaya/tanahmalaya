@@ -1,0 +1,86 @@
+import type { GambarPolygons } from "@/lib/geran/polygon";
+import type { StatusGeranKey } from "@/lib/geran/status";
+
+// Bentuk data Land Listing Editor. Semua wang dalam RM sebagai rentetan
+// (macam HargaInput simpan) supaya medan kosong kekal kosong, bukan 0.
+
+export type StatusLotKey = "AVAILABLE" | "RESERVED" | "SOLD";
+
+export type LotForm = {
+  // Kunci stabil untuk React - sama dengan id rekod bila lot dah disimpan,
+  // atau id sementara ("baru-...") untuk lot yang baru ditambah.
+  kunci: string;
+  id: string | null;
+  noLot: string;
+  status: StatusLotKey;
+  keluasan: string;
+  unitKeluasan: string;
+  tenure: string; // "" = tidak ditetapkan
+  kategori: string; // "" = ikut kategori penyenaraian
+  hargaRM: string;
+  nomborGeran: string;
+  latitude: string;
+  longitude: string;
+  nota: string;
+};
+
+export type EditorForm = {
+  tajuk: string;
+  sumber: string;
+  jenisTanah: string;
+  jenisHakmilik: string;
+  statusPemilikan: string;
+  keluasan: string;
+  unitKeluasan: string;
+  nomborLot: string;
+  nomborGeran: string;
+  keterangan: string;
+
+  negeri: string;
+  daerahMukim: string;
+  mukim: string;
+  alamat: string;
+  latitude: string;
+  longitude: string;
+
+  namaPenjual: string;
+  telefonPenjual: string;
+  emelPenjual: string;
+
+  hargaPasaranRM: string;
+  hargaAmbilRM: string;
+  hargaSiaranRM: string;
+  catatanRundingan: string;
+
+  gambarUrls: string[];
+  gambarPolygons: GambarPolygons;
+
+  seoTitle: string;
+  seoDescription: string;
+
+  status: StatusGeranKey;
+  catatanAdmin: string;
+
+  lots: LotForm[];
+};
+
+// Maklumat baca-sahaja yang editor papar tapi tak simpan.
+export type EditorMeta = {
+  id: string;
+  seq: number;
+  hargaDimintaSen: number | null; // harga penjual minta (PENGGUNA sahaja)
+  adaSalinanGeran: boolean;
+  dariPenjual: boolean; // penyenaraian dihantar melalui /geran/jual
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+};
+
+export type UbahForm = (perubahan: Partial<EditorForm>) => void;
+
+export const INPUT =
+  "w-full h-10 rounded-lg border border-black/[0.12] bg-white px-3 text-sm text-[#0E2A20] placeholder-black/30 outline-none transition focus:border-emerald-600/60 focus:ring-2 focus:ring-emerald-600/15 disabled:bg-black/[0.03] disabled:text-black/45";
+export const TEXTAREA =
+  "w-full rounded-lg border border-black/[0.12] bg-white px-3 py-2.5 text-sm text-[#0E2A20] placeholder-black/30 outline-none transition focus:border-emerald-600/60 focus:ring-2 focus:ring-emerald-600/15";
+export const LABEL = "block text-[12.5px] font-semibold text-black/60 mb-1.5";
+export const KAD = "bg-white rounded-2xl border border-black/[0.06] shadow-sm shadow-black/[0.02]";

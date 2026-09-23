@@ -21,14 +21,21 @@ import {
   formatKeluasan,
 } from "@/lib/geran";
 import { bacaGambarPolygons } from "@/lib/geran/polygon";
+import { STATUS_BUTIRAN_AWAM, STATUS_DIREKTORI, STATUS_INFO } from "@/lib/geran/status";
+import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
-  if (!geran || geran.status !== "DISAHKAN" || geran.hargaSiaranSen === null) return { title: "Geran" };
+  if (!geran || !STATUS_BUTIRAN_AWAM.includes(geran.status) || geran.hargaSiaranSen === null) {
+    return { title: "Geran", robots: { index: false, follow: false } };
+  }
 
-  const title = `${geran.tajuk} - GERAN`;
+  // Medan SEO dari tab SEO editor LANDHUB; kosong = jana dari tajuk/keterangan.
+  const title = geran.seoTitle || `${geran.tajuk} - GERAN`;
   const description =
-    geran.keterangan?.slice(0, 160) || `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`;
+    geran.seoDescription ||
+    geran.keterangan?.slice(0, 160) ||
+    `${geran.tajuk}, ${geran.daerahMukim}, ${geran.negeri}`;
   // Bila ada sempadan dilukis, hantar pengikis pautan ke versi yang sudah
   // dibakar - WhatsApp/FB hanya muat turun satu fail gambar dan tak akan
   // menjalankan overlay SVG kita. Tanpa polygon, guna terus URL blob supaya
@@ -62,11 +69,22 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default async function GeranDetailPage({ params }: { params: { id: string } }) {
+export default async function GeranDetailPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { preview?: string };
+}) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
-  // Tanpa harga siaran, halaman ni akan papar RM 0. update-status dah halang
-  // keadaan itu, tapi jangan bergantung pada satu lapisan sahaja.
-  if (!geran || geran.status !== "DISAHKAN" || geran.hargaSiaranSen === null) notFound();
+  if (!geran) notFound();
+
+  // ?preview=1 dari butang "Preview" dalam editor LANDHUB - admin boleh lihat
+  // draf/penyenaraian belum tersiar persis seperti pembeli akan nampak.
+  // Pelawat biasa tetap dapat 404 walaupun meneka parameter ini.
+  const pratonton = searchParams.preview === "1" && !!getGeranAdminSession();
+  const awam = STATUS_BUTIRAN_AWAM.includes(geran.status) && geran.hargaSiaranSen !== null;
+  if (!awam && !pratonton) notFound();
 
   const session = getSellerSession();
   const detailPath = `/geran/`;
@@ -80,7 +98,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
       : Promise.resolve(null),
     prisma.geran.findMany({
       where: {
-        status: "DISAHKAN",
+        status: { in: STATUS_DIREKTORI },
         hargaSiaranSen: { not: null },
         id: { not: geran.id },
         OR: [{ negeri: geran.negeri }, { jenisTanah: geran.jenisTanah }],
@@ -97,6 +115,13 @@ export default async function GeranDetailPage({ params }: { params: { id: string
         action={<GeranAccountNav isLoggedIn={!!session} redirectPath={detailPath} />}
       />
 
+      {pratonton && (
+        <div className="bg-amber-400 text-amber-950 text-sm font-semibold text-center px-4 py-2">
+          Admin preview · Status: {STATUS_INFO[geran.status].label}
+          {awam ? "" : " — not visible to the public"}
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} polygons={gambarPolygons} />
 
@@ -109,7 +134,20 @@ export default async function GeranDetailPage({ params }: { params: { id: string
               <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-[#0E3B2E] tracking-tight mb-2">
                 {geran.tajuk}
               </h1>
-              <p className="font-extrabold text-2xl text-[#0E3B2E] tabular-nums">{formatRM(Number(geran.hargaSiaranSen ?? 0))}</p>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <p className="font-extrabold text-2xl text-[#0E3B2E] tabular-nums">
+                  {geran.hargaSiaranSen === null ? "Price not set" : formatRM(Number(geran.hargaSiaranSen))}
+                </p>
+                {(geran.status === "RESERVED" || geran.status === "SOLD") && (
+                  <span
+                    className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ring-1 ring-inset ${
+                      STATUS_INFO[geran.status].badge
+                    }`}
+                  >
+                    {STATUS_INFO[geran.status].label}
+                  </span>
+                )}
+              </div>
               <span className="inline-block mt-2 text-[12px] font-semibold text-[#0E3B2E]/60 bg-[#0E3B2E]/[0.06] px-2.5 py-1 rounded-full">
                 {SUMBER_GERAN_PUBLIC_LABEL[geran.sumber]}
               </span>

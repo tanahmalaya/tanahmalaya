@@ -10,24 +10,17 @@ import {
   STATUS_PEMILIKAN_LABEL,
   STATUS_PEMILIKAN_NOTA,
   UNIT_KELUASAN_LABEL,
-  STATUS_GERAN_LABEL,
   formatRM,
   formatKeluasan,
 } from "@/lib/geran";
 import { GERAN_CARD, GERAN_INPUT, GERAN_LABEL, GERAN_BTN_PRIMARY } from "@/components/geran/theme";
+import { STATUS_INFO, type StatusGeranKey } from "@/lib/geran/status";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
 type JenisHakmilik = keyof typeof JENIS_HAKMILIK_LABEL;
 type StatusPemilikan = keyof typeof STATUS_PEMILIKAN_LABEL;
 type UnitKeluasan = keyof typeof UNIT_KELUASAN_LABEL;
-type StatusGeran = keyof typeof STATUS_GERAN_LABEL;
-
-const STATUS_BADGE: Record<StatusGeran, string> = {
-  MENUNGGU_SEMAKAN: "bg-amber-50 text-amber-700 border border-amber-200",
-  DALAM_RUNDINGAN: "bg-blue-50 text-blue-700 border border-blue-200",
-  DISAHKAN: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  DITOLAK: "bg-red-50 text-red-600 border border-red-200",
-};
+type StatusGeran = StatusGeranKey;
 
 const CARD = GERAN_CARD;
 const INPUT = GERAN_INPUT;
@@ -124,7 +117,7 @@ export default function GeranForm({
           hargaPasaranSen: null,
           hargaAmbilSen: null,
           hargaSiaranSen: null,
-          status: "MENUNGGU_SEMAKAN",
+          status: "SUBMITTED",
           catatanAdmin: null,
           createdAt: new Date().toISOString(),
         },
@@ -342,8 +335,8 @@ export default function GeranForm({
                       {g.daerahMukim}, {g.negeri} · {JENIS_TANAH_LABEL[g.jenisTanah]}
                     </p>
                   </div>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${STATUS_BADGE[g.status]}`}>
-                    {STATUS_GERAN_LABEL[g.status]}
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ring-1 ring-inset ${STATUS_INFO[g.status].badge}`}>
+                    {STATUS_INFO[g.status].labelPenjual}
                   </span>
                 </div>
                 <p className="text-sm text-[#0E3B2E]/70 mb-1.5">{formatKeluasan(g.keluasan, g.unitKeluasan)}</p>
@@ -375,12 +368,12 @@ export default function GeranForm({
                   )}
                 </dl>
 
-                {g.status === "DALAM_RUNDINGAN" && (
+                {g.status === "UNDER_REVIEW" && (
                   <p className="text-xs text-blue-700 mt-2">
                     GT is reviewing the market value and will contact you about the price.
                   </p>
                 )}
-                {g.status === "DITOLAK" && g.catatanAdmin && (
+                {g.status === "REJECTED" && g.catatanAdmin && (
                   <p className="text-xs text-red-600 mt-1.5">Reason: {g.catatanAdmin}</p>
                 )}
               </div>

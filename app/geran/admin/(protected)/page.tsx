@@ -5,7 +5,10 @@ import Image from "next/image";
 import { AlertTriangle, CircleDollarSign, Eye, LandPlot, Pencil, Plus, Sparkles, Tag } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatRM, formatKeluasan } from "@/lib/geran";
-import StatusBadge, { STATUS_LANDHUB } from "@/components/geran/admin/StatusBadge";
+import StatusBadge from "@/components/geran/admin/StatusBadge";
+import { KUMPULAN_STATUS, STATUS_GERAN, STATUS_INFO, isStatusGeran } from "@/lib/geran/status";
+
+const infoStatus = (s: string) => (isStatusGeran(s) ? STATUS_INFO[s] : null);
 
 const KAD = "bg-white rounded-2xl border border-black/[0.06] shadow-sm shadow-black/[0.02]";
 
@@ -54,13 +57,13 @@ function DonutStatus({ rows, jumlah }: { rows: { status: string; n: number }[]; 
                 cy="55"
                 r={r}
                 fill="none"
-                stroke={STATUS_LANDHUB[x.status]?.hex ?? "#999"}
+                stroke={infoStatus(x.status)?.hex ?? "#999"}
                 strokeWidth="12"
                 strokeDasharray={`${Math.max(0, panjang - jurang)} ${lilitan}`}
                 strokeDashoffset={-offset}
                 transform="rotate(-90 55 55)"
               >
-                <title>{`${STATUS_LANDHUB[x.status]?.label ?? x.status}: ${x.n}`}</title>
+                <title>{`${infoStatus(x.status)?.label ?? x.status}: ${x.n}`}</title>
               </circle>
             );
             offset += panjang;
@@ -81,13 +84,16 @@ export default async function LandhubDashboardPage() {
   const mulaBulan = new Date(kini.getFullYear(), kini.getMonth(), 1);
   const mulaBulanLepas = new Date(kini.getFullYear(), kini.getMonth() - 1, 1);
 
-  const [jumlah, baruBulanIni, baruBulanLepas, ikutStatus, nilai, terkini, aktiviti, ikutNegeri] =
+  const [jumlah, baruBulanIni, baruBulanLepas, ikutStatus, nilai, terkini, aktiviti, ikutNegeri, jualBulanIni] =
     await Promise.all([
       prisma.geran.count(),
       prisma.geran.count({ where: { createdAt: { gte: mulaBulan } } }),
       prisma.geran.count({ where: { createdAt: { gte: mulaBulanLepas, lt: mulaBulan } } }),
       prisma.geran.groupBy({ by: ["status"], _count: { _all: true } }),
-      prisma.geran.aggregate({ where: { status: "DISAHKAN" }, _sum: { hargaSiaranSen: true } }),
+      prisma.geran.aggregate({
+        where: { status: { in: KUMPULAN_STATUS.active.statuses } },
+        _sum: { hargaSiaranSen: true },
+      }),
       prisma.geran.findMany({
         orderBy: { createdAt: "desc" },
         take: 6,
@@ -113,15 +119,17 @@ export default async function LandhubDashboardPage() {
         select: { id: true, seq: true, tajuk: true, status: true, createdAt: true, updatedAt: true },
       }),
       prisma.geran.groupBy({ by: ["negeri"], _count: { _all: true }, orderBy: { _count: { negeri: "desc" } }, take: 6 }),
+      prisma.geran.count({ where: { status: "SOLD", soldAt: { gte: mulaBulan } } }),
     ]);
 
   const kiraStatus = (s: string) => ikutStatus.find((r) => r.status === s)?._count._all ?? 0;
-  const menunggu = kiraStatus("MENUNGGU_SEMAKAN") + kiraStatus("DALAM_RUNDINGAN");
-  const statusRows = ["DISAHKAN", "MENUNGGU_SEMAKAN", "DALAM_RUNDINGAN", "DITOLAK"].map((s) => ({
-    status: s,
-    n: kiraStatus(s),
-  }));
-  const nilaiSen = Number(nilai._sum.hargaSiaranSen ?? 0);
+  const kiraKumpulan = (k: string) => KUMPULAN_STATUS[k].statuses.reduce((n, s) => n + kiraStatus(s), 0);
+  const menunggu = kiraKumpulan("pending");
+  const aktif = kiraKumpulan("active");
+  // Semua status yang ada rekod, ikut urutan workflow - status kosong tak
+  // diletak dalam legenda supaya ia tak jadi senarai sembilan baris "0".
+  const statusRows = STATUS_GERAN.map((s) => ({ status: s, n: kiraStatus(s) })).filter((r) => r.n > 0);
+  const nilaiSen = Number(nilai._sum?.hargaSiaranSen ?? 0);
   const perubahanBaru =
     baruBulanLepas > 0 ? Math.round(((baruBulanIni - baruBulanLepas) / baruBulanLepas) * 100) : null;
   const negeriMaks = Math.max(1, ...ikutNegeri.map((n) => n._count._all));
@@ -146,15 +154,15 @@ export default async function LandhubDashboardPage() {
     },
     {
       label: "Sold",
-      nilai: "0",
-      nota: "Tracked once the Sold status is live",
+      nilai: kiraStatus("SOLD").toLocaleString("en-MY"),
+      nota: `${jualBulanIni} sold this month`,
       ikon: Tag,
       warna: "bg-amber-50 text-amber-700",
     },
     {
       label: "Active Listing Value",
       nilai: formatRMRingkas(nilaiSen),
-      nota: `${kiraStatus("DISAHKAN")} active listings`,
+      nota: `${aktif} active listings`,
       ikon: CircleDollarSign,
       warna: "bg-violet-50 text-violet-700",
     },
@@ -235,8 +243,8 @@ export default async function LandhubDashboardPage() {
             <ul className="flex-1 space-y-2.5 text-sm">
               {statusRows.map((r) => (
                 <li key={r.status} className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${STATUS_LANDHUB[r.status].dot}`} />
-                  <span className="text-black/65 flex-1">{STATUS_LANDHUB[r.status].label}</span>
+                  <span className={`w-2.5 h-2.5 rounded-full ${infoStatus(r.status)?.dot}`} />
+                  <span className="text-black/65 flex-1">{infoStatus(r.status)?.label}</span>
                   <span className="font-semibold tabular-nums">{r.n}</span>
                 </li>
               ))}
@@ -305,7 +313,7 @@ export default async function LandhubDashboardPage() {
                           >
                             <Pencil size={15} />
                           </Link>
-                          {g.status === "DISAHKAN" && (
+                          {(g.status === "PUBLISHED" || g.status === "RESERVED" || g.status === "SOLD") && (
                             <Link
                               href={`/geran/${g.id}`}
                               target="_blank"
@@ -343,12 +351,12 @@ export default async function LandhubDashboardPage() {
                 return (
                   <li key={a.id} className="flex gap-3">
                     <span
-                      className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${STATUS_LANDHUB[a.status]?.dot ?? "bg-black/30"}`}
+                      className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${infoStatus(a.status)?.dot ?? "bg-black/30"}`}
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm">
                         {baru ? "New listing added" : "Listing updated"} ·{" "}
-                        <span className="text-black/55">{STATUS_LANDHUB[a.status]?.label ?? a.status}</span>
+                        <span className="text-black/55">{infoStatus(a.status)?.label ?? a.status}</span>
                       </p>
                       <Link href={`/geran/admin/geran/${a.id}`} className="text-xs text-black/45 hover:underline truncate block">
                         #{a.seq} {a.tajuk}

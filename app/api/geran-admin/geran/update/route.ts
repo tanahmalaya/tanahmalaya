@@ -5,92 +5,199 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_GAMBAR_GERAN } from "@/lib/geran";
-import {
-  bacaGambarPolygons,
-  gambarPolygonsSchema,
-  tapisPolygonGambar,
-} from "@/lib/geran/polygon";
+import { gambarPolygonsSchema, tapisPolygonGambar } from "@/lib/geran/polygon";
+import { STATUS_GERAN, capMasaStatus, semakPeralihan } from "@/lib/geran/status";
 
-// Kemas kini penyenaraian sedia ada: harga sepanjang rundingan, nota
-// rundingan, dan media yang GT/KJ Land rakam sendiri. Dulu admin cuma boleh
-// luluskan atau tolak - tiada cara langsung untuk sunting apa yang penjual
-// hantar.
-const ringgit = z.number().positive().optional().nullable();
+// Simpan Land Listing Editor LANDHUB. Editor sentiasa hantar KESELURUHAN
+// keadaan borang (semua tab) dalam satu permintaan - satu butang Save, satu
+// transaksi, jadi tiada keadaan separuh tersimpan bila admin bertukar tab.
+
+const ringgit = z.number().nonnegative().nullable();
+const teks = (max: number) => z.string().trim().max(max).nullable();
+const koordinat = (min: number, max: number) => z.number().min(min).max(max).nullable();
+
+const JENIS_TANAH = ["KOSONG", "PERTANIAN", "PEMBANGUNAN", "PERUMAHAN", "PERINDUSTRIAN", "KOMERSIAL"] as const;
+const HAKMILIK = ["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"] as const;
+const UNIT = ["SQFT", "EKAR", "HEKTAR"] as const;
+
+const lotSchema = z.object({
+  // id sedia ada, atau tiada untuk lot baru yang ditambah dalam sesi ini.
+  id: z.string().min(1).optional(),
+  noLot: z.string().trim().min(1, "Every lot needs a lot number").max(80),
+  status: z.enum(["AVAILABLE", "RESERVED", "SOLD"]),
+  keluasan: z.number().positive().nullable(),
+  unitKeluasan: z.enum(UNIT),
+  tenure: z.enum(HAKMILIK).nullable(),
+  kategori: z.enum(JENIS_TANAH).nullable(),
+  hargaRM: ringgit,
+  nomborGeran: teks(80),
+  latitude: koordinat(-90, 90),
+  longitude: koordinat(-180, 180),
+  nota: teks(2000),
+});
 
 const schema = z.object({
   geranId: z.string().min(1),
+
+  // General
+  tajuk: z.string().trim().min(3, "Land name is too short").max(160),
+  sumber: z.enum(["GT", "KJ_LAND", "PENGGUNA"]),
+  jenisTanah: z.enum(JENIS_TANAH),
+  jenisHakmilik: z.enum(HAKMILIK),
+  statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]),
+  keluasan: z.number().positive("Enter the land size"),
+  unitKeluasan: z.enum(UNIT),
+  nomborLot: teks(80),
+  nomborGeran: teks(80),
+  keterangan: teks(5000),
+
+  // Location
+  negeri: z.string().trim().min(1, "Choose a state"),
+  daerahMukim: z.string().trim().min(1, "Enter a district"),
+  mukim: teks(120),
+  alamat: teks(300),
+  latitude: koordinat(-90, 90),
+  longitude: koordinat(-180, 180),
+
+  // Contact (hubungan penjual / pejabat)
+  namaPenjual: z.string().trim().min(1, "Enter a contact name").max(120),
+  telefonPenjual: z.string().trim().max(40),
+  emelPenjual: z.string().trim().max(160),
+
+  // Pricing - hanya hargaSiaran sampai ke awam
   hargaPasaranRM: ringgit,
   hargaAmbilRM: ringgit,
   hargaSiaranRM: ringgit,
-  catatanRundingan: z.string().max(5000).optional().nullable(),
-  gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN).optional(),
-  keterangan: z.string().max(5000).optional().nullable(),
-  // Admin membetulkan status ini selepas membaca salinan geran - penjual
-  // selalunya menghantarnya sebagai TIDAK_PASTI.
-  statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
-  // Sempadan tanah yang admin lukis di skrin edit - lihat lib/geran-polygon.ts.
-  gambarPolygons: gambarPolygonsSchema.optional().nullable(),
+  catatanRundingan: teks(5000),
+
+  // Media
+  gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN),
+  gambarPolygons: gambarPolygonsSchema,
+
+  // SEO
+  seoTitle: teks(70),
+  seoDescription: teks(170),
+
+  // Workflow
+  status: z.enum(STATUS_GERAN),
+  catatanAdmin: teks(2000),
+
+  lots: z.array(lotSchema).max(200),
 });
 
-const sen = (rm: number | null | undefined) => (rm ? BigInt(Math.round(rm * 100)) : null);
+const sen = (rm: number | null) => (rm ? BigInt(Math.round(rm * 100)) : null);
+const kosongJadiNull = (s: string | null) => (s && s.length > 0 ? s : null);
 
 export async function POST(req: NextRequest) {
   if (!getGeranAdminSession()) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
+  const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Data tak sah" }, { status: 400 });
+    const isu = parsed.error.issues[0];
+    return NextResponse.json({ error: isu ? `${isu.message} (${isu.path.join(".")})` : "Invalid data" }, { status: 400 });
   }
+  const d = parsed.data;
 
-  const data = parsed.data;
-
-  const geran = await prisma.geran.findUnique({ where: { id: data.geranId } });
+  const geran = await prisma.geran.findUnique({
+    where: { id: d.geranId },
+    select: { id: true, publishedAt: true, soldAt: true, lots: { select: { id: true } } },
+  });
   if (!geran) {
-    return NextResponse.json({ error: "Penyenaraian tak dijumpai" }, { status: 404 });
+    return NextResponse.json({ error: "Listing not found" }, { status: 404 });
   }
 
-  // Penyenaraian yang sudah tersiar tak boleh kehilangan harga siarannya -
-  // halaman awam bergantung padanya.
-  const hargaSiaranSen = sen(data.hargaSiaranRM);
-  if (geran.status === "DISAHKAN" && !hargaSiaranSen) {
-    return NextResponse.json(
-      { error: "Penyenaraian yang tersiar mesti ada harga siaran." },
-      { status: 400 }
-    );
+  const hargaSiaranSen = sen(d.hargaSiaranRM);
+  const catatanAdmin = kosongJadiNull(d.catatanAdmin);
+  const ralatStatus = semakPeralihan(d.status, { hargaSiaranSen, catatanAdmin });
+  if (ralatStatus) {
+    return NextResponse.json({ error: ralatStatus }, { status: 400 });
   }
 
-  // Polygon terikat pada URL gambar, jadi bila admin buang gambar dalam simpan
-  // yang sama, polygonnya kena ikut keluar - kalau tidak kolum Json ni
-  // mengumpul rujukan ke blob yang dah tak wujud.
-  const gambarAkhir = data.gambarUrls ?? geran.gambarUrls;
+  // Lot yang dihantar dengan id mesti memang milik penyenaraian ini - jangan
+  // biar permintaan yang diubah suai menyunting lot penyenaraian lain.
+  const idSedia = new Set(geran.lots.map((l) => l.id));
+  const asing = d.lots.find((l) => l.id && !idSedia.has(l.id));
+  if (asing) {
+    return NextResponse.json({ error: "A lot does not belong to this listing." }, { status: 400 });
+  }
+  const idDikekal = new Set(d.lots.filter((l) => l.id).map((l) => l.id!));
+  const idDibuang = [...idSedia].filter((id) => !idDikekal.has(id));
 
-  // Medan polygon adalah pilihan dalam skema ini. Medan yang TIADA bermakna
-  // "jangan sentuh" - hanya null yang eksplisit membuangnya. Tanpa beza ini,
-  // mana-mana pemanggil yang menghantar sebahagian medan sahaja akan senyap-
-  // senyap memadam kerja melukis sempadan yang mungkin mengambil masa berjam.
-  const gambarPolygons = tapisPolygonGambar(
-    data.gambarPolygons === undefined
-      ? bacaGambarPolygons(geran.gambarPolygons)
-      : data.gambarPolygons ?? {},
-    gambarAkhir
-  );
-
-  await prisma.geran.update({
-    where: { id: geran.id },
-    data: {
-      hargaPasaranSen: sen(data.hargaPasaranRM),
-      hargaAmbilSen: sen(data.hargaAmbilRM),
-      hargaSiaranSen,
-      catatanRundingan: data.catatanRundingan?.trim() || null,
-      gambarUrls: gambarAkhir,
-      keterangan: data.keterangan?.trim() || null,
-      statusPemilikan: data.statusPemilikan ?? geran.statusPemilikan,
-      gambarPolygons,
-    },
+  const dataLot = (l: (typeof d.lots)[number], susunan: number) => ({
+    noLot: l.noLot,
+    status: l.status,
+    keluasan: l.keluasan,
+    unitKeluasan: l.unitKeluasan,
+    tenure: l.tenure,
+    kategori: l.kategori,
+    hargaSen: sen(l.hargaRM),
+    nomborGeran: kosongJadiNull(l.nomborGeran),
+    latitude: l.latitude,
+    longitude: l.longitude,
+    nota: kosongJadiNull(l.nota),
+    susunan,
   });
 
-  return NextResponse.json({ ok: true });
+  await prisma.$transaction([
+    prisma.geran.update({
+      where: { id: geran.id },
+      data: {
+        tajuk: d.tajuk,
+        sumber: d.sumber,
+        jenisTanah: d.jenisTanah,
+        jenisHakmilik: d.jenisHakmilik,
+        statusPemilikan: d.statusPemilikan,
+        keluasan: d.keluasan,
+        unitKeluasan: d.unitKeluasan,
+        nomborLot: kosongJadiNull(d.nomborLot),
+        nomborGeran: kosongJadiNull(d.nomborGeran),
+        keterangan: kosongJadiNull(d.keterangan),
+
+        negeri: d.negeri,
+        daerahMukim: d.daerahMukim,
+        mukim: kosongJadiNull(d.mukim),
+        alamat: kosongJadiNull(d.alamat),
+        latitude: d.latitude,
+        longitude: d.longitude,
+
+        namaPenjual: d.namaPenjual,
+        telefonPenjual: d.telefonPenjual,
+        emelPenjual: d.emelPenjual,
+
+        hargaPasaranSen: sen(d.hargaPasaranRM),
+        hargaAmbilSen: sen(d.hargaAmbilRM),
+        hargaSiaranSen,
+        catatanRundingan: kosongJadiNull(d.catatanRundingan),
+
+        gambarUrls: d.gambarUrls,
+        // Polygon terikat pada URL gambar - buang yang gambarnya dah dipadam
+        // supaya kolum Json tak kumpul rujukan ke blob yang tiada.
+        gambarPolygons: tapisPolygonGambar(d.gambarPolygons, d.gambarUrls),
+
+        seoTitle: kosongJadiNull(d.seoTitle),
+        seoDescription: kosongJadiNull(d.seoDescription),
+
+        status: d.status,
+        catatanAdmin,
+        ...capMasaStatus(d.status, geran),
+      },
+    }),
+    prisma.lot.deleteMany({ where: { geranId: geran.id, id: { in: idDibuang } } }),
+    ...d.lots.map((l, i) =>
+      l.id
+        ? prisma.lot.update({ where: { id: l.id }, data: dataLot(l, i) })
+        : prisma.lot.create({ data: { geranId: geran.id, ...dataLot(l, i) } })
+    ),
+  ]);
+
+  // Pulangkan id lot supaya editor boleh tukar lot "baru" kepada rekod
+  // sebenar - tanpa ini, simpan kali kedua akan cipta lot yang sama sekali lagi.
+  const lots = await prisma.lot.findMany({
+    where: { geranId: geran.id },
+    orderBy: { susunan: "asc" },
+    select: { id: true },
+  });
+  return NextResponse.json({ ok: true, lotIds: lots.map((l) => l.id) });
 }

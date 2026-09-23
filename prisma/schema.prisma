@@ -596,16 +596,25 @@ model PendaftaranTertunda {
   @@index([kodLuputPada])
 }
 
+// Workflow LANDHUB. Nama nilai asal (MENUNGGU_SEMAKAN, DALAM_RUNDINGAN,
+// DISAHKAN, DITOLAK) ditukar melalui prisma/sql/2026-09-landhub-status.sql -
+// JANGAN biar db push buat sendiri, ia akan buang & cipta semula enum dan
+// kehilangan status setiap penyenaraian.
 enum StatusGeran {
-  MENUNGGU_SEMAKAN // baru dihantar penjual, admin belum semak
-  DALAM_RUNDINGAN // admin sedang runding harga dengan penjual
-  DISAHKAN // harga dipersetujui & tersiar di direktori awam
-  DITOLAK
+  DRAFT // admin masih sediakan, belum dihantar untuk semakan
+  SUBMITTED // baru dihantar (penjual melalui /geran/jual, atau admin)
+  UNDER_REVIEW // admin sedang semak dokumen / runding harga
+  VERIFIED // dokumen & harga disahkan, sedia untuk disiar
+  PUBLISHED // tersiar di direktori awam
+  RESERVED // ada pembeli, masih kelihatan awam dengan lencana Reserved
+  SOLD // terjual - tak lagi dalam direktori
+  REJECTED // ditolak semasa semakan (catatanAdmin simpan sebab)
+  ARCHIVED // disimpan untuk rekod, tersembunyi dari semua senarai aktif
 }
 
 // Sumber penyenaraian tanah di gerantanah.com.
 enum SumberGeran {
-  PLT // stok tanah PLT sendiri
+  GT // stok tanah GeranTanah sendiri
   KJ_LAND // dari KJ Land consultant
   PENGGUNA // dihantar pengguna laman web melalui /geran/jual
 }
@@ -632,17 +641,24 @@ model Geran {
   telefonPenjual String
   emelPenjual    String
 
-  tajuk         String // cth: "3 Ekar Tanah Pertanian, Jeram Pasu"
-  negeri        String
-  daerahMukim   String
-  nomborLot     String?
-  nomborGeran   String?
-  jenisTanah    JenisTanah
-  jenisHakmilik JenisHakmilik @default(TIDAK_PASTI)
+  tajuk           String // cth: "3 Ekar Tanah Pertanian, Jeram Pasu"
+  negeri          String
+  // Nama kolum kekal "daerahMukim" (data lama campur daerah & mukim), tapi
+  // sejak LANDHUB ia DAERAH sahaja - mukim ada medan sendiri di bawah.
+  daerahMukim     String
+  mukim           String?
+  alamat          String?
+  // Titik rujukan penyenaraian (WGS84) - pin pada peta & pusat peta lot.
+  latitude        Float?
+  longitude       Float?
+  nomborLot       String?
+  nomborGeran     String?
+  jenisTanah      JenisTanah
+  jenisHakmilik   JenisHakmilik   @default(TIDAK_PASTI)
   statusPemilikan StatusPemilikan @default(TIDAK_PASTI)
-  keluasan      Float
-  unitKeluasan  UnitKeluasan  @default(SQFT)
-  keterangan    String?       @db.Text
+  keluasan        Float
+  unitKeluasan    UnitKeluasan    @default(SQFT)
+  keterangan      String?         @db.Text
 
   // ---- Harga (semua dalam sen) ----
   // Alur: penjual minta hargaDiminta -> admin semak hargaPasaran -> runding
@@ -655,15 +671,14 @@ model Geran {
   hargaDimintaSen BigInt? // apa penjual minta (null untuk stok PLT/KJ Land)
   hargaPasaranSen BigInt? // anggaran harga pasaran oleh PLT
   hargaAmbilSen   BigInt? // harga yang PLT/KJ Land setuju ambil dari penjual
-  hargaSiaranSen  BigInt? // harga di direktori awam - WAJIB sebelum DISAHKAN
+  hargaSiaranSen  BigInt? // harga di direktori awam - WAJIB sebelum PUBLISHED
 
   // Nota rundingan harga dengan penjual - dalaman, admin sahaja.
   catatanRundingan String? @db.Text
 
-  // Media dirakam oleh PLT/KJ Land sendiri, bukan penjual - ditambah melalui
-  // skrin edit admin selepas penyenaraian dihantar.
-  gambarUrls      String[] // maksimum 8, URL fail di Vercel Blob (awam)
-  videoYoutubeUrl String? // video drone di YouTube (unlisted), dibenamkan di halaman butiran
+  // Media dirakam oleh GT/KJ Land sendiri, bukan penjual - ditambah melalui
+  // editor LANDHUB selepas penyenaraian dihantar.
+  gambarUrls String[] // URL fail di Vercel Blob (awam), susunan = susunan galeri
 
   // Polygon sempadan tanah yang admin lukis atas media di skrin edit. Disimpan
   // sebagai KOORDINAT ternormal (0..1), bukan dibakar ke dalam fail - jadi ia
@@ -673,11 +688,6 @@ model Geran {
   //
   // gambarPolygons: { "<url gambar>": { points: [[x,y], ...] } }
   gambarPolygons Json?
-  // videoPolygonTrack: keyframe bertanda masa, dilukis atas embed YouTube dan
-  // disegerakkan melalui YouTube IFrame API. Dijejak dalam pelayar dari fail
-  // video TEMPATAN admin (optical flow) - fail itu sendiri tak pernah
-  // dimuat naik ke mana-mana, cuma ke YouTube secara manual seperti biasa.
-  videoPolygonTrack Json?
 
   // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
   // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat
@@ -687,16 +697,58 @@ model Geran {
   // pelayar: dokumen itu ada nama, no. KP & alamat tuan tanah.
   salinanGeranUrl String?
 
-  status       StatusGeran @default(MENUNGGU_SEMAKAN)
+  // SEO - kosong bermaksud guna tajuk/keterangan penyenaraian.
+  seoTitle       String?
+  seoDescription String?
+
+  status       StatusGeran @default(SUBMITTED)
   catatanAdmin String? // sebab tolak / nota admin lain
+  // Direkod kali pertama status masuk PUBLISHED / SOLD - untuk statistik
+  // dashboard ("terjual bulan ni") tanpa perlu log audit penuh.
+  publishedAt  DateTime?
+  soldAt       DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   favoritedBy GeranFavorite[]
+  lots        Lot[]
 
   @@index([negeri, daerahMukim])
   @@index([status])
+}
+
+enum StatusLot {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+// Satu penyenaraian (tanah besar) boleh dipecah jual kepada banyak lot, setiap
+// satu dengan harga, status & geran sendiri. Bentuk lot atas gambar/peta
+// ditambah oleh Lot Marker - lihat lib/geran/polygon.ts.
+model Lot {
+  id      String @id @default(cuid())
+  geranId String
+  geran   Geran  @relation(fields: [geranId], references: [id], onDelete: Cascade)
+
+  noLot        String // cth "1234" atau "Lot A"
+  status       StatusLot      @default(AVAILABLE)
+  keluasan     Float?
+  unitKeluasan UnitKeluasan   @default(EKAR)
+  tenure       JenisHakmilik?
+  kategori     JenisTanah?
+  hargaSen     BigInt?
+  nomborGeran  String? // cth "GM 12345"
+  latitude     Float?
+  longitude    Float?
+  nota         String?        @db.Text
+  susunan      Int            @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([geranId])
 }
 
 // Favorite (wishlist) - penjual/pembeli log masuk boleh simpan penyenaraian

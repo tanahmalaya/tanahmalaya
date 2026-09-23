@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import LandhubShell from "@/components/geran/admin/LandhubShell";
+import { KUMPULAN_STATUS } from "@/lib/geran/status";
 
 export const metadata = {
   title: "LANDHUB",
@@ -18,15 +19,15 @@ export default async function GeranAdminLayout({ children }: { children: React.R
   const session = getGeranAdminSession();
   if (!session) redirect("/geran/admin/login");
 
-  const [admin, pending, active] = await Promise.all([
+  const kira = (k: string) => prisma.geran.count({ where: { status: { in: KUMPULAN_STATUS[k].statuses } } });
+  const [admin, draft, pending, active, sold] = await Promise.all([
     prisma.geranAdminUser.findUnique({ where: { id: session.geranAdminId }, select: { name: true } }),
-    prisma.geran.count({ where: { status: { in: ["MENUNGGU_SEMAKAN", "DALAM_RUNDINGAN"] } } }),
-    prisma.geran.count({ where: { status: "DISAHKAN" } }),
+    kira("draft"),
+    kira("pending"),
+    kira("active"),
+    kira("sold"),
   ]);
-
-  // Status SOLD belum wujud dalam enum StatusGeran sehingga migrasi workflow
-  // LandHub - kiraan 0 buat masa ni.
-  const counts = { pending, active, sold: 0 };
+  const counts = { draft, pending, active, sold };
 
   return (
     <LandhubShell counts={counts} adminName={admin?.name ?? "Admin"}>

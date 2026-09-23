@@ -1,7 +1,7 @@
 // Shared options & labels for the Geran Land Directory - used by the seller
 // form (components/geran/GeranForm.tsx), the search directory
 // (components/geran/GeranDirectory.tsx) and the admin review table
-// (components/geran/GeranAdminTable.tsx).
+// (app/geran/admin/(protected)/geran/page.tsx).
 
 export const JENIS_TANAH_LABEL: Record<string, string> = {
   KOSONG: "Vacant Land",
@@ -48,27 +48,20 @@ export const UNIT_KELUASAN_LABEL: Record<string, string> = {
 // SUMBER_GERAN_LABEL untuk dashboard admin, SUMBER_GERAN_PUBLIC_LABEL untuk
 // direktori awam (ayat penuh supaya pembeli faham siapa yang menyenaraikan).
 export const SUMBER_GERAN_LABEL: Record<string, string> = {
-  PLT: "GT",
+  GT: "GT",
   KJ_LAND: "KJ Land",
   PENGGUNA: "Website User",
 };
 
 export const SUMBER_GERAN_PUBLIC_LABEL: Record<string, string> = {
-  PLT: "Listed by GT",
+  GT: "Listed by GT",
   KJ_LAND: "Listed by KJ Land Consultant",
   PENGGUNA: "Listed by owner",
 };
 
 // Sumber yang admin boleh pilih bila masuk penyenaraian sendiri - PENGGUNA
 // hanya datang dari borang /geran/jual, bukan dari admin.
-export const SUMBER_ADMIN_OPTIONS = ["PLT", "KJ_LAND"] as const;
-
-export const STATUS_GERAN_LABEL: Record<string, string> = {
-  MENUNGGU_SEMAKAN: "Pending Review",
-  DALAM_RUNDINGAN: "In Negotiation",
-  DISAHKAN: "Approved",
-  DITOLAK: "Rejected",
-};
+export const SUMBER_ADMIN_OPTIONS = ["GT", "KJ_LAND"] as const;
 
 // ---------- Had muat naik ----------
 // SATU tempat sahaja untuk semua had saiz fail GERAN. Sebelum ini nombor yang

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
+import { STATUS_DIREKTORI } from "@/lib/geran/status";
 import { getSellerSession } from "@/lib/sellerAuth";
 import GeranDirectory, { type GeranListing } from "@/components/geran/GeranDirectory";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
@@ -49,9 +50,9 @@ export default async function GeranPage() {
 
   const [gerans, favorites] = await Promise.all([
     prisma.geran.findMany({
-      // hargaSiaranSen wajib ada sebelum status jadi DISAHKAN, tapi tapis
+      // hargaSiaranSen wajib ada sebelum status jadi PUBLISHED, tapi tapis
       // sekali lagi di sini supaya direktori tak sesekali papar harga kosong.
-      where: { status: "DISAHKAN", hargaSiaranSen: { not: null } },
+      where: { status: { in: STATUS_DIREKTORI }, hargaSiaranSen: { not: null } },
       orderBy: { createdAt: "desc" },
     }),
     session

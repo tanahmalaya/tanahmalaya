@@ -32,6 +32,7 @@ export type LandhubNavItem = {
 };
 
 export type LandhubCounts = {
+  draft: number;
   pending: number;
   active: number;
   sold: number;
@@ -45,7 +46,7 @@ export const LANDHUB_NAV: LandhubNavItem[] = [
     icon: "land",
     children: [
       { href: "/geran/admin/geran", label: "All Land" },
-      { href: "/geran/admin/geran?status=draft", label: "Draft" },
+      { href: "/geran/admin/geran?status=draft", label: "Draft", countKey: "draft" },
       { href: "/geran/admin/geran?status=pending", label: "Pending Review", countKey: "pending" },
       { href: "/geran/admin/geran?status=active", label: "Active", countKey: "active" },
       { href: "/geran/admin/geran?status=sold", label: "Sold", countKey: "sold" },

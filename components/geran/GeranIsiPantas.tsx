@@ -18,15 +18,15 @@ import { JENIS_TANAH_LABEL, JENIS_HAKMILIK_LABEL, STATUS_PEMILIKAN_LABEL, UNIT_K
 import { huraiIklanTanah, type HasilHurai } from "@/lib/geran/parse";
 
 const NAMA_MEDAN: Record<string, string> = {
-  negeri: "Negeri",
-  daerahMukim: "Daerah/Mukim",
-  nomborLot: "No. lot",
-  jenisTanah: "Jenis tanah",
-  jenisHakmilik: "Jenis hakmilik",
-  statusPemilikan: "Status pemilikan",
-  keluasan: "Keluasan",
+  negeri: "State",
+  daerahMukim: "District",
+  nomborLot: "Lot no.",
+  jenisTanah: "Category",
+  jenisHakmilik: "Tenure",
+  statusPemilikan: "Ownership",
+  keluasan: "Size",
   unitKeluasan: "Unit",
-  hargaRM: "Harga",
+  hargaRM: "Price",
 };
 
 function papar(medan: string, nilai: unknown): string {
@@ -55,7 +55,7 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
     setDiisi(null);
     setSibuk(true);
     setProgres(0);
-    setPeringkat("Memuatkan enjin OCR (kali pertama sahaja)...");
+    setPeringkat("Loading the OCR engine (first time only)...");
 
     try {
       // Import dinamik: tesseract.js besar, dan majoriti lawatan ke skrin ini
@@ -65,7 +65,7 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
       const worker = await createWorker("eng", 1, {
         logger: (m: { status: string; progress: number }) => {
           if (m.status === "recognizing text") {
-            setPeringkat("Membaca teks...");
+            setPeringkat("Reading text...");
             setProgres(m.progress);
           }
         },
@@ -76,12 +76,12 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
       const dibaca = (hasil.data.text || "").trim();
       setTeks(dibaca);
       if (!dibaca) {
-        setError("Tiada teks dapat dibaca daripada gambar ini. Cuba screenshot yang lebih besar atau tajam.");
+        setError("No text could be read from this image. Try a larger or sharper screenshot.");
       } else {
         huraiDanIsi(dibaca);
       }
     } catch {
-      setError("Enjin OCR gagal dimuatkan. Semak sambungan internet, atau tampal teks iklan terus di bawah.");
+      setError("The OCR engine failed to load. Check your connection, or paste the ad text below.");
     } finally {
       setSibuk(false);
       setPeringkat("");
@@ -109,16 +109,16 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
   }
 
   return (
-    <div className="rounded-md border border-dashed border-brand-gold/60 bg-brand-cream/40 p-4">
+    <div className="rounded-xl border border-dashed border-emerald-600/40 bg-emerald-50/40 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-sm font-bold text-brand-dark">Isi pantas dari iklan</h3>
+        <h3 className="text-sm font-bold">Quick fill from an ad</h3>
         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-          Percuma · dalam pelayar
+          Free · runs in your browser
         </span>
       </div>
-      <p className="mt-1 text-xs text-brand-dark/55">
-        Lampirkan screenshot iklan tanah dari WhatsApp atau Telegram — teksnya dibaca terus dalam
-        pelayar dan medan borang diisi. Boleh juga tampal teks iklan terus ke dalam kotak di bawah.
+      <p className="mt-1 text-xs text-black/55">
+        Attach a screenshot of a land ad from WhatsApp or Telegram — the text is read in your browser and
+        the form is filled in. You can also paste the ad text into the box below.
       </p>
 
       <input
@@ -127,38 +127,38 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
         accept="image/*"
         disabled={sibuk}
         onChange={(e) => bacaImej(e.target.files?.[0])}
-        className="mt-3 w-full rounded-sm border border-brand-dark/20 bg-white p-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-brand-gold file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-dark disabled:opacity-60"
+        className="mt-3 w-full rounded-lg border border-black/[0.12] bg-white p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-emerald-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white disabled:opacity-60"
       />
 
       {sibuk && (
         <div className="mt-2">
-          <p className="text-xs font-semibold text-brand-dark/70">{peringkat}</p>
+          <p className="text-xs font-semibold text-black/60">{peringkat}</p>
           {progres > 0 && (
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-brand-dark/10">
-              <div className="h-full bg-[#C68A2E] transition-[width]" style={{ width: `${progres * 100}%` }} />
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-black/10">
+              <div className="h-full bg-emerald-600 transition-[width]" style={{ width: `${progres * 100}%` }} />
             </div>
           )}
         </div>
       )}
 
       <div className="mt-3">
-        <label className="mb-1 block text-xs font-semibold text-brand-dark/70">
-          Teks iklan {teks ? "(betulkan kalau ada salah baca, kemudian hurai semula)" : "(atau tampal di sini)"}
+        <label className="mb-1 block text-xs font-semibold text-black/60">
+          Ad text {teks ? "(fix any misread text, then parse again)" : "(or paste it here)"}
         </label>
         <textarea
           rows={5}
           value={teks}
           onChange={(e) => setTeks(e.target.value)}
-          placeholder={"cth.\nTanah pertanian 3 ekar\nMukim Hulu Langat, Selangor\nGeran kekal, rizab melayu\nRM450,000"}
-          className="w-full rounded-sm border border-brand-dark/20 bg-white p-2 font-mono text-xs"
+          placeholder={"e.g.\nTanah pertanian 3 ekar\nMukim Hulu Langat, Selangor\nGeran kekal, rizab melayu\nRM450,000"}
+          className="w-full rounded-lg border border-black/[0.12] bg-white p-2 font-mono text-xs"
         />
         <button
           type="button"
           onClick={() => huraiDanIsi(teks)}
           disabled={!teks.trim() || sibuk}
-          className="mt-2 rounded-sm bg-brand-dark px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+          className="mt-2 rounded-lg bg-[#0B2A1F] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
         >
-          HURAI &amp; ISI BORANG
+          Parse &amp; fill form
         </button>
       </div>
 
@@ -168,8 +168,8 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
         <div className="mt-3 space-y-2 text-xs">
           {diisi.length > 0 ? (
             <div>
-              <p className="font-semibold text-emerald-700">Diisi ({diisi.length}):</p>
-              <ul className="mt-1 space-y-0.5 text-brand-dark/70">
+              <p className="font-semibold text-emerald-700">Filled ({diisi.length}):</p>
+              <ul className="mt-1 space-y-0.5 text-black/65">
                 {diisi.map((baris) => (
                   <li key={baris}>· {baris}</li>
                 ))}
@@ -177,18 +177,18 @@ export default function GeranIsiPantas({ onIsi }: { onIsi: (hasil: HasilHurai) =
             </div>
           ) : (
             <p className="font-semibold text-red-600">
-              Tiada butiran tanah dikenali dalam teks ini. Semak teks di atas, atau isi borang sendiri.
+              No land details recognised in this text. Check the text above, or fill in the form yourself.
             </p>
           )}
 
           {kosong.length > 0 && (
-            <p className="text-brand-dark/50">
-              <span className="font-semibold">Tak dijumpai:</span> {kosong.join(", ")} — isi sendiri.
+            <p className="text-black/50">
+              <span className="font-semibold">Not found:</span> {kosong.join(", ")} — fill in yourself.
             </p>
           )}
 
           {nota.map((n) => (
-            <p key={n} className="rounded-sm bg-amber-50 px-2.5 py-2 text-amber-800">
+            <p key={n} className="rounded-lg bg-amber-50 px-2.5 py-2 text-amber-800">
               {n}
             </p>
           ))}

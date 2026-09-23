@@ -7,13 +7,14 @@ export const dynamic = "force-dynamic";
 // gambar - tiada HTML, tiada SVG, tiada JavaScript. Jadi untuk pratonton pautan
 // sahaja kita rata-kan polygon ke dalam piksel di sini.
 //
-// Hanya penyenaraian DISAHKAN dilayan, dan satu-satunya gambar yang diambil
+// Hanya penyenaraian yang tersiar awam dilayan, dan satu-satunya gambar yang diambil
 // ialah URL yang datang dari pangkalan data - id dalam URL tak pernah jadi
 // sasaran fetch, jadi route ni tak boleh dijadikan proksi permintaan keluar.
 
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
+import { STATUS_BUTIRAN_AWAM } from "@/lib/geran/status";
 import { bacaGambarPolygons, titikKeCoverPx, type LotPolygon } from "@/lib/geran/polygon";
 import { formatRM } from "@/lib/geran";
 
@@ -50,7 +51,7 @@ function lukisanSvg(lots: Array<{ titik: Array<[number, number]>; label: string 
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
-  if (!geran || geran.status !== "DISAHKAN" || geran.hargaSiaranSen === null) {
+  if (!geran || !STATUS_BUTIRAN_AWAM.includes(geran.status) || geran.hargaSiaranSen === null) {
     return new NextResponse("Not found", { status: 404 });
   }
 

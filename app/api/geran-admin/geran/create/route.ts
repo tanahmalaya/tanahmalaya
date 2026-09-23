@@ -5,31 +5,24 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
-// Penyenaraian stok GT sendiri & dari KJ Land consultant - dimasukkan terus
-// oleh admin di /geran/admin/tambah, jadi tiada akaun Seller dan tak perlu
-// melalui semakan (terus DISAHKAN). Penyenaraian pengguna pula masuk melalui
-// app/api/geran POST dan bermula di MENUNGGU_SEMAKAN.
+// "Add Land" dalam LANDHUB - cipta penyenaraian GT / KJ Land sebagai DRAFT
+// dengan maklumat asas sahaja, kemudian admin lengkapkan (harga, lot, media,
+// SEO) dalam Land Listing Editor dan tekan Publish dari sana. Penyenaraian
+// pengguna pula masuk melalui app/api/geran POST sebagai SUBMITTED.
 const schema = z.object({
-  sumber: z.enum(["PLT", "KJ_LAND"]),
-  namaPenjual: z.string().min(2),
-  telefonPenjual: z.string().min(6),
-  emelPenjual: z.string().email(),
-  tajuk: z.string().min(3),
-  negeri: z.string().min(2),
-  daerahMukim: z.string().min(2),
-  nomborLot: z.string().optional().nullable(),
-  nomborGeran: z.string().optional().nullable(),
+  sumber: z.enum(["GT", "KJ_LAND"]),
+  tajuk: z.string().trim().min(3, "Enter a land name").max(160),
+  negeri: z.string().trim().min(1, "Choose a state"),
+  daerahMukim: z.string().trim().min(1, "Enter a district"),
+  nomborLot: z.string().trim().max(80).optional().nullable(),
   jenisTanah: z.enum(["KOSONG", "PERTANIAN", "PEMBANGUNAN", "PERUMAHAN", "PERINDUSTRIAN", "KOMERSIAL"]),
-  jenisHakmilik: z.enum(["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"]),
+  jenisHakmilik: z.enum(["FREEHOLD", "LEASEHOLD", "TIDAK_PASTI"]).optional(),
   statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
-  keluasan: z.number().positive(),
+  keluasan: z.number().positive("Enter the land size"),
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
-  hargaAmbilRM: z.number().positive().optional().nullable(), // kos GT/KJ Land
-  hargaSiaranRM: z.number().positive(), // harga di direktori awam
-  keterangan: z.string().optional().nullable(),
-  gambarUrls: z.array(z.string().url()).max(8).optional(),
-  // Pilihan di sini - GT/KJ Land dah sahkan tanah sendiri sebelum masuk.
-  salinanGeranUrl: z.string().url().optional().nullable(),
+  // Harga dari iklan masuk ke harga ambil (dalaman), bukan harga siaran -
+  // harga awam mesti ditetapkan admin dengan sengaja dalam editor.
+  hargaAmbilRM: z.number().positive().optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
@@ -37,37 +30,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
+  const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid data" }, { status: 400 });
   }
-
   const data = parsed.data;
 
   const geran = await prisma.geran.create({
     data: {
       sumber: data.sumber,
       sellerId: null,
-      namaPenjual: data.namaPenjual,
-      telefonPenjual: data.telefonPenjual,
-      emelPenjual: data.emelPenjual,
+      // Hubungan pejabat - boleh diubah dalam tab General editor.
+      namaPenjual: data.sumber === "GT" ? "GT Office" : "KJ Land Consultant",
+      telefonPenjual: "",
+      emelPenjual: "",
       tajuk: data.tajuk,
       negeri: data.negeri,
       daerahMukim: data.daerahMukim,
       nomborLot: data.nomborLot || null,
-      nomborGeran: data.nomborGeran || null,
       jenisTanah: data.jenisTanah,
-      jenisHakmilik: data.jenisHakmilik,
+      jenisHakmilik: data.jenisHakmilik ?? "TIDAK_PASTI",
       statusPemilikan: data.statusPemilikan ?? "TIDAK_PASTI",
       keluasan: data.keluasan,
       unitKeluasan: data.unitKeluasan,
       hargaAmbilSen: data.hargaAmbilRM ? BigInt(Math.round(data.hargaAmbilRM * 100)) : null,
-      hargaSiaranSen: BigInt(Math.round(data.hargaSiaranRM * 100)),
-      keterangan: data.keterangan || null,
-      gambarUrls: data.gambarUrls ?? [],
-      salinanGeranUrl: data.salinanGeranUrl || null,
-      status: "DISAHKAN",
+      gambarUrls: [],
+      status: "DRAFT",
     },
   });
 
