@@ -173,7 +173,7 @@ export default function TabDokumen({ form, ubah, meta }: { form: EditorForm; uba
             <AlertTriangle size={16} className="shrink-0 mt-0.5" />
             <span>
               <strong>Private storage is not set up.</strong> Documents need a separate private Vercel Blob store — the
-              current store is public. Add its token as <code className="text-xs">BLOB_PRIVATE_READ_WRITE_TOKEN</code>{" "}
+              current store is public. Add its token as <code className="text-xs">DOCUMENTS_READ_WRITE_TOKEN</code>{" "}
               to enable uploads.
             </span>
           </div>

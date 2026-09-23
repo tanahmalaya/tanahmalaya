@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { bacaPenanda, tukarWarisan } from "@/lib/geran/penanda";
 import { bacaPenandaPeta } from "@/lib/geran/peta";
 import { bacaHotspot } from "@/lib/geran/panorama";
+import { TOKEN_BLOB_PERIBADI } from "@/lib/geran/blob-peribadi";
 import LandListingEditor from "@/components/geran/admin/editor/LandListingEditor";
 import type { EditorForm, EditorMeta, LotForm, StatusLotKey } from "@/components/geran/admin/editor/types";
 
@@ -131,7 +132,7 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     updatedAt: geran.updatedAt.toISOString(),
     publishedAt: geran.publishedAt?.toISOString() ?? null,
     lotWarisan: warisan.lotBaru.length,
-    storPeribadi: !!process.env.BLOB_PRIVATE_READ_WRITE_TOKEN,
+    storPeribadi: !!TOKEN_BLOB_PERIBADI,
   };
 
   // useSearchParams (?tab=) dalam editor perlukan sempadan Suspense.

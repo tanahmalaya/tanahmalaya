@@ -115,7 +115,7 @@ export type EditorMeta = {
   // Bilangan lot yang baru ditukar dari polygon format lama semasa halaman
   // dibuka - belum tersimpan sehingga admin tekan Save.
   lotWarisan: number;
-  // BLOB_PRIVATE_READ_WRITE_TOKEN ditetapkan? Tanpanya Document Vault tak boleh
+  // Token stor peribadi (DOCUMENTS_READ_WRITE_TOKEN) ada? Tanpanya Document Vault tak boleh
   // menerima fail (stor Blob utama jenis public).
   storPeribadi: boolean;
 };
