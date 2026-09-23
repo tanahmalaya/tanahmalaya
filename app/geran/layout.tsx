@@ -21,6 +21,18 @@ export const metadata: Metadata = {
     absolute: "GERAN",
     template: "%s | GERAN",
   },
+  // Ganti keywords root layout - ia menyebut "Pertubuhan Literasi Tanah" dan
+  // akan muncul dalam setiap halaman gerantanah.com kalau tak ditindih.
+  keywords: [
+    "tanah dijual",
+    "titled land for sale",
+    "tanah bergeran",
+    "tanah pertanian dijual",
+    "lot tanah",
+    "Malaysia land for sale",
+    "GeranTanah",
+    "GERAN",
+  ],
   openGraph: {
     type: "website",
     locale: "ms_MY",
