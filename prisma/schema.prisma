@@ -687,7 +687,14 @@ model Geran {
   // lib/geran-polygon.ts.
   //
   // gambarPolygons: { "<url gambar>": { points: [[x,y], ...] } }
+  // WARISAN - diganti penandaLot di bawah. Editor LANDHUB tukar data lama ke
+  // penandaLot + rekod Lot bila penyenaraian dibuka, dan kosongkan kolum ini
+  // bila disimpan. Halaman awam masih membacanya sebagai sandaran.
   gambarPolygons Json?
+
+  // Lot Marker: bentuk lot/jalan/sungai/label atas setiap gambar, poligon lot
+  // dipaut ke rekod Lot. Bentuk data & pengesahan: lib/geran/penanda.ts.
+  penandaLot Json?
 
   // Salinan penuh geran (PDF) untuk semakan admin - tunjuk kaveat, gadaian &
   // sekatan kepentingan. WAJIB untuk penyenaraian PENGGUNA (lihat

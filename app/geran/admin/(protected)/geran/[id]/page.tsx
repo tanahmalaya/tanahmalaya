@@ -3,9 +3,9 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { bacaGambarPolygons } from "@/lib/geran/polygon";
+import { bacaPenanda, tukarWarisan } from "@/lib/geran/penanda";
 import LandListingEditor from "@/components/geran/admin/editor/LandListingEditor";
-import type { EditorForm, EditorMeta, StatusLotKey } from "@/components/geran/admin/editor/types";
+import type { EditorForm, EditorMeta, LotForm, StatusLotKey } from "@/components/geran/admin/editor/types";
 
 // Wang disimpan sebagai BigInt sen; editor kerja dalam RM sebagai rentetan.
 const rm = (sen: bigint | null) => (sen === null ? "" : String(Number(sen) / 100));
@@ -17,6 +17,14 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     include: { lots: { orderBy: { susunan: "asc" } } },
   });
   if (!geran) notFound();
+
+  // Penyenaraian yang dilukis sebelum Lot Marker: tukar polygon lama kepada
+  // penanda + lot baru (belum disimpan). Admin nampak lot tu dalam editor dan
+  // ia jadi rekod sebenar bila dia tekan Save.
+  const warisan =
+    geran.penandaLot === null && geran.gambarPolygons !== null
+      ? tukarWarisan(geran.gambarPolygons)
+      : { penanda: bacaPenanda(geran.penandaLot), lotBaru: [] };
 
   const awal: EditorForm = {
     tajuk: geran.tajuk,
@@ -43,12 +51,12 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     hargaSiaranRM: rm(geran.hargaSiaranSen),
     catatanRundingan: s(geran.catatanRundingan),
     gambarUrls: geran.gambarUrls,
-    gambarPolygons: bacaGambarPolygons(geran.gambarPolygons),
+    penanda: warisan.penanda,
     seoTitle: s(geran.seoTitle),
     seoDescription: s(geran.seoDescription),
     status: geran.status,
     catatanAdmin: s(geran.catatanAdmin),
-    lots: geran.lots.map((l) => ({
+    lots: geran.lots.map((l): LotForm => ({
       kunci: l.id,
       id: l.id,
       noLot: l.noLot,
@@ -62,7 +70,23 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
       latitude: s(l.latitude),
       longitude: s(l.longitude),
       nota: s(l.nota),
-    })),
+    })).concat(
+      warisan.lotBaru.map((l, i): LotForm => ({
+        kunci: l.kunci,
+        id: null,
+        noLot: l.label || `Lot ${geran.lots.length + i + 1}`,
+        status: "AVAILABLE" as StatusLotKey,
+        keluasan: "",
+        unitKeluasan: geran.unitKeluasan,
+        tenure: geran.jenisHakmilik,
+        kategori: geran.jenisTanah,
+        hargaRM: l.hargaSen === null ? "" : String(l.hargaSen / 100),
+        nomborGeran: "",
+        latitude: "",
+        longitude: "",
+        nota: "",
+      }))
+    ),
   };
 
   const meta: EditorMeta = {
@@ -74,6 +98,7 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     createdAt: geran.createdAt.toISOString(),
     updatedAt: geran.updatedAt.toISOString(),
     publishedAt: geran.publishedAt?.toISOString() ?? null,
+    lotWarisan: warisan.lotBaru.length,
   };
 
   // useSearchParams (?tab=) dalam editor perlukan sempadan Suspense.

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import PolygonOverlay from "@/components/geran/PolygonOverlay";
-import type { GambarPolygons } from "@/lib/geran/polygon";
+import PenandaOverlay from "@/components/geran/PenandaOverlay";
+import type { PenandaAwam } from "@/lib/geran/penanda";
 
 function LandPlaceholderIcon() {
   return (
@@ -18,15 +18,14 @@ function LandPlaceholderIcon() {
 export default function GeranImageGallery({
   gambarUrls,
   tajuk,
-  polygons = {},
+  penanda = {},
 }: {
   gambarUrls: string[];
   tajuk: string;
-  polygons?: GambarPolygons;
+  penanda?: PenandaAwam;
 }) {
   const [active, setActive] = useState(0);
-  const sempadan = polygons[gambarUrls[active]];
-  const lots = sempadan?.lots ?? [];
+  const sempadan = penanda[gambarUrls[active]];
 
   if (gambarUrls.length === 0) {
     return (
@@ -40,11 +39,9 @@ export default function GeranImageGallery({
     <div>
       <div className="relative aspect-[16/9] rounded-3xl overflow-hidden bg-[#F6F4EE]">
         <Image src={gambarUrls[active]} alt={tajuk} fill className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
-        {/* Polygon dilukis dalam kotak yang sama dengan gambar dan guna
+        {/* Bentuk dilukis dalam kotak yang sama dengan gambar dan guna
             padanan "cover", jadi ia dipangkas serentak dengan gambarnya. */}
-        {lots.length > 0 && (
-          <PolygonOverlay lots={lots} lebarMedia={sempadan?.w} tinggiMedia={sempadan?.h} padanan="cover" />
-        )}
+        {sempadan && <PenandaOverlay ciri={sempadan.ciri} w={sempadan.w} h={sempadan.h} />}
       </div>
       {gambarUrls.length > 1 && (
         <div className="flex gap-2 mt-3 overflow-x-auto pb-1">

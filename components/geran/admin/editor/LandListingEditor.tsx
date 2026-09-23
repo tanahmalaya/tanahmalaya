@@ -61,13 +61,14 @@ function keMuatan(form: EditorForm, geranId: string) {
     hargaSiaranRM: nombor(form.hargaSiaranRM),
     catatanRundingan: teks(form.catatanRundingan),
     gambarUrls: form.gambarUrls,
-    gambarPolygons: form.gambarPolygons,
+    penanda: form.penanda,
     seoTitle: teks(form.seoTitle),
     seoDescription: teks(form.seoDescription),
     status: form.status,
     catatanAdmin: teks(form.catatanAdmin),
     lots: form.lots.map((l) => ({
       ...(l.id ? { id: l.id } : {}),
+      kunci: l.kunci,
       noLot: l.noLot,
       status: l.status,
       keluasan: nombor(l.keluasan),
@@ -91,7 +92,9 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
   const tab: KunciTab = TAB.some((t) => t.kunci === tabUrl) ? (tabUrl as KunciTab) : "general";
 
   const [form, setForm] = useState<EditorForm>(awal);
-  const [tersimpan, setTersimpan] = useState(() => JSON.stringify(awal));
+  // Lot yang ditukar dari format lama belum wujud dalam DB - anggap borang
+  // "kotor" dari mula supaya admin diingatkan untuk menyimpannya.
+  const [tersimpan, setTersimpan] = useState(() => (meta.lotWarisan > 0 ? "" : JSON.stringify(awal)));
   const [statusTersimpan, setStatusTersimpan] = useState<StatusGeranKey>(awal.status);
   const [sibuk, setSibuk] = useState<"save" | "publish" | null>(null);
   const [error, setError] = useState("");
@@ -224,7 +227,11 @@ export default function LandListingEditor({ awal, meta }: { awal: EditorForm; me
           }`}
           role={error ? "alert" : "status"}
         >
-          {error || berjaya || "You have unsaved changes."}
+          {error ||
+            berjaya ||
+            (meta.lotWarisan > 0 && tersimpan === ""
+              ? `Boundaries drawn before Lot Marker were converted into ${meta.lotWarisan} lots. Check them in the Lots tab, then Save to keep them.`
+              : "You have unsaved changes.")}
         </div>
       )}
 

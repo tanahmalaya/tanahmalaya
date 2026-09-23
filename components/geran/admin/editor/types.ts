@@ -1,4 +1,4 @@
-import type { GambarPolygons } from "@/lib/geran/polygon";
+import type { Penanda } from "@/lib/geran/penanda";
 import type { StatusGeranKey } from "@/lib/geran/status";
 
 // Bentuk data Land Listing Editor. Semua wang dalam RM sebagai rentetan
@@ -53,7 +53,9 @@ export type EditorForm = {
   catatanRundingan: string;
 
   gambarUrls: string[];
-  gambarPolygons: GambarPolygons;
+  // Bentuk Lot Marker. lotId dalam penanda merujuk LotForm.kunci (bukan id),
+  // supaya lot yang belum disimpan pun boleh dipaut.
+  penanda: Penanda;
 
   seoTitle: string;
   seoDescription: string;
@@ -74,6 +76,9 @@ export type EditorMeta = {
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
+  // Bilangan lot yang baru ditukar dari polygon format lama semasa halaman
+  // dibuka - belum tersimpan sehingga admin tekan Save.
+  lotWarisan: number;
 };
 
 export type UbahForm = (perubahan: Partial<EditorForm>) => void;

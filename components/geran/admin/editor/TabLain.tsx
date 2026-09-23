@@ -1,12 +1,11 @@
 "use client";
 
-// Tab Media, 360°, Documents & SEO untuk Land Listing Editor. Media masih
-// guna komponen muat naik & editor sempadan sedia ada; 360° dan Document Vault
-// penuh datang dalam fasa LANDHUB seterusnya.
+// Tab Media, 360°, Documents & SEO untuk Land Listing Editor. Sempadan lot
+// kini dilukis dalam tab Lots (Lot Marker); 360° dan Document Vault penuh
+// datang dalam fasa LANDHUB seterusnya.
 
 import { ExternalLink, FileText, Lock, Orbit } from "lucide-react";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
-import GambarPolygonEditor from "@/components/geran/polygon/GambarPolygonEditor";
 import { KAD, LABEL, INPUT, TEXTAREA, type EditorForm, type EditorMeta, type UbahForm } from "./types";
 
 function Tajuk({ children, nota }: { children: React.ReactNode; nota?: string }) {
@@ -25,22 +24,10 @@ export function TabMedia({ form, ubah }: { form: EditorForm; ubah: UbahForm }) {
         <Tajuk nota="The first photo is the cover image in the directory and link previews.">
           Property Photos
         </Tajuk>
+        <p className="text-xs text-black/45 -mt-2 mb-3">
+          Mark lots, roads and rivers on these photos in the <strong>Lots</strong> tab.
+        </p>
         <GambarGeranUpload value={form.gambarUrls} onChange={(gambarUrls) => ubah({ gambarUrls })} />
-      </section>
-
-      <section className={`${KAD} p-5 sm:p-6`}>
-        <Tajuk nota="Draw the land boundary on a photo so buyers see exactly which land is for sale. Stored as coordinates - the photo itself is never changed.">
-          Boundary on Photos
-        </Tajuk>
-        {form.gambarUrls.length === 0 ? (
-          <p className="text-sm text-black/45">Upload a photo first.</p>
-        ) : (
-          <GambarPolygonEditor
-            gambarUrls={form.gambarUrls}
-            value={form.gambarPolygons}
-            onChange={(gambarPolygons) => ubah({ gambarPolygons })}
-          />
-        )}
       </section>
     </div>
   );

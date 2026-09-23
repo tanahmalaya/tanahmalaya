@@ -1,21 +1,14 @@
-// Bentuk data polygon sempadan tanah yang admin lukis atas gambar
-// penyenaraian GERAN. Dikongsi antara editor admin (components/geran/polygon),
-// route kemas kini (app/api/geran-admin/geran/update) dan overlay awam
-// (components/geran/PolygonOverlay).
+// Format polygon WARISAN GERAN (Geran.gambarPolygons) - sebelum Lot Marker.
+// Data baru ditulis dalam Geran.penandaLot (lib/geran/penanda.ts); fail ini
+// hanya membaca data lama supaya penyenaraian yang dilukis dulu masih papar
+// sempadan dan boleh ditukar ke format baru bila dibuka dalam editor.
 //
-// Semua koordinat TERNORMAL 0..1 relatif kepada bingkai media, bukan piksel.
-// Sebab: gambar yang sama dipapar pada banyak saiz (thumbnail, galeri, skrin
-// telefon). Dengan koordinat ternormal, overlay SVG sentiasa jatuh tepat tanpa kita perlu tahu
-// saiz sebenar masa render.
+// Semua koordinat TERNORMAL 0..1 relatif kepada gambar penuh, bukan piksel.
 
 import { z } from "zod";
 
 export type Titik = [number, number];
 
-// Satu lot/sub-bahagian tanah dalam gambar - penyenaraian tanah lombong/ladang
-// selalunya dipecah jual ikut lot (Lot 1, Lot 2, ...), masing-masing dengan
-// harga sendiri. `id` stabil merentasi sunting (bukan indeks array) supaya
-// React dan kod sunting tak keliru bila lot disusun semula atau dibuang.
 export type LotPolygon = {
   id: string;
   points: Titik[];
@@ -24,60 +17,40 @@ export type LotPolygon = {
 };
 
 export type GambarLots = {
-  // Dimensi asal gambar masa lot dilukis. Perlu sebab galeri awam papar
-  // gambar dengan object-cover: tanpa tahu nisbah asal, kita tak boleh tiru
-  // pangkasan yang sama pada overlay dan polygon akan tersasar pada gambar
-  // yang bukan 16:9. Dikongsi oleh semua lot dalam gambar yang sama.
+  // Dimensi asal gambar masa lot dilukis - perlu untuk meniru pangkasan
+  // object-cover galeri awam.
   w?: number | null;
   h?: number | null;
   lots: LotPolygon[];
 };
 
-// Dikunci mengikut URL gambar (bukan indeks) supaya lot kekal terikat pada
-// gambar yang betul walaupun admin susun semula atau buang gambar lain.
 export type GambarPolygons = Record<string, GambarLots>;
-
-export const MAX_LOT_SETIAP_GAMBAR = 30;
-
-export const MAX_TITIK_POLYGON = 60;
 
 const titikSchema = z.tuple([z.number().min(-0.5).max(1.5), z.number().min(-0.5).max(1.5)]);
 
-// Titik dibenarkan keluar sedikit dari bingkai (-0.5..1.5) sebab sempadan tanah
-// selalunya terpotong di tepi gambar dan admin perlu letak bucu di luar rangka
-// supaya garisan melintas dengan sudut yang betul.
 const lotSchema = z.object({
   id: z.string().min(1).max(40),
-  points: z.array(titikSchema).min(3).max(MAX_TITIK_POLYGON),
+  points: z.array(titikSchema).min(3).max(60),
   label: z.string().max(80).nullish(),
-  // Sen (bukan RM) supaya konsisten dengan cara duit disimpan di seluruh
-  // aplikasi ni (lihat Geran.hargaSiaranSen dll) dan elak ralat bulat float.
   hargaSen: z.number().int().nonnegative().nullish(),
 });
 
 const gambarLotsSchema = z.object({
   w: z.number().positive().max(20000).nullish(),
   h: z.number().positive().max(20000).nullish(),
-  lots: z.array(lotSchema).min(1).max(MAX_LOT_SETIAP_GAMBAR),
+  lots: z.array(lotSchema).min(1).max(30),
 });
 
-export const gambarPolygonsSchema = z.record(z.string().url(), gambarLotsSchema);
-
-// Bentuk LAMA (sebelum sokongan berbilang lot) - satu polygon setiap gambar,
-// tiada pembungkus `lots`. Dikekalkan hanya untuk migrasi bacaan data sedia
-// ada dalam pangkalan data; jangan tulis dalam bentuk ni lagi.
+// Bentuk paling lama - satu polygon setiap gambar tanpa pembungkus `lots`.
 const bentukLamaSchema = z.object({
-  points: z.array(titikSchema).min(3).max(MAX_TITIK_POLYGON),
+  points: z.array(titikSchema).min(3).max(60),
   label: z.string().max(80).nullish(),
   w: z.number().positive().max(20000).nullish(),
   h: z.number().positive().max(20000).nullish(),
 });
 
-// ---------- Baca balik dari Prisma Json ----------
-// Kolum Json boleh mengandungi apa sahaja yang pernah ditulis, termasuk data
-// dari versi skema lama. Jangan sekali-kali percaya bentuknya - parse dulu,
+// Kolum Json boleh mengandungi apa sahaja yang pernah ditulis - parse dulu,
 // dan pulangkan kosong kalau tak padan, supaya halaman awam tak pecah.
-
 export function bacaGambarPolygons(nilai: unknown): GambarPolygons {
   if (!nilai || typeof nilai !== "object") return {};
 
@@ -91,9 +64,6 @@ export function bacaGambarPolygons(nilai: unknown): GambarPolygons {
       continue;
     }
 
-    // Format lama: satu polygon terus pada peringkat gambar (tiada `lots`).
-    // Migrasi jadi SATU lot supaya penyenaraian sedia ada terus kelihatan
-    // dalam editor & halaman awam yang baharu, tanpa perlu skrip migrasi DB.
     const lama = bentukLamaSchema.safeParse(mentah);
     if (lama.success) {
       keluar[url] = {
@@ -106,18 +76,11 @@ export function bacaGambarPolygons(nilai: unknown): GambarPolygons {
   return keluar;
 }
 
-// ---------- Pemetaan ke bingkai yang dipangkas ----------
+// ---------- Pemetaan ke bingkai yang dipangkas (og:image) ----------
 
-// Pecahan bingkai media yang masih kelihatan bila ia dimuatkan ke dalam bekas
-// bernisbah lain dengan cara "cover" (dipangkas di tengah). Dikongsi oleh
-// panduan pangkas dalam editor admin dan penjana gambar kongsi, supaya
-// kedua-duanya tak boleh terpesong daripada satu sama lain.
-export function pecahanKelihatanCover(
-  lebarMedia: number,
-  tinggiMedia: number,
-  lebarKeluar: number,
-  tinggiKeluar: number
-): { fx: number; fy: number } {
+// Pecahan media yang masih kelihatan bila dimuatkan ke bekas bernisbah lain
+// dengan cara "cover" (dipangkas di tengah).
+function pecahanKelihatanCover(lebarMedia: number, tinggiMedia: number, lebarKeluar: number, tinggiKeluar: number) {
   const nisbahMedia = lebarMedia / tinggiMedia;
   const nisbahKeluar = lebarKeluar / tinggiKeluar;
   return nisbahMedia > nisbahKeluar
@@ -126,9 +89,8 @@ export function pecahanKelihatanCover(
 }
 
 // Tukar titik ternormal (relatif kepada media PENUH) kepada piksel dalam imej
-// keluaran yang sudah dipangkas gaya "cover". Titik yang jatuh dalam jalur yang
-// terpangkas akan keluar di luar sempadan keluaran - itu betul, garisan polygon
-// masih patut melintas tepi imej dengan sudut yang sama.
+// keluaran yang sudah dipangkas gaya "cover". Titik dalam jalur terpangkas
+// jatuh di luar sempadan keluaran - itu betul, garisan masih melintas tepi.
 export function titikKeCoverPx(
   points: Titik[],
   lebarMedia: number,
@@ -140,31 +102,4 @@ export function titikKeCoverPx(
   const asalX = (1 - fx) / 2;
   const asalY = (1 - fy) / 2;
   return points.map(([x, y]) => [((x - asalX) / fx) * lebarKeluar, ((y - asalY) / fy) * tinggiKeluar]);
-}
-
-// ---------- Bantuan lukisan ----------
-
-// "x1,y1 x2,y2 ..." untuk atribut points pada <polygon> SVG, dalam sistem
-// koordinat viewBox 0 0 100 100 supaya overlay boleh regang ikut saiz bekas.
-export function titikKeSvg(points: Titik[], skala = 100): string {
-  return points.map(([x, y]) => `${(x * skala).toFixed(3)},${(y * skala).toFixed(3)}`).join(" ");
-}
-
-// Buang lot yang gambarnya sudah tiada dalam penyenaraian, dan mana-mana lot
-// yang belum lengkap (<3 bucu - draf yang masih dilukis). Dipanggil masa
-// simpan supaya kolum Json tak kumpul sampah URL blob yang dah dibuang atau
-// lot separuh jalan yang tak sah ikut gambarPolygonsSchema.
-export function tapisPolygonGambar(polygons: GambarPolygons, gambarUrls: string[]): GambarPolygons {
-  const dibenarkan = new Set(gambarUrls);
-  const hasil: GambarPolygons = {};
-  for (const [url, entri] of Object.entries(polygons)) {
-    if (!dibenarkan.has(url)) continue;
-    const lots = entri.lots.filter((l) => l.points.length >= 3);
-    if (lots.length > 0) hasil[url] = { ...entri, lots };
-  }
-  return hasil;
-}
-
-export function bundarkanTitik(points: Titik[]): Titik[] {
-  return points.map(([x, y]) => [Math.round(x * 10000) / 10000, Math.round(y * 10000) / 10000] as Titik);
 }

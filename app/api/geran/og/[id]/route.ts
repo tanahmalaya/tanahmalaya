@@ -15,23 +15,17 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
 import { STATUS_BUTIRAN_AWAM } from "@/lib/geran/status";
-import { bacaGambarPolygons, titikKeCoverPx, type LotPolygon } from "@/lib/geran/polygon";
+import { titikKeCoverPx } from "@/lib/geran/polygon";
+import { penandaAwam } from "@/lib/geran/penanda";
 import { formatRM } from "@/lib/geran";
 
 // Saiz pratonton pautan yang disyorkan Facebook/WhatsApp. Nisbah 1.91:1.
 const LEBAR = 1200;
 const TINGGI = 630;
 
-function labelLot(lot: LotPolygon): string | null {
-  const bahagian = [lot.label?.trim() || null, lot.hargaSen ? formatRM(lot.hargaSen) : null].filter(
-    Boolean
-  );
-  return bahagian.length > 0 ? bahagian.join(" — ") : null;
-}
-
-function lukisanSvg(lots: Array<{ titik: Array<[number, number]>; label: string | null }>): Buffer {
+function lukisanSvg(lots: Array<{ titik: Array<[number, number]>; label: string | null; warna: string }>): Buffer {
   const bentuk = lots
-    .map(({ titik, label }) => {
+    .map(({ titik, label, warna }) => {
       const senarai = titik.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
       const tengahX = titik.reduce((j, p) => j + p[0], 0) / titik.length;
       const tengahY = titik.reduce((j, p) => j + p[1], 0) / titik.length;
@@ -41,7 +35,7 @@ function lukisanSvg(lots: Array<{ titik: Array<[number, number]>; label: string 
              fill="#FFFFFF" stroke="rgba(0,0,0,0.65)" stroke-width="6" paint-order="stroke"
           >${label.replace(/[<>&]/g, "")}</text>`
         : "";
-      return `<polygon points="${senarai}" fill="rgba(198,138,46,0.20)" stroke="#F4C55C"
+      return `<polygon points="${senarai}" fill="${warna}" fill-opacity="0.25" stroke="${warna}"
                 stroke-width="5" stroke-linejoin="round"/>${teks}`;
     })
     .join("\n");
@@ -50,19 +44,21 @@ function lukisanSvg(lots: Array<{ titik: Array<[number, number]>; label: string 
 }
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const geran = await prisma.geran.findUnique({ where: { id: params.id } });
+  const geran = await prisma.geran.findUnique({ where: { id: params.id }, include: { lots: true } });
   if (!geran || !STATUS_BUTIRAN_AWAM.includes(geran.status) || geran.hargaSiaranSen === null) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const polygons = bacaGambarPolygons(geran.gambarPolygons);
+  const penanda = penandaAwam(geran, geran.lots, formatRM);
+  const lotPada = (u: string) => penanda[u]?.ciri.filter((c) => c.bentuk === "poligon") ?? [];
   // Pilih gambar pertama yang ADA sempadan dilukis, bukan semestinya gambar
   // pertama - kalau admin hanya melukis pada gambar kedua, itulah gambar yang
   // paling menerangkan penyenaraian ini.
-  const url = geran.gambarUrls.find((u) => polygons[u]?.lots?.length) ?? geran.gambarUrls[0];
+  const url = geran.gambarUrls.find((u) => lotPada(u).length > 0) ?? geran.gambarUrls[0];
   if (!url) return new NextResponse("Not found", { status: 404 });
 
-  const entri = polygons[url];
+  const entri = penanda[url];
+  const lotGambar = lotPada(url);
 
   try {
     const jawapan = await fetch(url, { cache: "no-store" });
@@ -72,13 +68,11 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     const asas = sharp(asal).resize(LEBAR, TINGGI, { fit: "cover", position: "centre" });
 
     let keluar = asas;
-    if (entri?.lots?.length && entri.w && entri.h) {
-      // Tanpa dimensi asal kita tak tahu jalur mana yang dipangkas oleh
-      // fit:"cover", jadi polygon akan tersasar. Lebih baik hantar gambar
-      // bersih daripada gambar dengan sempadan di tempat yang salah.
-      const lots = entri.lots.map((lot) => ({
-        titik: titikKeCoverPx(lot.points, entri.w as number, entri.h as number, LEBAR, TINGGI),
-        label: labelLot(lot),
+    if (entri && lotGambar.length > 0) {
+      const lots = lotGambar.map((c) => ({
+        titik: titikKeCoverPx(c.points, entri.w, entri.h, LEBAR, TINGGI),
+        label: c.label,
+        warna: c.warna,
       }));
       keluar = asas.composite([{ input: lukisanSvg(lots), top: 0, left: 0 }]);
     }

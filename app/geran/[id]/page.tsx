@@ -20,12 +20,12 @@ import {
   formatRM,
   formatKeluasan,
 } from "@/lib/geran";
-import { bacaGambarPolygons } from "@/lib/geran/polygon";
+import { penandaAwam } from "@/lib/geran/penanda";
 import { STATUS_BUTIRAN_AWAM, STATUS_DIREKTORI, STATUS_INFO } from "@/lib/geran/status";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  const geran = await prisma.geran.findUnique({ where: { id: params.id } });
+  const geran = await prisma.geran.findUnique({ where: { id: params.id }, include: { lots: true } });
   if (!geran || !STATUS_BUTIRAN_AWAM.includes(geran.status) || geran.hargaSiaranSen === null) {
     return { title: "Geran", robots: { index: false, follow: false } };
   }
@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   // dibakar - WhatsApp/FB hanya muat turun satu fail gambar dan tak akan
   // menjalankan overlay SVG kita. Tanpa polygon, guna terus URL blob supaya
   // tiada kerja pelayan langsung.
-  const adaSempadan = Object.values(bacaGambarPolygons(geran.gambarPolygons)).some((e) =>
-    e.lots.some((l) => l.points.length >= 3)
+  const adaSempadan = Object.values(penandaAwam(geran, geran.lots, formatRM)).some((e) =>
+    e.ciri.some((c) => c.bentuk === "poligon")
   );
   const image = adaSempadan
     ? `https://gerantanah.com/api/geran/og/${geran.id}`
@@ -76,7 +76,10 @@ export default async function GeranDetailPage({
   params: { id: string };
   searchParams: { preview?: string };
 }) {
-  const geran = await prisma.geran.findUnique({ where: { id: params.id } });
+  const geran = await prisma.geran.findUnique({
+    where: { id: params.id },
+    include: { lots: { orderBy: { susunan: "asc" } } },
+  });
   if (!geran) notFound();
 
   // ?preview=1 dari butang "Preview" dalam editor LANDHUB - admin boleh lihat
@@ -88,7 +91,7 @@ export default async function GeranDetailPage({
 
   const session = getSellerSession();
   const detailPath = `/geran/`;
-  const gambarPolygons = bacaGambarPolygons(geran.gambarPolygons);
+  const penanda = penandaAwam(geran, geran.lots, formatRM);
 
   const [favorite, serupa] = await Promise.all([
     session
@@ -123,7 +126,7 @@ export default async function GeranDetailPage({
       )}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} polygons={gambarPolygons} />
+        <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} penanda={penanda} />
 
         <div className="grid md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2 space-y-6">

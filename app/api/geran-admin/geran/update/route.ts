@@ -2,10 +2,11 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 import { MAX_GAMBAR_GERAN } from "@/lib/geran";
-import { gambarPolygonsSchema, tapisPolygonGambar } from "@/lib/geran/polygon";
+import { penandaSchema, tapisPenanda, type Penanda } from "@/lib/geran/penanda";
 import { STATUS_GERAN, capMasaStatus, semakPeralihan } from "@/lib/geran/status";
 
 // Simpan Land Listing Editor LANDHUB. Editor sentiasa hantar KESELURUHAN
@@ -23,6 +24,9 @@ const UNIT = ["SQFT", "EKAR", "HEKTAR"] as const;
 const lotSchema = z.object({
   // id sedia ada, atau tiada untuk lot baru yang ditambah dalam sesi ini.
   id: z.string().min(1).optional(),
+  // Kunci editor - penanda merujuk lot melalui kunci ini, termasuk lot baru
+  // yang belum ada id. Pelayan tukar kepada id sebenar sebelum simpan.
+  kunci: z.string().min(1).max(60),
   noLot: z.string().trim().min(1, "Every lot needs a lot number").max(80),
   status: z.enum(["AVAILABLE", "RESERVED", "SOLD"]),
   keluasan: z.number().positive().nullable(),
@@ -72,7 +76,7 @@ const schema = z.object({
 
   // Media
   gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN),
-  gambarPolygons: gambarPolygonsSchema,
+  penanda: penandaSchema,
 
   // SEO
   seoTitle: teks(70),
@@ -140,8 +144,30 @@ export async function POST(req: NextRequest) {
     susunan,
   });
 
-  await prisma.$transaction([
-    prisma.geran.update({
+  // Transaksi interaktif: lot baru mesti dicipta DULU untuk dapat id sebelum
+  // penanda (yang merujuk lot) boleh ditulis.
+  const lotIds = await prisma.$transaction(async (tx) => {
+    await tx.lot.deleteMany({ where: { geranId: geran.id, id: { in: idDibuang } } });
+
+    const kunciKeId = new Map<string, string>();
+    const ids: string[] = [];
+    for (const [i, l] of d.lots.entries()) {
+      const rekod = l.id
+        ? await tx.lot.update({ where: { id: l.id }, data: dataLot(l, i), select: { id: true } })
+        : await tx.lot.create({ data: { geranId: geran.id, ...dataLot(l, i) }, select: { id: true } });
+      kunciKeId.set(l.kunci, rekod.id);
+      ids.push(rekod.id);
+    }
+
+    const penandaDisimpan: Penanda = {};
+    for (const [url, entri] of Object.entries(d.penanda)) {
+      penandaDisimpan[url] = {
+        ...entri,
+        ciri: entri.ciri.map((c) => ({ ...c, lotId: c.lotId ? kunciKeId.get(c.lotId) ?? null : null })),
+      };
+    }
+
+    await tx.geran.update({
       where: { id: geran.id },
       data: {
         tajuk: d.tajuk,
@@ -172,9 +198,10 @@ export async function POST(req: NextRequest) {
         catatanRundingan: kosongJadiNull(d.catatanRundingan),
 
         gambarUrls: d.gambarUrls,
-        // Polygon terikat pada URL gambar - buang yang gambarnya dah dipadam
-        // supaya kolum Json tak kumpul rujukan ke blob yang tiada.
-        gambarPolygons: tapisPolygonGambar(d.gambarPolygons, d.gambarUrls),
+        // Bentuk terikat pada URL gambar - buang yang gambarnya dah dipadam.
+        penandaLot: tapisPenanda(penandaDisimpan, d.gambarUrls, new Set(ids)),
+        // Data polygon format lama kini hidup dalam penandaLot + rekod Lot.
+        gambarPolygons: Prisma.DbNull,
 
         seoTitle: kosongJadiNull(d.seoTitle),
         seoDescription: kosongJadiNull(d.seoDescription),
@@ -183,21 +210,12 @@ export async function POST(req: NextRequest) {
         catatanAdmin,
         ...capMasaStatus(d.status, geran),
       },
-    }),
-    prisma.lot.deleteMany({ where: { geranId: geran.id, id: { in: idDibuang } } }),
-    ...d.lots.map((l, i) =>
-      l.id
-        ? prisma.lot.update({ where: { id: l.id }, data: dataLot(l, i) })
-        : prisma.lot.create({ data: { geranId: geran.id, ...dataLot(l, i) } })
-    ),
-  ]);
+    });
 
-  // Pulangkan id lot supaya editor boleh tukar lot "baru" kepada rekod
-  // sebenar - tanpa ini, simpan kali kedua akan cipta lot yang sama sekali lagi.
-  const lots = await prisma.lot.findMany({
-    where: { geranId: geran.id },
-    orderBy: { susunan: "asc" },
-    select: { id: true },
-  });
-  return NextResponse.json({ ok: true, lotIds: lots.map((l) => l.id) });
+    return ids;
+  }, { timeout: 20_000 });
+
+  // Pulangkan id lot ikut susunan supaya editor boleh tukar lot "baru" kepada
+  // rekod sebenar - tanpa ini, simpan kali kedua akan cipta lot yang sama lagi.
+  return NextResponse.json({ ok: true, lotIds });
 }
