@@ -153,14 +153,14 @@ export default function GeranForm({
           <span className="text-xs text-[#0E3B2E]/50">{namaPenjual}</span>
         </div>
         <p className="text-[#0E3B2E]/60 text-sm mb-5">
-          Fill in your titled land details and the price you are asking for. PLT reviews the title, checks
-          the market value, and will contact you to agree a price before your land is listed. PLT also
-          handles the photos and the drone video - you do not need to upload any.
+          Fill in your titled land details and the price you are asking for. GT reviews the title, checks
+          the market value, and will contact you to agree a price before your land is listed. GT also
+          takes the photos and 360° images - you do not need to upload any.
         </p>
 
         {justSubmittedSeq !== null && (
           <div className="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl p-3">
-            Listing #{justSubmittedSeq} submitted successfully. Status: Pending PLT review.
+            Listing #{justSubmittedSeq} submitted successfully. Status: Pending GT review.
           </div>
         )}
 
@@ -251,7 +251,7 @@ export default function GeranForm({
               ))}
             </select>
             <p className="text-xs text-black/45 mt-1">
-              {STATUS_PEMILIKAN_NOTA[statusPemilikan]} Leave it as Uncertain if you are not sure — PLT
+              {STATUS_PEMILIKAN_NOTA[statusPemilikan]} Leave it as Uncertain if you are not sure — GT
               checks this against your title copy.
             </p>
           </div>
@@ -305,8 +305,8 @@ export default function GeranForm({
           <div>
             <label className={LABEL}>Full Title Copy — PDF (required)</label>
             <p className="text-xs text-[#0E3B2E]/50 mb-2">
-              Upload the complete copy of the land title so PLT can verify the lot details, caveats,
-              charges and any restriction in interest. Seen by PLT only — it is never shown on the
+              Upload the complete copy of the land title so GT can verify the lot details, caveats,
+              charges and any restriction in interest. Seen by GT only — it is never shown on the
               public listing.
             </p>
             <SalinanGeranUpload value={salinanGeranUrl} onChange={setSalinanGeranUrl} />
@@ -357,7 +357,7 @@ export default function GeranForm({
                   </div>
                   {g.hargaPasaranSen !== null && (
                     <div className="flex justify-between gap-3">
-                      <dt className="text-[#0E3B2E]/45">PLT market estimate</dt>
+                      <dt className="text-[#0E3B2E]/45">GT market estimate</dt>
                       <dd className="font-semibold text-[#0E3B2E]">{formatRM(g.hargaPasaranSen)}</dd>
                     </div>
                   )}
@@ -377,7 +377,7 @@ export default function GeranForm({
 
                 {g.status === "DALAM_RUNDINGAN" && (
                   <p className="text-xs text-blue-700 mt-2">
-                    PLT is reviewing the market value and will contact you about the price.
+                    GT is reviewing the market value and will contact you about the price.
                   </p>
                 )}
                 {g.status === "DITOLAK" && g.catatanAdmin && (

@@ -2,19 +2,17 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
-import { idVideoYoutube, MAX_GAMBAR_GERAN } from "@/lib/geran";
+import { MAX_GAMBAR_GERAN } from "@/lib/geran";
 import {
   bacaGambarPolygons,
   gambarPolygonsSchema,
   tapisPolygonGambar,
-  videoPolygonTrackSchema,
 } from "@/lib/geran/polygon";
 
 // Kemas kini penyenaraian sedia ada: harga sepanjang rundingan, nota
-// rundingan, dan media yang PLT/KJ Land rakam sendiri. Dulu admin cuma boleh
+// rundingan, dan media yang GT/KJ Land rakam sendiri. Dulu admin cuma boleh
 // luluskan atau tolak - tiada cara langsung untuk sunting apa yang penjual
 // hantar.
 const ringgit = z.number().positive().optional().nullable();
@@ -26,14 +24,12 @@ const schema = z.object({
   hargaSiaranRM: ringgit,
   catatanRundingan: z.string().max(5000).optional().nullable(),
   gambarUrls: z.array(z.string().url()).max(MAX_GAMBAR_GERAN).optional(),
-  videoYoutubeUrl: z.string().optional().nullable(),
   keterangan: z.string().max(5000).optional().nullable(),
   // Admin membetulkan status ini selepas membaca salinan geran - penjual
   // selalunya menghantarnya sebagai TIDAK_PASTI.
   statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
   // Sempadan tanah yang admin lukis di skrin edit - lihat lib/geran-polygon.ts.
   gambarPolygons: gambarPolygonsSchema.optional().nullable(),
-  videoPolygonTrack: videoPolygonTrackSchema.optional().nullable(),
 });
 
 const sen = (rm: number | null | undefined) => (rm ? BigInt(Math.round(rm * 100)) : null);
@@ -54,20 +50,6 @@ export async function POST(req: NextRequest) {
   const geran = await prisma.geran.findUnique({ where: { id: data.geranId } });
   if (!geran) {
     return NextResponse.json({ error: "Penyenaraian tak dijumpai" }, { status: 404 });
-  }
-
-  // Pautan video disimpan hanya kalau ia betul-betul YouTube - halaman butiran
-  // membenamkannya, jadi pautan lain cuma akan jadi embed kosong.
-  let videoYoutubeUrl: string | null = null;
-  if (data.videoYoutubeUrl && data.videoYoutubeUrl.trim()) {
-    const id = idVideoYoutube(data.videoYoutubeUrl.trim());
-    if (!id) {
-      return NextResponse.json(
-        { error: "Pautan video mesti pautan YouTube yang sah (youtube.com atau youtu.be)." },
-        { status: 400 }
-      );
-    }
-    videoYoutubeUrl = data.videoYoutubeUrl.trim();
   }
 
   // Penyenaraian yang sudah tersiar tak boleh kehilangan harga siarannya -
@@ -96,12 +78,6 @@ export async function POST(req: NextRequest) {
     gambarAkhir
   );
 
-  const videoTrackLama = geran.videoPolygonTrack ?? Prisma.DbNull;
-  const videoPolygonTrack =
-    data.videoPolygonTrack === undefined
-      ? (videoTrackLama as Prisma.InputJsonValue | typeof Prisma.DbNull)
-      : data.videoPolygonTrack ?? Prisma.DbNull;
-
   await prisma.geran.update({
     where: { id: geran.id },
     data: {
@@ -110,11 +86,9 @@ export async function POST(req: NextRequest) {
       hargaSiaranSen,
       catatanRundingan: data.catatanRundingan?.trim() || null,
       gambarUrls: gambarAkhir,
-      videoYoutubeUrl,
       keterangan: data.keterangan?.trim() || null,
       statusPemilikan: data.statusPemilikan ?? geran.statusPemilikan,
       gambarPolygons,
-      videoPolygonTrack,
     },
   });
 

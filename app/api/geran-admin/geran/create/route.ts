@@ -5,7 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getGeranAdminSession } from "@/lib/geran/admin-auth";
 
-// Penyenaraian stok PLT sendiri & dari KJ Land consultant - dimasukkan terus
+// Penyenaraian stok GT sendiri & dari KJ Land consultant - dimasukkan terus
 // oleh admin di /geran/admin/tambah, jadi tiada akaun Seller dan tak perlu
 // melalui semakan (terus DISAHKAN). Penyenaraian pengguna pula masuk melalui
 // app/api/geran POST dan bermula di MENUNGGU_SEMAKAN.
@@ -24,12 +24,11 @@ const schema = z.object({
   statusPemilikan: z.enum(["RIZAB_MELAYU", "LOT_BUMI", "LOT_NON_BUMI", "TIDAK_PASTI"]).optional(),
   keluasan: z.number().positive(),
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
-  hargaAmbilRM: z.number().positive().optional().nullable(), // kos PLT/KJ Land
+  hargaAmbilRM: z.number().positive().optional().nullable(), // kos GT/KJ Land
   hargaSiaranRM: z.number().positive(), // harga di direktori awam
   keterangan: z.string().optional().nullable(),
   gambarUrls: z.array(z.string().url()).max(8).optional(),
-  videoYoutubeUrl: z.string().url().optional().nullable(),
-  // Pilihan di sini - PLT/KJ Land dah sahkan tanah sendiri sebelum masuk.
+  // Pilihan di sini - GT/KJ Land dah sahkan tanah sendiri sebelum masuk.
   salinanGeranUrl: z.string().url().optional().nullable(),
 });
 
@@ -67,7 +66,6 @@ export async function POST(req: NextRequest) {
       hargaSiaranSen: BigInt(Math.round(data.hargaSiaranRM * 100)),
       keterangan: data.keterangan || null,
       gambarUrls: data.gambarUrls ?? [],
-      videoYoutubeUrl: data.videoYoutubeUrl || null,
       salinanGeranUrl: data.salinanGeranUrl || null,
       status: "DISAHKAN",
     },

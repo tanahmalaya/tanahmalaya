@@ -4,10 +4,10 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import GambarGeranUpload from "@/components/geran/GambarGeranUpload";
 import HargaInput from "@/components/geran/HargaInput";
-import PolygonEditorPanel from "@/components/geran/polygon/PolygonEditorPanel";
+import GambarPolygonEditor from "@/components/geran/polygon/GambarPolygonEditor";
 import StatusPemilikanBadge from "@/components/geran/StatusPemilikanBadge";
-import { STATUS_PEMILIKAN_LABEL, STATUS_PEMILIKAN_NOTA, formatRM, idVideoYoutube } from "@/lib/geran";
-import type { GambarPolygons, VideoPolygonTrack } from "@/lib/geran/polygon";
+import { STATUS_PEMILIKAN_LABEL, STATUS_PEMILIKAN_NOTA, formatRM } from "@/lib/geran";
+import type { GambarPolygons } from "@/lib/geran/polygon";
 import { tapisPolygonGambar } from "@/lib/geran/polygon";
 
 const INPUT = "w-full text-sm border border-brand-dark/20 rounded-sm p-2 bg-white";
@@ -25,10 +25,8 @@ export type GeranEditData = {
   catatanRundingan: string | null;
   keterangan: string | null;
   gambarUrls: string[];
-  videoYoutubeUrl: string | null;
   statusPemilikan: string;
   gambarPolygons: GambarPolygons;
-  videoPolygonTrack: VideoPolygonTrack | null;
 };
 
 const rm = (sen: number | null) => (sen === null ? "" : String(sen / 100));
@@ -42,12 +40,8 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
   const [catatanRundingan, setCatatanRundingan] = useState(geran.catatanRundingan ?? "");
   const [keterangan, setKeterangan] = useState(geran.keterangan ?? "");
   const [gambarUrls, setGambarUrls] = useState<string[]>(geran.gambarUrls);
-  const [videoYoutubeUrl, setVideoYoutubeUrl] = useState(geran.videoYoutubeUrl ?? "");
   const [statusPemilikan, setStatusPemilikan] = useState(geran.statusPemilikan);
   const [gambarPolygons, setGambarPolygons] = useState<GambarPolygons>(geran.gambarPolygons);
-  const [videoPolygonTrack, setVideoPolygonTrack] = useState<VideoPolygonTrack | null>(
-    geran.videoPolygonTrack
-  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,9 +50,6 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
   const ambil = Number(hargaAmbilRM);
   const siaran = Number(hargaSiaranRM);
   const marginSen = ambil > 0 && siaran > 0 ? Math.round((siaran - ambil) * 100) : null;
-
-  const videoId = idVideoYoutube(videoYoutubeUrl);
-  const videoTakSah = videoYoutubeUrl.trim().length > 0 && !videoId;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -78,12 +69,10 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
           keterangan: keterangan || null,
           statusPemilikan,
           gambarUrls,
-          videoYoutubeUrl: videoYoutubeUrl || null,
           // Polygon gambar yang dah dibuang tak perlu dihantar langsung -
           // pelayan akan menapisnya juga, tapi elok jangan bawa sampah merentas
           // rangkaian.
           gambarPolygons: tapisPolygonGambar(gambarPolygons, gambarUrls),
-          videoPolygonTrack,
         }),
       });
       const data = await res.json();
@@ -110,7 +99,7 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
           <div>
             <label className={LABEL}>Harga penjual minta</label>
             <p className="text-sm font-semibold text-brand-dark">
-              {geran.hargaDimintaSen === null ? "— (stok PLT/KJ Land)" : formatRM(geran.hargaDimintaSen)}
+              {geran.hargaDimintaSen === null ? "— (stok GT/KJ Land)" : formatRM(geran.hargaDimintaSen)}
             </p>
           </div>
 
@@ -181,42 +170,13 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
       <div className="bg-white border border-brand-dark/10 rounded-md p-5">
         <h2 className="font-bold text-brand-dark mb-1">Media</h2>
         <p className="text-xs text-brand-dark/45 mb-4">
-          Gambar dan video drone dirakam oleh PLT/KJ Land. Kedua-duanya dipapar kepada pembeli.
+          Gambar dirakam oleh GT/KJ Land dan dipapar kepada pembeli.
         </p>
 
         <div className="space-y-4">
           <div>
             <label className={LABEL}>Gambar tanah</label>
             <GambarGeranUpload value={gambarUrls} onChange={setGambarUrls} />
-          </div>
-
-          <div>
-            <label className={LABEL}>Video drone (pautan YouTube)</label>
-            <input
-              value={videoYoutubeUrl}
-              onChange={(e) => setVideoYoutubeUrl(e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className={INPUT}
-            />
-            {videoTakSah ? (
-              <p className="text-xs text-red-600 mt-1">
-                Bukan pautan YouTube yang sah. Guna youtube.com/watch?v=… atau youtu.be/…
-              </p>
-            ) : videoId ? (
-              <div className="mt-3 aspect-video rounded-sm overflow-hidden border border-brand-dark/10">
-                <iframe
-                  src={`https://www.youtube.com/embed/${videoId}`}
-                  title="Pratonton video drone"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              </div>
-            ) : (
-              <p className="text-xs text-brand-dark/40 mt-1">
-                Muat naik ke YouTube sebagai <strong>Unlisted</strong>, kemudian tampal pautannya di sini.
-              </p>
-            )}
           </div>
 
           <div>
@@ -234,18 +194,12 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
       <div className="bg-white border border-brand-dark/10 rounded-md p-5">
         <h2 className="font-bold text-brand-dark mb-1">Sempadan tanah</h2>
         <p className="text-xs text-brand-dark/45 mb-4">
-          Lukis polygon sempadan di atas gambar dan video supaya pembeli nampak dengan tepat tanah
+          Lukis polygon sempadan di atas gambar supaya pembeli nampak dengan tepat tanah
           mana yang dijual. Polygon disimpan sebagai koordinat — gambar asal tak diubah dan anda boleh
           sunting semula bila-bila masa.
         </p>
 
-        <PolygonEditorPanel
-          gambarUrls={gambarUrls}
-          gambarPolygons={gambarPolygons}
-          onGambarChange={setGambarPolygons}
-          videoTrack={videoPolygonTrack}
-          onVideoChange={setVideoPolygonTrack}
-        />
+        <GambarPolygonEditor gambarUrls={gambarUrls} value={gambarPolygons} onChange={setGambarPolygons} />
       </div>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -253,7 +207,7 @@ export default function GeranAdminEditForm({ geran }: { geran: GeranEditData }) 
 
       <button
         type="submit"
-        disabled={loading || videoTakSah}
+        disabled={loading}
         className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-4 py-2.5 disabled:opacity-50"
       >
         {loading ? "MENYIMPAN..." : "SIMPAN PERUBAHAN"}

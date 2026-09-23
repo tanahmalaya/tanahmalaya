@@ -1,4 +1,3 @@
-import Link from "next/link";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import BackButton from "@/components/BackButton";
@@ -15,18 +14,18 @@ const DIKUMPUL = [
     bila: "When you create an account",
     data: "Full name, phone number, email address, and a one-way encrypted form of your password.",
     kenapa:
-      "To identify you, let you log back in, and contact you about your listings. Your password is stored as a bcrypt hash — nobody at PLT can read it.",
+      "To identify you, let you log back in, and contact you about your listings. Your password is stored as a bcrypt hash — nobody at GT can read it.",
   },
   {
     bila: "When you log in",
     data: "The date and time of each successful login, linked to your account.",
-    kenapa: "So PLT can see how the platform is being used and spot unusual account activity.",
+    kenapa: "So GT can see how the platform is being used and spot unusual account activity.",
   },
   {
     bila: "When you list land",
     data: "A copy of your name, phone number and email attached to the listing, the land details you enter, photos you upload, and the full copy of the land title you attach as a PDF.",
     kenapa:
-      "The title copy lets PLT check the lot details, caveats, charges and any restriction in interest before your land is published. Buyers never see it.",
+      "The title copy lets GT check the lot details, caveats, charges and any restriction in interest before your land is published. Buyers never see it.",
   },
   {
     bila: "When you save a favorite",
@@ -36,10 +35,10 @@ const DIKUMPUL = [
 ];
 
 const HAK = [
-  "Ask for a copy of the personal data PLT holds about you.",
-  "Ask PLT to correct anything inaccurate or out of date.",
+  "Ask for a copy of the personal data GT holds about you.",
+  "Ask GT to correct anything inaccurate or out of date.",
   "Withdraw your consent and ask for your account and data to be deleted.",
-  "Limit how PLT processes your data, or object to a particular use of it.",
+  "Limit how GT processes your data, or object to a particular use of it.",
 ];
 
 function Seksyen({ tajuk, children }: { tajuk: string; children: React.ReactNode }) {
@@ -66,11 +65,7 @@ export default function PrivasiGeranPage() {
 
         <Seksyen tajuk="Who handles your data">
           <p>
-            GERAN (gerantanah.com) is operated by{" "}
-            <Link href="https://tanahmalaya.org" className="underline hover:text-[#0E3B2E]">
-              Pertubuhan Literasi Tanah (PLT)
-            </Link>
-            . PLT is the data user responsible for the personal data described here.
+            GERAN (gerantanah.com) is operated by GeranTanah (GT). GT is the data user responsible for the personal data described here.
           </p>
         </Seksyen>
 
@@ -85,7 +80,7 @@ export default function PrivasiGeranPage() {
             ))}
           </div>
           <p>
-            Providing this data is voluntary, but without it PLT cannot create your account or publish your
+            Providing this data is voluntary, but without it GT cannot create your account or publish your
             land, because there would be nothing to verify and no way to reach you.
           </p>
         </Seksyen>
@@ -93,18 +88,18 @@ export default function PrivasiGeranPage() {
         <Seksyen tajuk="What is shown publicly">
           <p>
             When a listing is approved, the public directory shows the land details, the photos, and whether
-            the listing came from PLT, KJ Land Consultant or a land owner. Your name, phone number and email
+            the listing came from GT, KJ Land Consultant or a land owner. Your name, phone number and email
             are <strong>not</strong> published, and neither is the copy of the land title. Buyers reach you
-            through PLT.
+            through GT.
           </p>
         </Seksyen>
 
         <Seksyen tajuk="Who else sees it">
           <p>
-            Your data is seen by PLT staff who review listings. It is stored on service providers PLT uses to
+            Your data is seen by GT staff who review listings. It is stored on service providers GT uses to
             run the site — Supabase for the database, Vercel for hosting and file storage, and an email
             provider for the verification codes. Human verification on the account forms is handled by
-            Cloudflare Turnstile. PLT does not sell your data and does not share it for advertising.
+            Cloudflare Turnstile. GT does not sell your data and does not share it for advertising.
           </p>
           <p>
             GERAN does not run Google Analytics, advertising pixels, or any other third-party tracking on its
@@ -116,7 +111,7 @@ export default function PrivasiGeranPage() {
           <p>
             Account data is kept while your account is open. An unfinished sign-up — where the emailed code
             was never confirmed — is discarded automatically once the code expires. Listings and their title
-            copies are kept for as long as the listing exists, and afterwards only as long as PLT needs them
+            copies are kept for as long as the listing exists, and afterwards only as long as GT needs them
             as a record of what was published.
           </p>
         </Seksyen>
@@ -129,13 +124,9 @@ export default function PrivasiGeranPage() {
           </ul>
           <p>
             To exercise any of these, email{" "}
-            <a href="mailto:info@tanahmalaya.org" className="underline hover:text-[#0E3B2E]">
-              info@tanahmalaya.org
-            </a>{" "}
-            or use the{" "}
-            <Link href="https://tanahmalaya.org/hubungi-kami" className="underline hover:text-[#0E3B2E]">
-              contact form
-            </Link>
+            <a href="mailto:info@gerantanah.com" className="underline hover:text-[#0E3B2E]">
+              info@gerantanah.com
+            </a>
             . Deleting your account also removes your listings from the directory.
           </p>
         </Seksyen>
@@ -143,20 +134,20 @@ export default function PrivasiGeranPage() {
         <Seksyen tajuk="Keeping it safe">
           <p>
             Passwords are stored as bcrypt hashes, never in readable form. Copies of land titles are stored as
-            private files and can only be opened through the PLT admin dashboard after signing in — the file
+            private files and can only be opened through the GT admin dashboard after signing in — the file
             links do not work on their own. Repeated failed login attempts lock an account temporarily.
           </p>
         </Seksyen>
 
         <Seksyen tajuk="Changes to this notice">
           <p>
-            If PLT changes how it handles your data, this page is updated. Keeping your account open after a
+            If GT changes how it handles your data, this page is updated. Keeping your account open after a
             change means you accept the updated notice.
           </p>
         </Seksyen>
 
         <p className="text-xs text-[#0E3B2E]/40 mt-10">
-          This notice explains PLT&apos;s current practice. It is not legal advice — if you need advice about
+          This notice explains GT&apos;s current practice. It is not legal advice — if you need advice about
           your own obligations, speak to a lawyer.
         </p>
       </div>

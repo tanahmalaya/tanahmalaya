@@ -2,10 +2,8 @@ import Link from "next/link";
 import GeranLogo from "@/components/geran/GeranLogo";
 
 // Standalone footer for /geran - deliberately not using the main Footer.tsx
-// so this section feels like a separate product. Keeps one small line
-// linking back to tanahmalaya.org for transparency (Contact PLT, reviews,
-// etc. are all still handled by PLT), without making the overall design
-// look like the main site.
+// so this section feels like a separate product. GERAN is operated by
+// GeranTanah (GT) and has no link to tanahmalaya.org.
 export default function GeranFooter() {
   return (
     <footer className="bg-[#0E3B2E] text-white/70">
@@ -15,11 +13,7 @@ export default function GeranFooter() {
           <span className="font-display font-bold text-white tracking-tight">GERAN</span>
         </div>
         <p className="text-xs max-w-sm leading-relaxed">
-          Operated by{" "}
-          <Link href="https://tanahmalaya.org" className="underline hover:text-white">
-            Pertubuhan Literasi Tanah
-          </Link>
-          . Every listing is reviewed &amp; verified before publishing.
+          Operated by GeranTanah (GT). Every listing is reviewed &amp; verified before publishing.
         </p>
         <Link href="/geran/privasi" className="text-xs underline hover:text-white">
           Privacy Notice

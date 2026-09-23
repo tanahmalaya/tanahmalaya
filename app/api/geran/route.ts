@@ -20,7 +20,7 @@ const schema = z.object({
   unitKeluasan: z.enum(["SQFT", "EKAR", "HEKTAR"]),
   hargaRM: z.number().positive(), // harga yang penjual minta
   keterangan: z.string().optional().nullable(),
-  // Salinan penuh geran WAJIB untuk penyenaraian pengguna - PLT perlu semak
+  // Salinan penuh geran WAJIB untuk penyenaraian pengguna - GT perlu semak
   // kaveat, gadaian & sekatan kepentingan sebelum luluskan.
   salinanGeranUrl: z.string().url("Please attach the full title copy (PDF)."),
 });
@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
 
   // Penyenaraian masuk dengan harga yang penjual minta sahaja. Admin semak
   // harga pasaran, runding harga ambil, dan set harga siaran sebelum ia boleh
-  // tersiar - lihat app/api/geran-admin/geran/update. Gambar & video drone
-  // dirakam PLT/KJ Land sendiri, jadi borang penjual tak muat naik media.
+  // tersiar - lihat app/api/geran-admin/geran/update. Gambar & gambar 360°
+  // dirakam GT/KJ Land sendiri, jadi borang penjual tak muat naik media.
   const geran = await prisma.geran.create({
     data: {
       sellerId: seller.id,

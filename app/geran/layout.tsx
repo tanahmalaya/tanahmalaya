@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     locale: "ms_MY",
     siteName: "GERAN",
     title: "GERAN",
-    description: "Marketplace tanah bergeran di Malaysia, dikendalikan Pertubuhan Literasi Tanah.",
+    description: "Malaysia's marketplace for titled land, operated by GeranTanah (GT).",
     images: [{ url: GERAN_LOGO, alt: "GERAN" }],
   },
   twitter: {

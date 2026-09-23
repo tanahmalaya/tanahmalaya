@@ -1,4 +1,4 @@
-// Overlay sempadan tanah untuk halaman AWAM - dilukis di atas gambar atau video
+// Overlay sempadan tanah untuk halaman AWAM - dilukis di atas gambar
 // pada masa render, dari koordinat ternormal yang admin simpan. Satu gambar
 // boleh ada BANYAK lot (cth. tanah dipecah jual Lot 1, Lot 2, ...), jadi
 // komponen ni terima senarai lot dan lukis setiap satu sebagai polygon +
@@ -7,7 +7,7 @@
 // Kuncinya ialah `padanan`, yang mesti sepadan dengan cara media itu dimuatkan
 // ke dalam bekasnya:
 //   cover   -> gambar galeri (object-cover, dipangkas)  -> slice
-//   contain -> embed YouTube (video di-letterbox dalam iframe) -> meet
+//   contain -> media di-letterbox dalam bekas                -> meet
 // SVG mengulang pengiraan yang sama melalui preserveAspectRatio, jadi polygon
 // dipangkas/di-letterbox betul-betul serentak dengan mediannya. Tanpa nisbah
 // asal media kita tak boleh buat pengiraan itu, jadi kita jatuh balik kepada

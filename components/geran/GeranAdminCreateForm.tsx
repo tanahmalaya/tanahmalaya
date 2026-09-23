@@ -17,7 +17,6 @@ import {
   SUMBER_GERAN_LABEL,
   SUMBER_ADMIN_OPTIONS,
   formatRM,
-  idVideoYoutube,
 } from "@/lib/geran";
 
 type JenisTanah = keyof typeof JENIS_TANAH_LABEL;
@@ -48,7 +47,6 @@ export default function GeranAdminCreateForm() {
   const [unitKeluasan, setUnitKeluasan] = useState<UnitKeluasan>("EKAR");
   const [hargaAmbilRM, setHargaAmbilRM] = useState("");
   const [hargaSiaranRM, setHargaSiaranRM] = useState("");
-  const [videoYoutubeUrl, setVideoYoutubeUrl] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [gambarUrls, setGambarUrls] = useState<string[]>([]);
   const [salinanGeranUrl, setSalinanGeranUrl] = useState<string | null>(null);
@@ -86,8 +84,6 @@ export default function GeranAdminCreateForm() {
   const ambil = Number(hargaAmbilRM);
   const siaran = Number(hargaSiaranRM);
   const marginSen = ambil > 0 && siaran > 0 ? Math.round((siaran - ambil) * 100) : null;
-  const videoId = idVideoYoutube(videoYoutubeUrl);
-  const videoTakSah = videoYoutubeUrl.trim().length > 0 && !videoId;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -115,7 +111,6 @@ export default function GeranAdminCreateForm() {
           unitKeluasan,
           hargaAmbilRM: hargaAmbilRM ? Number(hargaAmbilRM) : null,
           hargaSiaranRM: Number(hargaSiaranRM),
-          videoYoutubeUrl: videoYoutubeUrl || null,
           keterangan: keterangan || null,
           gambarUrls,
           salinanGeranUrl,
@@ -132,7 +127,6 @@ export default function GeranAdminCreateForm() {
       setKeluasan("");
       setHargaAmbilRM("");
       setHargaSiaranRM("");
-      setVideoYoutubeUrl("");
       setKeterangan("");
       setGambarUrls([]);
       setSalinanGeranUrl(null);
@@ -147,7 +141,7 @@ export default function GeranAdminCreateForm() {
   return (
     <div className="bg-white border border-brand-dark/10 rounded-md p-5 max-w-2xl">
       <p className="text-sm text-brand-dark/60 mb-5">
-        Untuk stok tanah PLT sendiri dan tanah dari KJ Land consultant. Penyenaraian yang ditambah di sini
+        Untuk stok tanah GT sendiri dan tanah dari KJ Land consultant. Penyenaraian yang ditambah di sini
         terus disahkan dan muncul dalam direktori awam tanpa perlu semakan.
       </p>
 
@@ -176,7 +170,7 @@ export default function GeranAdminCreateForm() {
         <fieldset className="border border-brand-dark/10 rounded-md p-4">
           <legend className="text-xs font-semibold text-brand-dark/70 px-1">Maklumat hubungan</legend>
           <p className="text-xs text-brand-dark/45 mb-3">
-            Hubungan pejabat PLT atau perunding KJ Land — bukan tuan tanah. Hanya dipapar dalam dashboard
+            Hubungan pejabat GT atau perunding KJ Land — bukan tuan tanah. Hanya dipapar dalam dashboard
             admin ini.
           </p>
           <div className="space-y-3">
@@ -186,7 +180,7 @@ export default function GeranAdminCreateForm() {
                 required
                 value={namaPenjual}
                 onChange={(e) => setNamaPenjual(e.target.value)}
-                placeholder="cth. Pejabat PLT"
+                placeholder="cth. Pejabat GT"
                 className={INPUT}
               />
             </div>
@@ -208,7 +202,7 @@ export default function GeranAdminCreateForm() {
                   type="email"
                   value={emelPenjual}
                   onChange={(e) => setEmelPenjual(e.target.value)}
-                  placeholder="cth. info@tanahmalaya.org"
+                  placeholder="cth. info@gerantanah.com"
                   className={INPUT}
                 />
               </div>
@@ -341,7 +335,7 @@ export default function GeranAdminCreateForm() {
           <div>
             <label className={LABEL}>Harga kita ambil (RM) — pilihan</label>
             <HargaInput value={hargaAmbilRM} onChange={setHargaAmbilRM} className={INPUT} />
-            <p className="text-xs text-brand-dark/40 mt-1">Kos PLT/KJ Land. Tak dipapar kepada pembeli.</p>
+            <p className="text-xs text-brand-dark/40 mt-1">Kos GT/KJ Land. Tak dipapar kepada pembeli.</p>
           </div>
           <div>
             <label className={LABEL}>Harga siaran (RM)</label>
@@ -374,19 +368,6 @@ export default function GeranAdminCreateForm() {
         </div>
 
         <div>
-          <label className={LABEL}>Video drone - pautan YouTube (pilihan)</label>
-          <input
-            value={videoYoutubeUrl}
-            onChange={(e) => setVideoYoutubeUrl(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=..."
-            className={INPUT}
-          />
-          {videoTakSah && (
-            <p className="text-xs text-red-600 mt-1">Bukan pautan YouTube yang sah.</p>
-          )}
-        </div>
-
-        <div>
           <label className={LABEL}>Salinan penuh geran - PDF (pilihan)</label>
           <p className="text-xs text-brand-dark/45 mb-2">
             Untuk rujukan kaveat, gadaian & sekatan kepentingan. Dipapar dalam dashboard admin
@@ -399,7 +380,7 @@ export default function GeranAdminCreateForm() {
 
         <button
           type="submit"
-          disabled={loading || videoTakSah}
+          disabled={loading}
           className="bg-brand-dark text-white text-xs font-semibold rounded-sm px-4 py-2.5 disabled:opacity-50"
         >
           {loading ? "MENYIMPAN..." : "TAMBAH PENYENARAIAN"}

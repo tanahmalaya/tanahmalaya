@@ -8,7 +8,6 @@ import { getSellerSession } from "@/lib/sellerAuth";
 import GeranBrandHeader from "@/components/geran/GeranBrandHeader";
 import GeranFooter from "@/components/geran/GeranFooter";
 import GeranImageGallery from "@/components/geran/GeranImageGallery";
-import GeranVideoPolygon from "@/components/geran/GeranVideoPolygon";
 import GeranDetailActions from "@/components/geran/GeranDetailActions";
 import BackButton from "@/components/BackButton";
 import GeranAccountNav from "@/components/geran/GeranAccountNav";
@@ -20,9 +19,8 @@ import {
   SUMBER_GERAN_PUBLIC_LABEL,
   formatRM,
   formatKeluasan,
-  idVideoYoutube,
 } from "@/lib/geran";
-import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran/polygon";
+import { bacaGambarPolygons } from "@/lib/geran/polygon";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const geran = await prisma.geran.findUnique({ where: { id: params.id } });
@@ -72,9 +70,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
 
   const session = getSellerSession();
   const detailPath = `/geran/`;
-  const videoId = idVideoYoutube(geran.videoYoutubeUrl);
   const gambarPolygons = bacaGambarPolygons(geran.gambarPolygons);
-  const videoTrack = bacaVideoTrack(geran.videoPolygonTrack);
 
   const [favorite, serupa] = await Promise.all([
     session
@@ -103,17 +99,6 @@ export default async function GeranDetailPage({ params }: { params: { id: string
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <GeranImageGallery gambarUrls={geran.gambarUrls} tajuk={geran.tajuk} polygons={gambarPolygons} />
-
-        {videoId && (
-          <div className="mt-5">
-            <h2 className="font-bold text-[#0E3B2E] mb-2">Drone Video</h2>
-            <GeranVideoPolygon videoId={videoId} tajuk={geran.tajuk} track={videoTrack} />
-            <p className="text-xs text-[#0E3B2E]/40 mt-2">
-              Aerial footage recorded by PLT.
-              {videoTrack ? " The highlighted boundary marks the land on sale." : ""}
-            </p>
-          </div>
-        )}
 
         <div className="grid md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2 space-y-6">
@@ -178,7 +163,7 @@ export default async function GeranDetailPage({ params }: { params: { id: string
                 {STATUS_PEMILIKAN_NOTA[geran.statusPemilikan]}
               </p>
               <p className="text-xs text-[#0E3B2E]/40 mt-3">
-                Information is based on the details submitted for this listing, reviewed by PLT before
+                Information is based on the details submitted for this listing, reviewed by GT before
                 publishing. Please verify the actual title details before any transaction.
               </p>
             </div>

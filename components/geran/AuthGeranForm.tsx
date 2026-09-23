@@ -174,7 +174,7 @@ export default function AuthGeranForm({ modAwal }: { modAwal: "log-masuk" | "daf
 
       <div className="max-w-lg mx-auto px-6 py-10">
         <p className="text-sm text-[#0E3B2E]/55 mb-6">
-          One free account to save land to your favorites, follow up with PLT, and list land of your own.
+          One free account to save land to your favorites, follow up with GT, and list land of your own.
         </p>
 
         {(langkah === "log-masuk" || langkah === "daftar") && (
@@ -306,7 +306,7 @@ export default function AuthGeranForm({ modAwal }: { modAwal: "log-masuk" | "daf
                     <Link href="/geran/privasi" target="_blank" className="underline hover:text-[#0E3B2E]">
                       privacy notice
                     </Link>{" "}
-                    and consent to PLT collecting and processing my personal data as described there.
+                    and consent to GT collecting and processing my personal data as described there.
                   </span>
                 </label>
 

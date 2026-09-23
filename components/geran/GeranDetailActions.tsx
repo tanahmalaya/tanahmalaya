@@ -24,13 +24,13 @@ export default function GeranDetailActions({
     <div className="bg-white border border-black/[0.06] rounded-2xl p-5 shadow-sm shadow-black/[0.04]">
       <p className="font-bold text-[#0E3B2E] mb-1">Interested in this land?</p>
       <p className="text-sm text-[#0E3B2E]/55 mb-4">
-        Contact PLT for further questions or to follow up with the seller.
+        Contact GT for further questions or to follow up with the seller.
       </p>
 
       {isLoggedIn ? (
         <div className="flex items-center gap-3">
           <a href={`/hubungi-kami?ref=geran-${seq}`} className={GERAN_BTN_PRIMARY}>
-            Contact PLT
+            Contact GT
           </a>
           <FavoriteButton
             geranId={geranId}
@@ -47,7 +47,7 @@ export default function GeranDetailActions({
             Log In to Contact
           </Link>
           <p className="text-xs text-[#0E3B2E]/45 mt-2">
-            Sign up for a free account to contact PLT &amp; save land to favorite.
+            Sign up for a free account to contact GT &amp; save land to favorite.
           </p>
         </div>
       )}

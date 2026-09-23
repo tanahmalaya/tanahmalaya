@@ -35,7 +35,7 @@ export const STATUS_PEMILIKAN_NOTA: Record<string, string> = {
   RIZAB_MELAYU: "Gazetted Malay Reserve — ownership can only be transferred to Malays.",
   LOT_BUMI: "Bumiputera quota lot — transfer to a non-Bumiputera buyer needs state consent.",
   LOT_NON_BUMI: "No ethnic restriction on transfer of title.",
-  TIDAK_PASTI: "Not yet confirmed — PLT verifies this against the land title during review.",
+  TIDAK_PASTI: "Not yet confirmed — GT verifies this against the land title during review.",
 };
 
 export const UNIT_KELUASAN_LABEL: Record<string, string> = {
@@ -48,13 +48,13 @@ export const UNIT_KELUASAN_LABEL: Record<string, string> = {
 // SUMBER_GERAN_LABEL untuk dashboard admin, SUMBER_GERAN_PUBLIC_LABEL untuk
 // direktori awam (ayat penuh supaya pembeli faham siapa yang menyenaraikan).
 export const SUMBER_GERAN_LABEL: Record<string, string> = {
-  PLT: "PLT",
+  PLT: "GT",
   KJ_LAND: "KJ Land",
   PENGGUNA: "Website User",
 };
 
 export const SUMBER_GERAN_PUBLIC_LABEL: Record<string, string> = {
-  PLT: "Listed by PLT",
+  PLT: "Listed by GT",
   KJ_LAND: "Listed by KJ Land Consultant",
   PENGGUNA: "Listed by owner",
 };
@@ -80,30 +80,9 @@ export const MAX_GAMBAR_GERAN = 8;
 export const MAX_SAIZ_GAMBAR_BYTES = 10 * 1024 * 1024;
 export const MAX_SAIZ_SALINAN_BYTES = 15 * 1024 * 1024;
 
-// Video TIDAK dimuat naik ke mana-mana - ia dibuka terus dari komputer admin
-// untuk kerja jejak polygon (lihat components/geran/polygon/VideoPolygonEditor).
-// Jadi had ini bukan tentang kos storan; ia melindungi sesi penyuntingan itu
-// sendiri. Fail 4K yang sangat besar menjadikan setiap lompatan bingkai perlahan
-// sehingga auto-jejak mengambil masa berpuluh minit, sedangkan kanvas jejak
-// hanya bekerja pada 640px lebar - ketajaman tambahan itu langsung tak dipakai.
-export const MAX_SAIZ_VIDEO_BYTES = 200 * 1024 * 1024;
-
 export function formatSaizFail(bytes: number): string {
   if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
   return `${Math.round(bytes / (1024 * 1024))} MB`;
-}
-
-// Terima pautan youtube.com/watch?v=, youtu.be/ dan youtube.com/embed/,
-// pulangkan ID video sahaja supaya halaman butiran boleh bina URL embed
-// sendiri. null bermakna pautan itu bukan YouTube yang sah.
-export function idVideoYoutube(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const padanan =
-    url.match(/[?&]v=([A-Za-z0-9_-]{11})/) ||
-    url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/) ||
-    url.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/) ||
-    url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/);
-  return padanan ? padanan[1] : null;
 }
 
 export function formatRM(sen: number) {

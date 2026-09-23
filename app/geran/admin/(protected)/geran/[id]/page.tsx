@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import GeranAdminEditForm, { type GeranEditData } from "@/components/geran/GeranAdminEditForm";
-import { bacaGambarPolygons, bacaVideoTrack } from "@/lib/geran/polygon";
+import { bacaGambarPolygons } from "@/lib/geran/polygon";
 import {
   JENIS_TANAH_LABEL,
   JENIS_HAKMILIK_LABEL,
@@ -29,10 +29,8 @@ export default async function GeranAdminEditPage({ params }: { params: { id: str
     catatanRundingan: geran.catatanRundingan,
     keterangan: geran.keterangan,
     gambarUrls: geran.gambarUrls,
-    videoYoutubeUrl: geran.videoYoutubeUrl,
     statusPemilikan: geran.statusPemilikan,
     gambarPolygons: bacaGambarPolygons(geran.gambarPolygons),
-    videoPolygonTrack: bacaVideoTrack(geran.videoPolygonTrack),
   };
 
   return (

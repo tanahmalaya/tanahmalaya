@@ -14,8 +14,8 @@ const LANGKAH_PEMBELI = [
     teks: "Create a free account to keep listings in your favorites and come back to them later.",
   },
   {
-    tajuk: "Contact PLT",
-    teks: "Reach out through PLT and we will help you follow up with the seller on the land you are interested in.",
+    tajuk: "Contact GT",
+    teks: "Reach out through GT and we will help you follow up with the seller on the land you are interested in.",
   },
 ];
 
@@ -26,10 +26,10 @@ const LANGKAH_PENJUAL = [
   },
   {
     tajuk: "Submit your land",
-    teks: "Fill in the lot details and attach the full title copy so PLT can check the caveats, charges and restrictions.",
+    teks: "Fill in the lot details and attach the full title copy so GT can check the caveats, charges and restrictions.",
   },
   {
-    tajuk: "PLT reviews it",
+    tajuk: "GT reviews it",
     teks: "Once verified, your land appears in the public directory in front of buyers looking for exactly that.",
   },
 ];
@@ -59,17 +59,12 @@ export default function GeranAbout({ isLoggedIn }: { isLoggedIn: boolean }) {
       <p className="text-[#0E3B2E]/60 text-[15px] leading-relaxed mt-3 max-w-3xl">
         GERAN is a marketplace for buying and selling titled land in Malaysia. Every lot listed here
         holds a proper title with clear ownership — no unregistered plots and no ambiguous claims. It is
-        run by{" "}
-        <Link href="https://tanahmalaya.org" className="underline hover:text-[#0E3B2E]">
-          Pertubuhan Literasi Tanah (PLT)
-        </Link>
-        , a land literacy organisation, which is why every listing goes through a review before it is
-        published.
+        run by GeranTanah (GT), and every listing goes through a review before it is published.
       </p>
       <p className="text-[#0E3B2E]/60 text-[15px] leading-relaxed mt-3 max-w-3xl">
-        Owners submit a full copy of the land title when they list, so PLT can check the lot details,
+        Owners submit a full copy of the land title when they list, so GT can check the lot details,
         caveats, charges and any restriction in interest before the land reaches buyers. Those documents
-        stay with PLT and are never published.
+        stay with GT and are never published.
       </p>
 
       <h3 className="font-display text-lg font-bold text-[#0E3B2E] mt-9">For buyers</h3>
@@ -83,7 +78,7 @@ export default function GeranAbout({ isLoggedIn }: { isLoggedIn: boolean }) {
           <div>
             <p className="font-display font-bold text-lg">Create a free account</p>
             <p className="text-white/70 text-sm mt-1 max-w-md">
-              Save land to your favorites, follow up with PLT, and list your own land when you are ready.
+              Save land to your favorites, follow up with GT, and list your own land when you are ready.
             </p>
           </div>
           <Link
@@ -96,7 +91,7 @@ export default function GeranAbout({ isLoggedIn }: { isLoggedIn: boolean }) {
       )}
 
       <p className="text-xs text-[#0E3B2E]/40 mt-6 max-w-3xl leading-relaxed">
-        GERAN publishes listings for information. PLT reviews what sellers submit but does not act as a
+        GERAN publishes listings for information. GT reviews what sellers submit but does not act as a
         party to any sale — always verify the title and get your own legal advice before a transaction.
       </p>
     </section>

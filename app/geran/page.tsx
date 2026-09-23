@@ -12,7 +12,7 @@ import { isGeranDomainRequest } from "@/lib/geran/is-request";
 
 const GERAN_TITLE = "Geran - Titled Land Directory For Sale";
 const GERAN_DESCRIPTION =
-  "Malaysia's marketplace for titled land with clear ownership. Search & filter land for sale, or list your own - every listing is reviewed & verified by PLT first.";
+  "Malaysia's marketplace for titled land with clear ownership. Search & filter land for sale, or list your own - every listing is reviewed & verified by GT first.";
 
 export const metadata = {
   // absolute supaya tak jadi "… For Sale | GERAN" - tajuk ni dah ada "Geran".
@@ -91,7 +91,7 @@ export default async function GeranPage() {
           </h1>
           <p className="text-[#0E3B2E]/55 text-[15px] mt-1 max-w-2xl leading-relaxed">
             Malaysia&apos;s marketplace for land with a proper title and clear ownership. Browse what is for
-            sale, or list your own land — every listing is reviewed and verified by PLT first.
+            sale, or list your own land — every listing is reviewed and verified by GT first.
           </p>
         </div>
         <GeranDirectory

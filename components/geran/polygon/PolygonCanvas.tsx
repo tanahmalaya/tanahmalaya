@@ -1,9 +1,7 @@
 "use client";
 
-// Permukaan lukisan polygon yang dikongsi editor gambar dan editor video.
-// Ia TAK tahu apa yang ada di belakangnya - media dihantar sebagai children dan
-// diletak mengisi bekas, jadi komponen yang sama berfungsi atas <img> mahupun
-// <canvas> bingkai video.
+// Permukaan lukisan polygon untuk editor gambar. Ia TAK tahu apa yang ada di
+// belakangnya - media dihantar sebagai children dan diletak mengisi bekas.
 //
 // Semua koordinat yang keluar-masuk komponen ini ternormal 0..1 (lihat
 // lib/geran-polygon.ts). Pemegang bucu dilukis sebagai <div> berperatusan, bukan
