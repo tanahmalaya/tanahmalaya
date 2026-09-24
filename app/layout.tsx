@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ConditionalChrome from "@/components/ConditionalChrome";
-import { isGeranDomainRequest } from "@/lib/geran/is-request";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 // 1. Import CartProvider (sesuai path fail context anda)
 import { CartProvider } from "@/app/context/CartContext";
 import { CheckoutProvider } from "@/app/context/CheckoutContext";
@@ -101,53 +101,32 @@ const siteNavigationJsonLd = {
   ],
 };
 
-// GERAN (gerantanah.com) ialah produk berasingan - lihat ConditionalChrome.
-// Schema.org sendiri supaya Google tak anggap gerantanah.com sebahagian
-// laman PLT (organizationJsonLd/websiteJsonLd di atas guna nama & url
-// tanahmalaya.org).
-const geranWebsiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "GERAN",
-  alternateName: "GERAN - Titled Land Directory",
-  url: "https://gerantanah.com",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isGeranDomain = isGeranDomainRequest();
-
   return (
     <html lang="ms" className={inter.variable}>
       <body>
-        {isGeranDomain ? (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(geranWebsiteJsonLd) }}
-          />
-        ) : (
-          <>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-            />
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-            />
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationJsonLd) }}
-            />
-          </>
-        )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationJsonLd) }}
+        />
         {/* 2. Wrap semua kandungan di dalam CartProvider */}
         <CartProvider>
           <CheckoutProvider>
-            <ConditionalChrome isGeranDomain={isGeranDomain}>{children}</ConditionalChrome>
+            <Header />
+            <main>{children}</main>
+            <Footer />
           </CheckoutProvider>
         </CartProvider>
       </body>

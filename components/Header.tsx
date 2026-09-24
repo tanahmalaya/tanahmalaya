@@ -9,7 +9,6 @@ const navLinks = [
   { href: "/", label: "Utama" },
   { href: "/tentang-kami", label: "Tentang Kami" },
   { href: "/keahlian", label: "Keahlian" },
-  { href: "/geran", label: "Geran" },
   { href: "/borang-claim", label: "Member Only" },
   { href: "/merchandise", label: "Merchandise" },
   { href: "/aktiviti", label: "Aktiviti" },

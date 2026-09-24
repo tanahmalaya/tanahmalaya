@@ -1,41 +1,16 @@
-# Peta kod — TanahMalaya vs GeranTanah
+# Peta kod — TanahMalaya (tanahmalaya.org)
 
-Satu repo Next.js, satu deployment, satu database — tapi dua produk dengan domain
-berasingan:
+Laman Pertubuhan Literasi Tanah (PLT): keahlian, kelas, aktiviti, merchandise,
+sumbangan, aduan tanah, peta banjir/harga tanah.
 
-- **tanahmalaya.org** — laman Pertubuhan Literasi Tanah (PLT): keahlian, kelas,
-  aktiviti, merchandise, sumbangan, aduan tanah, peta banjir/harga tanah.
-- **gerantanah.com** — marketplace penyenaraian tanah ("GERAN"). `middleware.ts`
-  kesan hostname ni (`lib/geran/domain.ts`) dan rewrite semua path ke `/geran/*`.
+**GERAN / gerantanah.com BUKAN lagi sebahagian repo ini.** Ia dipisahkan
+sepenuhnya pada September 2026 ke repo `tanahmalayaku-cmd/gerantanah` (folder
+tempatan `C:\Users\talha\projects\gerantanah`) dengan projek Vercel, database
+Supabase dan stor Blob sendiri. Jangan tambah kod GERAN di sini. Satu-satunya
+kaitan ialah poster promosi `components/PosterGerantanah.tsx` di halaman utama
+yang memaut ke https://gerantanah.com.
 
-Bila cari/tambah kod, guna peta ni untuk tahu ia kepunyaan produk mana.
-
-## Fail khusus GeranTanah
-
-```
-app/geran/**                 - laman awam & admin GERAN (App Router)
-app/api/geran/**              - API awam GERAN (upload, og image)
-app/api/geran-admin/**        - API admin GERAN (login, create/update listing)
-components/geran/**           - semua komponen UI GERAN (termasuk components/geran/polygon/)
-lib/geran/**                  - logik & helper GERAN sahaja:
-  index.ts                      label/konstanta dropdown, had muat naik, format
-  admin-auth.ts                 sesi JWT admin GERAN (cookie berasingan dari admin PLT)
-  domain.ts                     senarai hostname gerantanah.com
-  is-request.ts                 kesan request domain GERAN dalam Server Component
-  polygon.ts                    bentuk data & matematik polygon sempadan tanah
-  parse.ts                      penghurai iklan WhatsApp/Telegram -> medan borang
-scripts/create-geran-admin.js
-scripts/generate-geran-favicons.js
-public/geran-*, public/Geran_logo.jpeg, public/hero-geran.jpg
-```
-
-Model Prisma GERAN dikumpul dalam satu blok di `prisma/schema.prisma` — cari
-komen `MARKETPLACE GERAN TANAH` (`Seller`, `Geran`, `GeranFavorite`,
-`PendaftaranTertunda`, enum `StatusGeran`/`SumberGeran`). `GeranAdminUser`
-letak dekat `AdminUser` di atas sekali kerana ia infra login, bukan data
-penyenaraian.
-
-## Fail khusus TanahMalaya (laman PLT)
+## Struktur
 
 ```
 app/(root routes)              - page.tsx, keahlian/, sumbangan/, merchandise/,
@@ -47,27 +22,15 @@ app/api/{members,orders,products,classes,activities,ads,sumbangan,
 components/{aduan,ahli-plt,banjir,hargatanah,keahlian,peta,petty-cash,wakaf}/**
 lib/{members,memberAuth,auth,bayarcash,easyparcel,email,receiptEmails,
       aduanTanah,wakafNegeri,promo,pricing,productSize,ic,postcode,csv}.ts
+lib/{prisma,settings,seo}.ts
 scripts/create-admin.js, backfill-*.js, import-napic-harga-tanah.js
 ```
 
-## Infra dikongsi (jangan letak dalam mana-mana folder produk)
+## Baki pemisahan GERAN
 
-```
-lib/prisma.ts, lib/settings.ts, lib/seo.ts, lib/turnstile.ts   - dipakai kedua-dua produk
-middleware.ts, app/layout.tsx, app/sitemap.ts, app/robots.ts    - routing domain
-components/{Header,Footer,ConditionalChrome,...}.tsx            - chrome yang cabang
-                                                                    ikut isGeranDomainRequest()
-prisma/schema.prisma                                             - satu DB untuk kedua-dua
-```
-
-`components/ConditionalChrome.tsx` dan `app/layout.tsx` guna
-`isGeranDomainRequest()` (`lib/geran/is-request.ts`) untuk pilih header/footer
-mana nak papar — ini punca utama kenapa dua produk berkongsi root layout yang
-sama walaupun kelihatan berasingan di browser.
-
-## Konvensyen
-
-- Import guna alias `@/lib/geran/...`, bukan path relatif — `@/lib/geran`
-  (tanpa suffix) resolve ke `lib/geran/index.ts`.
-- Fail/komponen baru untuk GERAN masuk `lib/geran/`, `components/geran/`, atau
-  `app/geran/...` — jangan letak flat dalam `lib/` root macam dulu.
+`prisma/schema.prisma` masih ada model GERAN (`Seller`, `Geran`, `Lot`,
+`Panorama`, `Dokumen`, `GeranFavorite`, `PendaftaranTertunda`,
+`GeranAdminUser`, enum berkaitan, `LoginActorType.SELLER`) kerana jadualnya
+masih wujud dalam database production. Ia akan dibuang bersama jadualnya
+(backup dulu) dalam Fasa 4b — jangan `db push` skema tanpa model itu sebelum
+langkah tersebut dirancang.

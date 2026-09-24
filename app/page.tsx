@@ -8,6 +8,7 @@ import ActivityGrid from "@/components/ActivityGrid";
 import CommunityCTA from "@/components/CommunityCTA";
 import AdCarousel from "@/components/AdCarousel";
 import MerdekaBanner from "@/components/MerdekaBanner";
+import PosterGerantanah from "@/components/PosterGerantanah";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
@@ -19,6 +20,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+      <PosterGerantanah />
 
       <div className="mt-20 lg:mt-28">
         <WhyLiterasiTanah />

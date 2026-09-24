@@ -1,41 +1,12 @@
 import { MetadataRoute } from "next";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { STATUS_DIREKTORI } from "@/lib/geran/status";
-import { isGeranHostname } from "@/lib/geran/domain";
+
+// Dijana setiap permintaan - elak query database semasa build.
+export const dynamic = "force-dynamic";
 
 const BASE_URL = "https://tanahmalaya.org";
-const GERAN_BASE_URL = "https://gerantanah.com";
-
-// GERAN ialah produk berasingan pada domain sendiri (lihat middleware.ts) -
-// sitemap dia kena senaraikan penyenaraian geran dengan URL gerantanah.com,
-// bukan disatukan dengan sitemap utama tanahmalaya.org.
-async function geranSitemap(): Promise<MetadataRoute.Sitemap> {
-  const gerans = await prisma.geran.findMany({
-    where: { status: { in: STATUS_DIREKTORI }, hargaSiaranSen: { not: null } },
-    select: { id: true, updatedAt: true },
-  });
-
-  const listingRoutes: MetadataRoute.Sitemap = gerans.map((g) => ({
-    url: `${GERAN_BASE_URL}/${g.id}`,
-    lastModified: g.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
-
-  return [
-    { url: `${GERAN_BASE_URL}/`, changeFrequency: "daily", priority: 1 },
-    { url: `${GERAN_BASE_URL}/geran/privasi`, changeFrequency: "yearly", priority: 0.3 },
-    ...listingRoutes,
-  ];
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const hostname = (headers().get("host") || "").split(":")[0];
-  if (isGeranHostname(hostname)) {
-    return geranSitemap();
-  }
-
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${BASE_URL}/tentang-kami`, changeFrequency: "monthly", priority: 0.6 },

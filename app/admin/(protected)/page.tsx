@@ -69,10 +69,10 @@ export default async function AdminDashboard() {
       where: { order: { status: { in: ["BERJAYA", "SELESAI"] } } },
     }),
     prisma.loginEvent.findMany({
-      where: { createdAt: { gte: dayRangeStart } },
+      where: { actorType: "MEMBER", createdAt: { gte: dayRangeStart } },
       select: { actorType: true, createdAt: true },
     }),
-    prisma.loginEvent.count({ where: { createdAt: { gte: new Date(Date.now() - 30 * DAY_MS) } } }),
+    prisma.loginEvent.count({ where: { actorType: "MEMBER", createdAt: { gte: new Date(Date.now() - 30 * DAY_MS) } } }),
     prisma.landClass.count(),
     prisma.activity.count(),
     prisma.product.count(),
@@ -92,15 +92,14 @@ export default async function AdminDashboard() {
 
   const logMasukHarian = days.map((d) => ({
     label: d.label,
-    member: loginEventsInRange.filter((e) => e.actorType === "MEMBER" && e.createdAt >= d.start && e.createdAt < d.end).length,
-    seller: loginEventsInRange.filter((e) => e.actorType === "SELLER" && e.createdAt >= d.start && e.createdAt < d.end).length,
+    member: loginEventsInRange.filter((e) => e.createdAt >= d.start && e.createdAt < d.end).length,
   }));
 
   const kpiCards = [
     { label: "Jumlah Ahli", value: totalAhli, hint: `+${ahliBaharuBulanIni} bulan ini` },
     { label: "Ahli Daftar Guna Website", value: ahliGunaWebsite, hint: `${totalAhli - ahliGunaWebsite} ditambah manual` },
     { label: "Unit Merchandise Terjual", value: unitTerjualKeseluruhan._sum.kuantiti ?? 0, hint: "Sepanjang masa" },
-    { label: "Log Masuk (30 Hari)", value: loginEvents30Hari, hint: "Ahli PLT + Penjual GERAN" },
+    { label: "Log Masuk (30 Hari)", value: loginEvents30Hari, hint: "Ahli PLT" },
   ];
 
   const ringkasanAm = [
@@ -146,7 +145,6 @@ export default async function AdminDashboard() {
             labels={logMasukHarian.map((d) => d.label)}
             series={[
               { key: "member", label: "Ahli PLT", color: "#C68A2E", values: logMasukHarian.map((d) => d.member) },
-              { key: "seller", label: "Penjual GERAN", color: "#2563EB", values: logMasukHarian.map((d) => d.seller) },
             ]}
           />
         </div>

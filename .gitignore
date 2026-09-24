@@ -11,3 +11,6 @@ node_modules
 
 .vercel
 .env*
+
+# Nota/kod peribadi (cth. kod pemulihan akaun) - JANGAN masuk repo awam.
+*.txt
