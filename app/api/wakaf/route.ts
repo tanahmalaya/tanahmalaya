@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { tolakJikaBukanAhliPlt } from "@/lib/memberAuth";
 import { WAKAF_BASE_URL, WAKAF_NEGERI, cariNegeriWakaf } from "@/lib/wakafNegeri";
 
 type WakafPoint = { id: number; lat: number; lng: number };
@@ -43,6 +44,10 @@ async function ambilLayer(layerId: number): Promise<WakafPoint[]> {
 }
 
 export async function GET(req: Request) {
+  // Data peta khas untuk Ahli PLT (sama seperti laman /peta).
+  const ditolak = await tolakJikaBukanAhliPlt();
+  if (ditolak) return ditolak;
+
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("negeri") ?? "";
   const negeri = cariNegeriWakaf(slug);

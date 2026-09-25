@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -52,6 +53,30 @@ export function getMemberSession(): { memberId: string } | null {
   } catch {
     return null;
   }
+}
+
+/** Ahli PLT aktif bagi sesi semasa, atau null (tiada sesi / Bersekutu / tak aktif). */
+export async function getActivePltMember() {
+  const session = getMemberSession();
+  if (!session) return null;
+  const member = await prisma.member.findUnique({ where: { id: session.memberId } });
+  if (!member || member.type !== "PLT" || member.status !== "AKTIF") return null;
+  return member;
+}
+
+/**
+ * Untuk API route yang hanya untuk Ahli PLT aktif (data peta banjir, wakaf,
+ * harga tanah). Pulangkan respons 401 kalau bukan ahli, atau null kalau lulus:
+ *
+ *   const ditolak = await tolakJikaBukanAhliPlt();
+ *   if (ditolak) return ditolak;
+ */
+export async function tolakJikaBukanAhliPlt() {
+  if (await getActivePltMember()) return null;
+  return NextResponse.json(
+    { error: "Khas untuk Ahli PLT. Sila log masuk semula." },
+    { status: 401 }
+  );
 }
 
 /**

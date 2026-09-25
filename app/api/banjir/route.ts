@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { tolakJikaBukanAhliPlt } from "@/lib/memberAuth";
 
 const SOURCE_URL = "https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=1";
 
@@ -19,6 +20,10 @@ type SourcePoint = {
 };
 
 export async function GET() {
+  // Data peta khas untuk Ahli PLT (sama seperti laman /peta).
+  const ditolak = await tolakJikaBukanAhliPlt();
+  if (ditolak) return ditolak;
+
   try {
     const res = await fetch(SOURCE_URL, {
       headers: { Accept: "application/json" },

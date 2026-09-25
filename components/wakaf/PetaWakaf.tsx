@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Popup, CircleMarker, Circle, LayersControl, LayerGroup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { fetchAhli } from "@/lib/fetchAhli";
 
 type WakafPoint = { id: number; lat: number; lng: number };
 
@@ -73,7 +74,7 @@ export default function PetaWakaf() {
   const muatData = useCallback(async (slug: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/wakaf?negeri=${encodeURIComponent(slug)}`, { cache: "no-store" });
+      const res = await fetchAhli(`/api/wakaf?negeri=${encodeURIComponent(slug)}`, { cache: "no-store" });
       const json: WakafResponse = await res.json();
       setData(json);
     } catch {

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { tolakJikaBukanAhliPlt } from "@/lib/memberAuth";
 
 // Sumber tidak rasmi (data kerja dalaman PLANMalaysia yang kebetulan boleh diakses
 // awam, bukan produk data terbuka rasmi) — hanya liputi Selangor & WP Kuala Lumpur.
@@ -21,6 +22,10 @@ let cache: { data: HotspotBanjir[]; fetchedAt: string } | null = null;
 const CACHE_MS = 60 * 60 * 1000; // data hampir statik — cache 1 jam
 
 export async function GET() {
+  // Data peta khas untuk Ahli PLT (sama seperti laman /peta).
+  const ditolak = await tolakJikaBukanAhliPlt();
+  if (ditolak) return ditolak;
+
   const isStale = !cache || Date.now() - new Date(cache.fetchedAt).getTime() > CACHE_MS;
 
   if (isStale) {

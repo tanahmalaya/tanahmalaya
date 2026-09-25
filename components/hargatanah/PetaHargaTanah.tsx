@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { fetchAhli } from "@/lib/fetchAhli";
 
 type GeocodeResult = { label: string; lat: number; lng: number };
 type Lokasi = { lat: number; lng: number; label: string };
@@ -96,7 +97,7 @@ export default function PetaHargaTanah() {
     if (!lokasi) return;
     setAnggaranLoading(true);
     setAnggaran(null);
-    fetch(`/api/harga-tanah?lat=${lokasi.lat}&lng=${lokasi.lng}`, { cache: "no-store" })
+    fetchAhli(`/api/harga-tanah?lat=${lokasi.lat}&lng=${lokasi.lng}`, { cache: "no-store" })
       .then((r) => r.json())
       .then(setAnggaran)
       .catch(() => setAnggaran({ daerah: null, negeri: null, dijumpai: false, items: [], error: "Gagal menyemak." }))

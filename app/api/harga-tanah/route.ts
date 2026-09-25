@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { tolakJikaBukanAhliPlt } from "@/lib/memberAuth";
 import { prisma } from "@/lib/prisma";
 
 const USER_AGENT = "tanahmalaya.org peta-harga-tanah (info@tanahmalaya.org)";
@@ -19,6 +20,10 @@ function normalisasiDaerah(raw: string): string {
 }
 
 export async function GET(req: NextRequest) {
+  // Data peta khas untuk Ahli PLT (sama seperti laman /peta).
+  const ditolak = await tolakJikaBukanAhliPlt();
+  if (ditolak) return ditolak;
+
   const lat = req.nextUrl.searchParams.get("lat");
   const lng = req.nextUrl.searchParams.get("lng");
 

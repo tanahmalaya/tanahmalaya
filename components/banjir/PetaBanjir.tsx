@@ -14,6 +14,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { fetchAhli } from "@/lib/fetchAhli";
 
 type FloodPoint = {
   id: number;
@@ -156,9 +157,9 @@ export default function PetaBanjir() {
   const muatData = useCallback(async () => {
     try {
       const [ppsRes, paRes, hsRes] = await Promise.all([
-        fetch("/api/banjir", { cache: "no-store" }),
-        fetch("/api/paras-air", { cache: "no-store" }),
-        fetch("/api/hotspot-banjir", { cache: "no-store" }),
+        fetchAhli("/api/banjir", { cache: "no-store" }),
+        fetchAhli("/api/paras-air", { cache: "no-store" }),
+        fetchAhli("/api/hotspot-banjir", { cache: "no-store" }),
       ]);
       const ppsJson: PpsResponse = await ppsRes.json();
       const paJson: ParasAirResponse = await paRes.json();

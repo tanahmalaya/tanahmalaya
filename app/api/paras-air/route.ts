@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { tolakJikaBukanAhliPlt } from "@/lib/memberAuth";
 import * as cheerio from "cheerio";
 import stesenLookup from "@/lib/data/stesen-aras-air.json";
 
@@ -113,6 +114,10 @@ let cache: { data: StesenAir[]; fetchedAt: string } | null = null;
 const CACHE_MS = 5 * 60 * 1000;
 
 export async function GET() {
+  // Data peta khas untuk Ahli PLT (sama seperti laman /peta).
+  const ditolak = await tolakJikaBukanAhliPlt();
+  if (ditolak) return ditolak;
+
   const isStale = !cache || Date.now() - new Date(cache.fetchedAt).getTime() > CACHE_MS;
 
   if (isStale) {
