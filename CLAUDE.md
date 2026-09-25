@@ -26,11 +26,8 @@ lib/{prisma,settings,seo}.ts
 scripts/create-admin.js, backfill-*.js, import-napic-harga-tanah.js
 ```
 
-## Baki pemisahan GERAN
+## Pemisahan GERAN - selesai
 
-`prisma/schema.prisma` masih ada model GERAN (`Seller`, `Geran`, `Lot`,
-`Panorama`, `Dokumen`, `GeranFavorite`, `PendaftaranTertunda`,
-`GeranAdminUser`, enum berkaitan, `LoginActorType.SELLER`) kerana jadualnya
-masih wujud dalam database production. Ia akan dibuang bersama jadualnya
-(backup dulu) dalam Fasa 4b — jangan `db push` skema tanpa model itu sebelum
-langkah tersebut dirancang.
+Model & jadual GERAN dibuang dari skema dan database (Fasa 4b, `prisma/sql/2026-09-buang-geran.sql`,
+dijalankan sebelum `db push`). Fail blob `geran/*` dibuang dari stor utama (`scripts/buang-blob-geran.js`).
+Backup data & fail: `C:/Users/talha/projects/backups/`.
