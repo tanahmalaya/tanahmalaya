@@ -1,17 +1,16 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import PettyCashClaimsTable, { type ClaimRow } from "@/components/PettyCashClaimsTable";
+import PettyCashClaimsTable, { type ClaimRow, type ClaimTab } from "@/components/PettyCashClaimsTable";
 
-export default async function AdminPettyCashPage() {
-  const [menunggu, diluluskan, ditolak, dibayar] = await Promise.all([
-    prisma.pettyCashClaim.findMany({ where: { status: "MENUNGGU" }, orderBy: { createdAt: "asc" } }),
-    prisma.pettyCashClaim.findMany({ where: { status: "DILULUSKAN" }, orderBy: { createdAt: "asc" } }),
-    prisma.pettyCashClaim.findMany({ where: { status: "DITOLAK" }, orderBy: { createdAt: "desc" }, take: 50 }),
-    prisma.pettyCashClaim.findMany({ where: { status: "DIBAYAR" }, orderBy: { createdAt: "desc" }, take: 50 }),
-  ]);
+const TABS: ClaimTab[] = ["all", "new", "approved", "rejected"];
 
-  const toRow = (c: (typeof menunggu)[number]): ClaimRow => ({
+export default async function AdminPettyCashPage({ searchParams }: { searchParams: { tab?: string } }) {
+  // Semua claim diambil sekali - tab "All" perlukan semuanya, dan carian /
+  // penapis / statistik dibuat di klien. Isipadu claim petty cash kecil.
+  const rows = await prisma.pettyCashClaim.findMany({ orderBy: { createdAt: "desc" } });
+
+  const claims: ClaimRow[] = rows.map((c) => ({
     id: c.id,
     seq: c.seq,
     namaPemohon: c.namaPemohon,
@@ -27,19 +26,15 @@ export default async function AdminPettyCashPage() {
     status: c.status,
     catatanAdmin: c.catatanAdmin,
     createdAt: c.createdAt.toISOString(),
-  });
+    updatedAt: c.updatedAt.toISOString(),
+  }));
 
-  const claims: ClaimRow[] = [
-    ...menunggu.map(toRow),
-    ...diluluskan.map(toRow),
-    ...ditolak.map(toRow),
-    ...dibayar.map(toRow),
-  ];
+  const initialTab = TABS.includes(searchParams.tab as ClaimTab) ? (searchParams.tab as ClaimTab) : "new";
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">Claim</h1>
-      <PettyCashClaimsTable claims={claims} />
+      <h1 className="font-display text-2xl font-bold mb-4">Claim</h1>
+      <PettyCashClaimsTable claims={claims} initialTab={initialTab} />
     </div>
   );
 }
