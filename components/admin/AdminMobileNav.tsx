@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-type NavItem = { href: string; label: string };
+import { AdminIcon } from "@/components/admin/AdminIcons";
+import { isNavActive, type AdminNavItem } from "@/components/admin/AdminSidebar";
 
 function MenuIcon() {
   return (
@@ -25,7 +25,7 @@ function CloseIcon() {
   );
 }
 
-export default function AdminMobileNav({ navItems, roleLabel }: { navItems: NavItem[]; roleLabel?: string }) {
+export default function AdminMobileNav({ navItems, roleLabel }: { navItems: AdminNavItem[]; roleLabel?: string }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -48,22 +48,24 @@ export default function AdminMobileNav({ navItems, roleLabel }: { navItems: NavI
       {open && (
         <nav className="border-t border-white/10 px-4 py-3 flex flex-col gap-1">
           {navItems.map((item) => {
-            const active = pathname === item.href;
+            const active = isNavActive(pathname, item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`py-3 px-3 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 py-3 px-3 rounded-md text-sm font-medium transition-colors ${
                   active ? "bg-brand-gold/20 text-brand-gold" : "hover:bg-white/5"
                 }`}
               >
+                <AdminIcon name={item.icon} className="w-5 h-5 shrink-0" />
                 {item.label}
               </Link>
             );
           })}
           <form action="/api/admin/logout" method="POST" className="mt-2 pt-3 border-t border-white/10">
-            <button type="submit" className="text-sm text-white/60 py-2 px-3">
+            <button type="submit" className="flex items-center gap-3 text-sm text-white/60 py-2 px-3">
+              <AdminIcon name="logout" className="w-5 h-5 shrink-0" />
               Log Keluar
             </button>
           </form>

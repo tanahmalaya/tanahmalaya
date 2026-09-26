@@ -1,50 +1,35 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getAdminSession } from "@/lib/auth";
 import AdminMobileNav from "@/components/admin/AdminMobileNav";
+import AdminSidebar, { type AdminNavItem } from "@/components/admin/AdminSidebar";
 
-const adminNavItems = [
-  { href: "/admin", label: "Ringkasan" },
-  { href: "/admin/members", label: "Senarai Ahli" },
-  { href: "/admin/orders", label: "Orders" },
-  { href: "/admin/classes", label: "Kelas dan Program" },
-  { href: "/admin/petty-cash", label: "Claim" },
-  { href: "/admin/activities", label: "Aktiviti" },
-  { href: "/admin/aduan-tanah", label: "Aduan Tanah" },
-  { href: "/admin/products", label: "Merchandise" },
+const adminNavItems: AdminNavItem[] = [
+  { href: "/admin", label: "Ringkasan", icon: "ringkasan" },
+  { href: "/admin/members", label: "Senarai Ahli", icon: "ahli" },
+  { href: "/admin/orders", label: "Orders", icon: "orders" },
+  { href: "/admin/classes", label: "Kelas dan Program", icon: "kelas" },
+  { href: "/admin/petty-cash", label: "Claim", icon: "claim" },
+  { href: "/admin/activities", label: "Aktiviti", icon: "aktiviti" },
+  { href: "/admin/aduan-tanah", label: "Aduan Tanah", icon: "aduan" },
+  { href: "/admin/products", label: "Merchandise", icon: "merchandise" },
 ];
 
-const staffNavItems = [{ href: "/admin/orders", label: "Pesanan" }];
+const staffNavItems: AdminNavItem[] = [{ href: "/admin/orders", label: "Pesanan", icon: "orders" }];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = getAdminSession();
   if (!session) redirect("/admin/login");
 
   const navItems = session.role === "STAFF" ? staffNavItems : adminNavItems;
+  const roleLabel = session.role === "STAFF" ? "Staff" : undefined;
 
   return (
     <div className="min-h-screen md:flex bg-brand-cream">
-      <aside className="w-64 bg-brand-dark text-white p-6 hidden md:block print:hidden">
-        <p className="font-display font-bold text-lg mb-8">
-          PLT Admin {session.role === "STAFF" && <span className="text-brand-gold text-xs block">(Staff)</span>}
-        </p>
-        <nav className="space-y-2">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="block text-sm py-2 hover:text-brand-gold">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <form action="/api/admin/logout" method="POST" className="mt-8 pt-4 border-t border-white/10">
-          <button type="submit" className="text-sm text-white/60 hover:text-red-400">
-            Log Keluar
-          </button>
-        </form>
-      </aside>
+      <AdminSidebar navItems={navItems} roleLabel={roleLabel} />
 
-      <AdminMobileNav navItems={navItems} roleLabel={session.role === "STAFF" ? "Staff" : undefined} />
+      <AdminMobileNav navItems={navItems} roleLabel={roleLabel} />
 
-      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden">{children}</div>
+      <div className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 overflow-x-hidden">{children}</div>
     </div>
   );
 }
